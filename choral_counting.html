@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choral Counting</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #F7F5F0;
+  --surface:   #FFFFFF;
+  --ink:       #1C1917;
+  --ink2:      #44403C;
+  --muted:     #A8A29E;
+  --border:    #E7E5E0;
+  --teal:      #0D9488;
+  --teal-lt:   #CCFBF1;
+  --teal-dk:   #0F766E;
+  --amber:     #D97706;
+  --amber-lt:  #FEF3C7;
+  --red:       #DC2626;
+  --red-lt:    #FEE2E2;
+  --cell-blank:#F0EDE8;
+  --cell-text: #C7C3BC;
+  --radius:    12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+header {
+  background: var(--ink);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.logo {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none;
+}
+.logo-icon { font-size: 1.5rem; }
+.logo span { color: #5EEAD4; }
+.header-sub {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-left: 4px;
+}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.app {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 0;
+  max-height: calc(100vh - 56px);
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ─────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1.5px solid var(--border);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.ctrl-section { display: flex; flex-direction: column; gap: 10px; }
+.ctrl-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* Number inputs */
+.num-input-row { display: flex; gap: 8px; align-items: center; }
+.num-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.num-input:focus { border-color: var(--teal); }
+
+/* Interval chips */
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+.chip {
+  padding: 7px 4px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  font-family: 'Baloo 2', cursive;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink2);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.13s;
+}
+.chip:hover { border-color: var(--teal); color: var(--teal); }
+.chip.selected {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: white;
+}
+
+/* Direction toggle */
+.dir-row { display: flex; gap: 8px; }
+.dir-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--ink2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all 0.13s;
+}
+.dir-btn:hover { border-color: var(--teal); }
+.dir-btn.selected {
+  background: var(--teal-lt);
+  border-color: var(--teal);
+  color: var(--teal-dk);
+}
+
+/* Pace slider */
+.pace-row { display: flex; align-items: center; gap: 10px; }
+.pace-slider {
+  flex: 1;
+  -webkit-appearance: none; appearance: none;
+  height: 5px; border-radius: 3px;
+  background: var(--border); outline: none; cursor: pointer;
+}
+.pace-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--teal); cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.pace-val {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--teal-dk);
+  min-width: 36px; text-align: right;
+}
+
+/* Voice selector */
+.voice-select {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink);
+  outline: none; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.voice-select:focus { border-color: var(--teal); }
+
+/* Control buttons */
+.btn-go {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--teal);
+  color: white;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.12s;
+  box-shadow: 0 3px 12px rgba(13,148,136,0.35);
+}
+.btn-go:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-go:active { transform: translateY(1px); }
+.btn-go:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-stop {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--red);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.13s;
+  display: none;
+}
+.btn-stop:hover { background: var(--red-lt); border-color: var(--red); }
+
+.btn-reset {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--ink2);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.13s;
+}
+.btn-reset:hover { background: var(--bg); }
+
+/* Status */
+.status-bar {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  min-height: 40px;
+  display: flex; align-items: center; justify-content: center;
+}
+.status-bar.active { background: var(--teal-lt); border-color: var(--teal); color: var(--teal-dk); }
+.status-bar.done   { background: var(--amber-lt); border-color: var(--amber); color: var(--amber); }
+
+/* ── CHART AREA ──────────────────────────────── */
+.chart-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  background: var(--bg);
+  position: relative;
+}
+
+/* Current number callout */
+.current-callout {
+  font-family: 'Baloo 2', cursive;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--teal-dk);
+  letter-spacing: -0.03em;
+  min-height: 3.5rem;
+  line-height: 1;
+  margin-bottom: 16px;
+  text-align: center;
+  transition: all 0.2s;
+  opacity: 0;
+}
+.current-callout.show {
+  opacity: 1;
+  animation: numPop 0.3s ease;
+}
+@keyframes numPop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Hundreds chart */
+.hundreds-chart {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  width: 100%;
+  max-width: min(640px, calc(100vh - 200px));
+  aspect-ratio: 1;
+}
+
+.hc-cell {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(0.55rem, 1.3vw, 0.95rem);
+  font-weight: 700;
+  background: var(--cell-blank);
+  color: transparent;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  cursor: default;
+  user-select: none;
+}
+
+/* Numbers are always rendered but invisible by default */
+.hc-cell.visible {
+  color: var(--ink2);
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.hc-cell.in-sequence {
+  background: var(--teal-lt);
+  color: var(--teal-dk);
+  box-shadow: 0 2px 6px rgba(13,148,136,0.2);
+}
+
+.hc-cell.current {
+  background: var(--teal);
+  color: white;
+  transform: scale(1.12);
+  box-shadow: 0 4px 16px rgba(13,148,136,0.45);
+  z-index: 2;
+  border-radius: 8px;
+}
+
+.hc-cell.start-cell {
+  background: var(--amber-lt);
+  color: var(--amber);
+  box-shadow: 0 2px 8px rgba(217,119,6,0.25);
+}
+.hc-cell.start-cell.current {
+  background: var(--amber);
+  color: white;
+  box-shadow: 0 4px 16px rgba(217,119,6,0.45);
+}
+
+/* cell 100 gets its own centered row */
+#cell-100 {
+  grid-column: 1 / -1;
+  max-width: calc(10% - 2.7px);
+  justify-self: start;
+}
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: min(680px, calc(100vh - 160px));
+}
+
+/* Sequence preview strip */
+.seq-preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 14px;
+  min-height: 28px;
+  max-width: 640px;
+}
+.seq-num {
+  font-family: 'Baloo 2', cursive;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--border);
+  color: var(--muted);
+  transition: all 0.2s;
+}
+.seq-num.done-num {
+  background: var(--teal-lt);
+  color: var(--teal-dk);
+}
+.seq-num.current-num {
+  background: var(--teal);
+  color: white;
+}
+.seq-ellipsis {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">
+    <span class="logo-icon">🔢</span>
+    Facts on Fire <span>· Choral Counting</span>
+  </a>
+  <span class="header-sub">Baymonte Christian School</span>
+</header>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+
+    <div class="ctrl-section">
+      <div class="ctrl-label">Count by (interval)</div>
+      <div class="chip-grid" id="intervalChips">
+        <div class="chip selected" data-n="1">1</div>
+        <div class="chip" data-n="2">2</div>
+        <div class="chip" data-n="3">3</div>
+        <div class="chip" data-n="4">4</div>
+        <div class="chip" data-n="5">5</div>
+        <div class="chip" data-n="6">6</div>
+        <div class="chip" data-n="7">7</div>
+        <div class="chip" data-n="8">8</div>
+        <div class="chip" data-n="9">9</div>
+        <div class="chip" data-n="10">10</div>
+        <div class="chip" data-n="11">11</div>
+        <div class="chip" data-n="12">12</div>
+        <div class="chip" data-n="25">25</div>
+        <div class="chip" data-n="50">50</div>
+        <div class="chip" data-n="100">100</div>
+      </div>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-label">Start number</div>
+      <input type="number" class="num-input" id="startNum" value="0" min="0" max="1000" step="1"
+        oninput="onSettingChange()">
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-label">Direction</div>
+      <div class="dir-row">
+        <button class="dir-btn selected" id="dirUp" onclick="setDir('up')">▲ Count Up</button>
+        <button class="dir-btn" id="dirDown" onclick="setDir('down')">▼ Count Down</button>
+      </div>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-label">Pace (seconds between numbers)</div>
+      <div class="pace-row">
+        <input type="range" class="pace-slider" id="paceSlider" min="1" max="8" step="0.5" value="2"
+          oninput="document.getElementById('paceVal').textContent=this.value+'s'">
+        <span class="pace-val" id="paceVal">2s</span>
+      </div>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-label">Voice</div>
+      <select class="voice-select" id="voiceSelect"></select>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-label">Chart numbers</div>
+      <div class="dir-row">
+        <button class="dir-btn selected" id="hideBtn" onclick="setShowNumbers(false)">🙈 Hide</button>
+        <button class="dir-btn" id="showBtn" onclick="setShowNumbers(true)">👁 Show</button>
+      </div>
+    </div>
+
+    <div id="statusBar" class="status-bar">Choose settings and press Start</div>
+
+    <button class="btn-go" id="btnGo" onclick="startCounting()">▶ Start</button>
+    <button class="btn-stop" id="btnStop" onclick="stopCounting()">⏹ Stop</button>
+    <button class="btn-reset" id="btnReset" onclick="resetChart()">↺ Reset Chart</button>
+
+  </div>
+
+  <!-- ── CHART AREA ── -->
+  <div class="chart-area">
+    <div class="current-callout" id="currentCallout">—</div>
+    <div class="chart-wrap">
+      <div class="seq-preview" id="seqPreview"></div>
+      <div class="hundreds-chart" id="hundredsChart"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────
+let selectedInterval = 1;
+let direction = 'up';
+let voices = [];
+let countingTimer = null;
+let sequence = [];
+let seqIndex = 0;
+let isRunning = false;
+
+// ── VOICE SETUP ───────────────────────────────
+function loadVoices() {
+  voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+  const sel = document.getElementById('voiceSelect');
+  sel.innerHTML = '';
+  voices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})`;
+    if (v.name.toLowerCase().includes('google') && v.lang === 'en-US') opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+speechSynthesis.addEventListener('voiceschanged', loadVoices);
+loadVoices();
+
+function speak(text) {
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(String(text));
+  const vi = parseInt(document.getElementById('voiceSelect').value);
+  if (voices[vi]) utt.voice = voices[vi];
+  utt.rate = 0.92;
+  utt.pitch = 1.05;
+  speechSynthesis.speak(utt);
+}
+
+// ── HUNDREDS CHART BUILDER ────────────────────
+const CHART_MAX = 100; // 0–100 exactly
+let showNumbers = false;
+
+function buildChart() {
+  const chart = document.getElementById('hundredsChart');
+  chart.innerHTML = '';
+  for (let i = 0; i <= CHART_MAX; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'hc-cell' + (showNumbers ? ' visible' : '');
+    cell.id = `cell-${i}`;
+    cell.textContent = i;
+    chart.appendChild(cell);
+  }
+}
+
+function setShowNumbers(val) {
+  showNumbers = val;
+  document.getElementById('showBtn').classList.toggle('selected', val);
+  document.getElementById('hideBtn').classList.toggle('selected', !val);
+  document.querySelectorAll('.hc-cell').forEach(cell => {
+    const highlighted = cell.classList.contains('current') ||
+                        cell.classList.contains('in-sequence') ||
+                        cell.classList.contains('start-cell');
+    if (!highlighted) cell.classList.toggle('visible', val);
+  });
+}
+
+// ── INTERVAL CHIPS ────────────────────────────
+document.getElementById('intervalChips').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+  selectedInterval = parseInt(chip.dataset.n);
+  onSettingChange();
+});
+
+// ── DIRECTION ────────────────────────────────
+function setDir(d) {
+  direction = d;
+  document.getElementById('dirUp').classList.toggle('selected', d === 'up');
+  document.getElementById('dirDown').classList.toggle('selected', d === 'down');
+  onSettingChange();
+}
+
+// ── SETTINGS CHANGED ─────────────────────────
+function onSettingChange() {
+  if (!isRunning) previewSequence();
+}
+
+// Build the counting sequence
+function buildSequence() {
+  const start = parseInt(document.getElementById('startNum').value) || 0;
+  const seq = [start];
+  if (direction === 'up') {
+    let n = start + selectedInterval;
+    while (n <= 100) { seq.push(n); n += selectedInterval; }
+  } else {
+    // Count down: stop at first value >= 0
+    let n = start - selectedInterval;
+    while (n >= 0) { seq.push(n); n -= selectedInterval; }
+  }
+  return seq;
+}
+
+// Preview strip below callout
+function previewSequence() {
+  const seq = buildSequence();
+  const preview = document.getElementById('seqPreview');
+  preview.innerHTML = '';
+
+  const show = seq.slice(0, 8);
+  show.forEach((n, i) => {
+    const span = document.createElement('span');
+    span.className = 'seq-num';
+    span.textContent = n;
+    preview.appendChild(span);
+    if (i < show.length - 1) {
+      const arrow = document.createElement('span');
+      arrow.className = 'seq-ellipsis';
+      arrow.textContent = direction === 'up' ? '→' : '→';
+      preview.appendChild(arrow);
+    }
+  });
+  if (seq.length > 8) {
+    const dots = document.createElement('span');
+    dots.className = 'seq-ellipsis';
+    dots.textContent = `… ${seq[seq.length-1]}`;
+    preview.appendChild(dots);
+  }
+}
+
+// ── CHART STATE ───────────────────────────────
+function clearChart() {
+  document.querySelectorAll('.hc-cell').forEach(cell => {
+    cell.className = 'hc-cell' + (showNumbers ? ' visible' : '');
+  });
+}
+
+function revealCell(n, type) {
+  // type: 'start' | 'sequence' | 'current'
+  const cell = document.getElementById(`cell-${n}`);
+  if (!cell) return; // out of chart range
+  cell.classList.remove('in-sequence', 'current', 'start-cell', 'visible');
+  if (type === 'current') {
+    cell.classList.add('current');
+    if (n === sequence[0]) cell.classList.add('start-cell');
+  } else if (type === 'sequence') {
+    cell.classList.add('in-sequence');
+  } else if (type === 'start') {
+    cell.classList.add('start-cell');
+  }
+}
+
+function updateCallout(n) {
+  const el = document.getElementById('currentCallout');
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.textContent = n;
+  el.classList.add('show');
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.className = 'status-bar' + (type ? ' ' + type : '');
+}
+
+// ── COUNTING ENGINE ───────────────────────────
+function startCounting() {
+  if (isRunning) return;
+
+  sequence = buildSequence();
+  if (sequence.length === 0) {
+    setStatus('Nothing to count — check settings!', '');
+    return;
+  }
+
+  seqIndex = 0;
+  isRunning = true;
+  clearChart();
+  document.getElementById('btnGo').style.display = 'none';
+  document.getElementById('btnStop').style.display = '';
+
+  // Show start number immediately
+  revealCell(sequence[0], 'current');
+  updateCallout(sequence[0]);
+  speak(sequence[0]);
+  setStatus(`Counting ${direction} by ${selectedInterval} from ${sequence[0]}`, 'active');
+
+  updateSeqPreviewProgress();
+
+  if (sequence.length === 1) {
+    // Only one number — done immediately
+    finishCounting();
+    return;
+  }
+
+  const pace = parseFloat(document.getElementById('paceSlider').value) * 1000;
+  seqIndex = 1;
+  countingTimer = setInterval(countStep, pace);
+}
+
+function countStep() {
+  if (seqIndex >= sequence.length) {
+    finishCounting();
+    return;
+  }
+
+  // Mark previous as in-sequence
+  const prev = sequence[seqIndex - 1];
+  revealCell(prev, 'sequence');
+
+  // Reveal current
+  const curr = sequence[seqIndex];
+  revealCell(curr, 'current');
+  updateCallout(curr);
+  speak(curr);
+  updateSeqPreviewProgress();
+
+  seqIndex++;
+
+  if (seqIndex >= sequence.length) {
+    // Will finish on next tick
+    clearInterval(countingTimer);
+    const pace = parseFloat(document.getElementById('paceSlider').value) * 1000;
+    countingTimer = setTimeout(finishCounting, pace);
+  }
+}
+
+function finishCounting() {
+  clearInterval(countingTimer);
+  clearTimeout(countingTimer);
+  isRunning = false;
+
+  // Mark last as in-sequence (not current)
+  if (sequence.length > 0) {
+    revealCell(sequence[sequence.length - 1], 'sequence');
+  }
+
+  document.getElementById('btnGo').style.display = '';
+  document.getElementById('btnStop').style.display = 'none';
+  setStatus(`Done! Counted ${direction} by ${selectedInterval} — ${sequence.length} numbers`, 'done');
+
+  const el = document.getElementById('currentCallout');
+  el.classList.remove('show');
+  el.textContent = '✓';
+  el.classList.add('show');
+  el.style.color = 'var(--amber)';
+  setTimeout(() => { el.classList.remove('show'); el.textContent = '—'; el.style.color = ''; }, 2000);
+
+  updateSeqPreviewProgress();
+}
+
+function stopCounting() {
+  clearInterval(countingTimer);
+  clearTimeout(countingTimer);
+  isRunning = false;
+  speechSynthesis.cancel();
+  document.getElementById('btnGo').style.display = '';
+  document.getElementById('btnStop').style.display = 'none';
+  setStatus('Stopped.', '');
+  const el = document.getElementById('currentCallout');
+  el.classList.remove('show');
+  el.textContent = '—';
+}
+
+function resetChart() {
+  stopCounting();
+  clearChart();
+  sequence = [];
+  seqIndex = 0;
+  previewSequence();
+  setStatus('Choose settings and press Start', '');
+  const el = document.getElementById('currentCallout');
+  el.textContent = '—';
+  el.classList.remove('show');
+  el.style.color = '';
+}
+
+// Update preview strip to reflect progress
+function updateSeqPreviewProgress() {
+  const spans = document.querySelectorAll('#seqPreview .seq-num');
+  spans.forEach((span, i) => {
+    span.classList.remove('done-num', 'current-num');
+    if (i < seqIndex - 1) span.classList.add('done-num');
+    else if (i === seqIndex - 1) span.classList.add('current-num');
+  });
+}
+
+// ── INIT ─────────────────────────────────────
+buildChart();
+previewSequence();
+</script>
+</body>
+</html>
