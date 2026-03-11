@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facts on Fire — Beat the Tape</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0A0E14;
+  --panel:   #111820;
+  --panel2:  #18222E;
+  --border:  rgba(255,255,255,0.07);
+  --fire1:   #FF6B00;
+  --fire2:   #FFB800;
+  --tape:    #00D4AA;
+  --red:     #FF3B5C;
+  --text:    #EEF2FF;
+  --muted:   #5A7080;
+  --radius:  14px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated tape-reel background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(255,107,0,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 30%, rgba(0,212,170,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display:none; position:relative; z-index:1; }
+.screen.active { display:flex; }
+
+/* ── SETUP ─────────────────────────────────────────────────────── */
+#screen-setup {
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 60px;
+  gap: 28px;
+  min-height: 100vh;
+}
+
+.logo-block { text-align: center; }
+.logo-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 4rem;
+  letter-spacing: 3px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--fire1), var(--fire2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.logo-sub {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.5rem;
+  letter-spacing: 6px;
+  color: var(--tape);
+  margin-top: 2px;
+}
+
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  max-width: 780px;
+}
+.setup-grid .full { grid-column: 1 / -1; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+.card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--tape);
+  margin-bottom: 14px;
+}
+
+label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+select, input[type=number], input[type=range] {
+  width: 100%;
+  background: var(--panel2);
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+select:focus, input:focus { border-color: var(--tape); }
+
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+/* Pacing sliders */
+.pace-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.pace-row input[type=range] {
+  flex: 1; padding: 0; height: 6px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--panel2); border-radius: 3px; border: none;
+}
+.pace-row input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--tape); cursor: pointer;
+}
+.pace-val {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.4rem;
+  color: var(--fire2);
+  min-width: 42px;
+  text-align: right;
+}
+
+/* Problem count chips */
+.count-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.count-chip {
+  padding: 8px 18px; border-radius: 20px; cursor: pointer;
+  font-weight: 700; font-size: 0.9rem;
+  background: var(--panel2); color: var(--muted);
+  border: 1.5px solid var(--border);
+  transition: all 0.15s;
+}
+.count-chip.selected, .count-chip:hover {
+  background: var(--tape); color: #0A0E14; border-color: var(--tape);
+}
+
+/* Card format preview chips */
+.fmt-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.fmt-chip {
+  padding: 7px 16px; border-radius: 20px; cursor: pointer;
+  font-weight: 600; font-size: 0.85rem;
+  background: var(--panel2); color: var(--muted);
+  border: 1.5px solid var(--border);
+  transition: all 0.15s;
+}
+.fmt-chip.selected, .fmt-chip:hover {
+  background: var(--fire1); color: white; border-color: var(--fire1);
+}
+
+.btn-start {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, var(--fire1), var(--fire2));
+  color: #0A0E14;
+  border: none; border-radius: var(--radius);
+  padding: 18px 60px;
+  cursor: pointer;
+  transition: transform 0.12s, filter 0.12s;
+  box-shadow: 0 6px 28px rgba(255,107,0,0.35);
+  width: 100%; max-width: 780px;
+}
+.btn-start:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+/* ── PLAYER ─────────────────────────────────────────────────────── */
+#screen-player {
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Top bar */
+.player-bar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.player-bar .bar-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  color: var(--fire2);
+}
+.bar-skill {
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--tape);
+  background: rgba(0,212,170,0.1);
+  border: 1px solid rgba(0,212,170,0.25);
+  border-radius: 20px; padding: 4px 12px;
+}
+.bar-spacer { flex: 1; }
+
+/* Progress */
+.progress-wrap {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.85rem; font-weight: 700; color: var(--muted);
+}
+.progress-bar-outer {
+  width: 120px; height: 6px;
+  background: var(--panel2); border-radius: 3px; overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--fire1), var(--fire2));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* Flashcard area — main stage */
+.card-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 20px;
+  position: relative;
+}
+
+/* The flashcard itself */
+.flashcard {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(700px, 90vw);
+  height: min(380px, 45vh);
+  position: relative;
+  transition: transform 0.15s ease;
+}
+.flashcard.flash-in {
+  animation: cardIn 0.3s ease;
+}
+@keyframes cardIn {
+  from { opacity:0; transform: scale(0.94) translateY(12px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+.fc-content {
+  font-family: 'Bebas Neue', cursive;
+  color: #142864;
+  text-align: center;
+  line-height: 1;
+  user-select: none;
+  letter-spacing: 2px;
+}
+.fc-horizontal { font-size: clamp(4rem, 10vw, 8rem); padding: 32px 48px; }
+.fc-vertical {
+  display: flex; flex-direction: column;
+  align-items: flex-end; padding: 24px 56px; gap: 4px;
+}
+.fc-vertical .fc-num  { font-size: clamp(4rem, 9vw, 7rem); color: #142864; }
+.fc-vertical .fc-sym  { font-size: clamp(3rem, 7vw, 5.5rem); color: #b42020; align-self: flex-start; }
+.fc-vertical .fc-rule { width: 200px; height: 6px; background: #142864; border-radius: 3px; margin: 6px 0; }
+.fc-vertical .fc-blank{ font-size: clamp(3.5rem, 8vw, 6.5rem); color: #ddd; }
+.fc-cloze { font-size: clamp(3.5rem, 9vw, 7rem); padding: 32px 48px; }
+.fc-family {
+  display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px;
+}
+.fc-family-lines { display:flex; flex-direction:column; gap:10px; align-items:center; }
+.fc-family-line { font-size: clamp(1.4rem, 3vw, 2.2rem); color:#142864; letter-spacing:2px; }
+
+/* Answer reveal overlay on card */
+.answer-badge {
+  position: absolute;
+  bottom: -20px; right: -20px;
+  background: linear-gradient(135deg, var(--tape), #00A888);
+  color: #0A0E14;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 2.5rem;
+  letter-spacing: 2px;
+  padding: 10px 24px;
+  border-radius: 40px;
+  box-shadow: 0 4px 20px rgba(0,212,170,0.4);
+  display: none;
+}
+.answer-badge.show { display: block; animation: badgeIn 0.25s ease; }
+@keyframes badgeIn {
+  from { opacity:0; transform:scale(0.7); }
+  to   { opacity:1; transform:scale(1); }
+}
+
+/* Phase indicator */
+.phase-label {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.6rem;
+  letter-spacing: 4px;
+  color: var(--muted);
+  transition: color 0.3s;
+  min-height: 2rem;
+}
+.phase-label.thinking { color: var(--fire2); }
+.phase-label.answer   { color: var(--tape); }
+
+/* Countdown ring */
+.countdown-ring {
+  position: relative; width: 64px; height: 64px; flex-shrink: 0;
+}
+.countdown-ring svg { transform: rotate(-90deg); }
+.ring-bg  { fill: none; stroke: var(--panel2); stroke-width: 5; }
+.ring-arc { fill: none; stroke: var(--tape); stroke-width: 5;
+            stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
+.ring-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--fire2);
+}
+
+/* Controls bar */
+.controls-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px;
+  padding: 16px 24px 24px;
+  flex-shrink: 0;
+}
+
+.ctrl-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: 12px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-weight: 700;
+  font-size: 1rem;
+  transition: transform 0.12s, filter 0.12s;
+  padding: 13px 28px;
+}
+.ctrl-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+.ctrl-btn:active { transform: scale(0.97); }
+
+.ctrl-play-pause {
+  background: linear-gradient(135deg, var(--fire1), var(--fire2));
+  color: #0A0E14;
+  font-size: 1.1rem;
+  padding: 15px 40px;
+  box-shadow: 0 4px 20px rgba(255,107,0,0.35);
+}
+.ctrl-end {
+  background: var(--panel2); color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* Inline wait-time tweak */
+.wait-inline {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--panel2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px 14px;
+  font-size: 0.85rem; font-weight: 600; color: var(--muted);
+}
+.wait-inline input[type=range] {
+  width: 80px; padding:0; border:none; background: transparent;
+}
+.wait-inline input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width:14px; height:14px;
+  border-radius:50%; background:var(--fire2); cursor:pointer;
+}
+.wait-val { color: var(--fire2); font-family:'Bebas Neue',cursive; font-size:1.2rem; }
+
+/* Done overlay */
+#done-overlay {
+  display: none; position: fixed; inset:0; z-index:50;
+  background: rgba(0,0,0,0.88);
+  flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+}
+#done-overlay.show { display:flex; }
+#done-overlay h1 {
+  font-family:'Bebas Neue',cursive; font-size: 5rem; letter-spacing:4px;
+  background: linear-gradient(135deg,var(--fire1),var(--fire2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  animation: pulse 0.7s infinite alternate;
+}
+@keyframes pulse { from{opacity:1} to{opacity:0.6} }
+#done-overlay p { color: var(--muted); font-size:1.1rem; }
+.btn-done-back {
+  background: var(--tape); color: #0A0E14;
+  border:none; border-radius:var(--radius);
+  font-family:'DM Sans',sans-serif; font-weight:800;
+  font-size:1rem; padding:14px 36px; cursor:pointer;
+  transition: filter 0.15s;
+}
+.btn-done-back:hover { filter:brightness(1.1); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SETUP ══════════════ -->
+<div class="screen active" id="screen-setup">
+  <div class="logo-block">
+    <div class="logo-title">🔥 Facts on Fire</div>
+    <div class="logo-sub">Beat the Tape</div>
+  </div>
+
+  <div class="setup-grid">
+
+    <!-- Skill set -->
+    <div class="card full">
+      <div class="card-title">📚 Target Skill</div>
+      <div class="field">
+        <label>Fact Set</label>
+        <select id="fact-group">
+          <optgroup label="Addition">
+            <option value="sums6">Sums to 6</option>
+            <option value="sums10">Sums to 10</option>
+            <option value="sums18">Sums to 18</option>
+          </optgroup>
+          <optgroup label="Subtraction">
+            <option value="subfrom10">Subtraction from 10</option>
+            <option value="subfrom18">Subtraction from 18</option>
+          </optgroup>
+          <optgroup label="Multiplication">
+            <option value="multto25">Multiplication to 25</option>
+            <option value="multto49">Multiplication to 49</option>
+            <option value="multto81">Multiplication to 81</option>
+          </optgroup>
+          <optgroup label="Division">
+            <option value="divfrom25">Division from 25</option>
+            <option value="divfrom49">Division from 49</option>
+            <option value="divfrom81">Division from 81</option>
+          </optgroup>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Problem count -->
+    <div class="card">
+      <div class="card-title">🔢 Problems</div>
+      <div class="count-chips" id="count-chips">
+        <div class="count-chip" data-n="12" onclick="selectCount(this)">12</div>
+        <div class="count-chip selected" data-n="24" onclick="selectCount(this)">24</div>
+        <div class="count-chip" data-n="30" onclick="selectCount(this)">30</div>
+        <div class="count-chip" data-n="45" onclick="selectCount(this)">45</div>
+      </div>
+    </div>
+
+    <!-- Pacing -->
+    <div class="card">
+      <div class="card-title">⏱ Pacing</div>
+      <div class="field">
+        <label>Wait time (student response)</label>
+        <div class="pace-row">
+          <input type="range" id="wait-slider" min="1" max="8" step="0.5" value="3"
+            oninput="document.getElementById('wait-val').textContent=this.value+'s'">
+          <span class="pace-val" id="wait-val">3s</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Pause after answer</label>
+        <div class="pace-row">
+          <input type="range" id="post-slider" min="0.5" max="4" step="0.5" value="1.5"
+            oninput="document.getElementById('post-val').textContent=this.value+'s'">
+          <span class="pace-val" id="post-val">1.5s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voice -->
+    <div class="card full">
+      <div class="card-title">🔊 Voice</div>
+      <div class="field">
+        <label>Narrator Voice</label>
+        <select id="voice-select"></select>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn-start" onclick="startSession()">▶ START SESSION</button>
+</div>
+
+<!-- ══════════════ PLAYER ══════════════ -->
+<div class="screen" id="screen-player">
+  <div class="player-bar">
+    <span class="bar-title">🔥 Beat the Tape</span>
+    <span class="bar-skill" id="bar-skill-label">Sums to 6</span>
+    <div class="bar-spacer"></div>
+    <div class="progress-wrap">
+      <span id="prog-text">0 / 24</span>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="prog-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-stage">
+    <div class="phase-label" id="phase-label">READY</div>
+
+    <div class="flashcard" id="flashcard">
+      <div class="fc-content fc-horizontal" id="fc-content" style="color:#ccc;font-size:2rem;letter-spacing:1px;">
+        Press Play to begin
+      </div>
+      <div class="answer-badge" id="answer-badge">—</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="countdown-ring" id="countdown-ring" style="opacity:0">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="ring-bg" cx="32" cy="32" r="27"/>
+          <circle class="ring-arc" id="ring-arc" cx="32" cy="32" r="27"
+            stroke-dasharray="169.6" stroke-dashoffset="0"/>
+        </svg>
+        <div class="ring-num" id="ring-num">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-bar">
+    <!-- Inline wait-time adjust -->
+    <div class="wait-inline">
+      <span>Wait</span>
+      <input type="range" id="wait-live" min="1" max="8" step="0.5" value="3"
+        oninput="cfg.waitTime=parseFloat(this.value);document.getElementById('wait-live-val').textContent=this.value+'s'">
+      <span class="wait-val" id="wait-live-val">3s</span>
+    </div>
+
+    <button class="ctrl-btn ctrl-play-pause" id="play-pause-btn" onclick="togglePlayPause()">
+      ▶ Play
+    </button>
+
+    <button class="ctrl-btn ctrl-end" onclick="endSession()">✕ End</button>
+  </div>
+</div>
+
+<!-- Done overlay -->
+<div id="done-overlay">
+  <h1>SESSION COMPLETE</h1>
+  <p id="done-summary">24 problems · Sums to 6</p>
+  <button class="btn-done-back" onclick="backToSetup()">↩ Back to Setup</button>
+</div>
+
+<script>
+// ── FACT SETS ────────────────────────────────────────────────────────────────
+const FACT_SETS = {
+  sums6: (() => {
+    const o=[];
+    for(let a=0;a<=6;a++) for(let b=0;b<=6;b++) if(a+b>=1&&a+b<=6) o.push([a,b,'+']);
+    return o;
+  })(),
+  sums10: (() => {
+    const o=[];
+    for(let a=0;a<=10;a++) for(let b=0;b<=10;b++) if(a+b>=1&&a+b<=10) o.push([a,b,'+']);
+    return o;
+  })(),
+  sums18: (() => {
+    const o=[];
+    for(let a=0;a<=18;a++) for(let b=0;b<=18;b++) if(a+b>=1&&a+b<=18) o.push([a,b,'+']);
+    return o;
+  })(),
+  subfrom10: (() => {
+    const o=[];
+    for(let t=1;t<=10;t++) for(let b=0;b<t;b++) o.push([t,b,'-']);
+    return o;
+  })(),
+  subfrom18: (() => {
+    const o=[];
+    for(let t=1;t<=18;t++) for(let b=0;b<t;b++) o.push([t,b,'-']);
+    return o;
+  })(),
+  multto25: (() => {
+    const o=[];
+    for(let a=0;a<=5;a++) for(let b=0;b<=5;b++) if(a*b<=25) o.push([a,b,'x']);
+    return o;
+  })(),
+  multto49: (() => {
+    const o=[];
+    for(let a=0;a<=7;a++) for(let b=0;b<=7;b++) if(a*b<=49) o.push([a,b,'x']);
+    return o;
+  })(),
+  multto81: (() => {
+    const o=[];
+    for(let a=0;a<=9;a++) for(let b=0;b<=9;b++) o.push([a,b,'x']);
+    return o;
+  })(),
+  divfrom25: (() => {
+    const seen=new Set(),o=[];
+    for(let a=0;a<=5;a++) for(let b=1;b<=5;b++){const d=a*b;if(d<=25){const k=`${d}÷${b}`;if(!seen.has(k)){seen.add(k);o.push([d,b,'÷']);}}}
+    return o;
+  })(),
+  divfrom49: (() => {
+    const seen=new Set(),o=[];
+    for(let a=0;a<=7;a++) for(let b=1;b<=7;b++){const d=a*b;if(d<=49){const k=`${d}÷${b}`;if(!seen.has(k)){seen.add(k);o.push([d,b,'÷']);}}}
+    return o;
+  })(),
+  divfrom81: (() => {
+    const seen=new Set(),o=[];
+    for(let a=0;a<=9;a++) for(let b=1;b<=9;b++){const d=a*b;const k=`${d}÷${b}`;if(!seen.has(k)){seen.add(k);o.push([d,b,'÷']);}}
+    return o;
+  })(),
+};
+
+const SKILL_LABELS = {
+  sums6:'Sums to 6', sums10:'Sums to 10', sums18:'Sums to 18',
+  subfrom10:'Sub from 10', subfrom18:'Sub from 18',
+  multto25:'Mult to 25', multto49:'Mult to 49', multto81:'Mult to 81',
+  divfrom25:'Div from 25', divfrom49:'Div from 49', divfrom81:'Div from 81',
+};
+
+// ── VOICE ────────────────────────────────────────────────────────────────────
+let voices = [];
+function loadVoices() {
+  voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+  const sel = document.getElementById('voice-select');
+  sel.innerHTML = '';
+  voices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})`;
+    if (v.name.includes('Google') && v.name.includes('US')) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+speechSynthesis.addEventListener('voiceschanged', loadVoices);
+loadVoices();
+
+// ── SETUP STATE ──────────────────────────────────────────────────────────────
+let selectedCount = 24;
+
+function selectCount(el) {
+  document.querySelectorAll('.count-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCount = parseInt(el.dataset.n);
+}
+
+// ── SESSION CONFIG & STATE ───────────────────────────────────────────────────
+let cfg = {};
+let session = {
+  queue: [],
+  idx: 0,
+  total: 0,
+  playing: false,
+  paused: false,
+  familyCount: 0,
+  timeoutId: null,
+};
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+function startSession() {
+  const factGroup = document.getElementById('fact-group').value;
+  const facts = FACT_SETS[factGroup];
+  const voiceIdx = parseInt(document.getElementById('voice-select').value);
+
+  cfg = {
+    factGroup,
+    facts,
+    count: selectedCount,
+    waitTime: parseFloat(document.getElementById('wait-slider').value),
+    postTime: parseFloat(document.getElementById('post-slider').value),
+    voice: voices[voiceIdx] || null,
+    skillLabel: SKILL_LABELS[factGroup],
+  };
+
+  // Build shuffled queue of problems
+  const pool = shuffle([...facts]);
+  session.queue = [];
+  while (session.queue.length < cfg.count) {
+    session.queue.push(...shuffle([...pool]));
+  }
+  session.queue = session.queue.slice(0, cfg.count);
+  session.idx = 0;
+  session.total = cfg.count;
+  session.playing = false;
+  session.paused = false;
+  session.timeoutId = null;
+
+  // Sync live wait slider
+  document.getElementById('wait-live').value = cfg.waitTime;
+  document.getElementById('wait-live-val').textContent = cfg.waitTime + 's';
+
+  document.getElementById('bar-skill-label').textContent = cfg.skillLabel;
+  document.getElementById('play-pause-btn').textContent = '▶ Play';
+  updateProgress();
+
+  showScreen('screen-player');
+  // Reset card to idle
+  document.getElementById('fc-content').className = 'fc-content fc-horizontal';
+  document.getElementById('fc-content').style.color = '#ccc';
+  document.getElementById('fc-content').style.fontSize = '2rem';
+  document.getElementById('fc-content').style.letterSpacing = '1px';
+  document.getElementById('fc-content').textContent = 'Press Play to begin';
+  document.getElementById('answer-badge').classList.remove('show');
+  document.getElementById('phase-label').textContent = 'READY';
+  document.getElementById('phase-label').className = 'phase-label';
+  document.getElementById('countdown-ring').style.opacity = '0';
+}
+
+// ── PLAY / PAUSE ─────────────────────────────────────────────────────────────
+function togglePlayPause() {
+  if (!session.playing) {
+    session.playing = true;
+    session.paused = false;
+    document.getElementById('play-pause-btn').textContent = '⏸ Pause';
+    nextProblem();
+  } else if (!session.paused) {
+    session.paused = true;
+    speechSynthesis.pause();
+    clearTimeout(session.timeoutId);
+    document.getElementById('play-pause-btn').textContent = '▶ Resume';
+    document.getElementById('phase-label').textContent = 'PAUSED';
+    document.getElementById('phase-label').className = 'phase-label';
+    document.getElementById('countdown-ring').style.opacity = '0';
+  } else {
+    session.paused = false;
+    document.getElementById('play-pause-btn').textContent = '⏸ Pause';
+    speechSynthesis.resume();
+    // Resume from current problem
+    runProblem(session.queue[session.idx]);
+  }
+}
+
+// ── PROBLEM RUNNER ───────────────────────────────────────────────────────────
+function nextProblem() {
+  if (session.paused) return;
+  if (session.idx >= session.total) {
+    finishSession(); return;
+  }
+  runProblem(session.queue[session.idx]);
+}
+
+function runProblem(fact) {
+  const [a, b, op] = fact;
+  const fmt = chooseFmt(op);
+  renderCard(a, b, op, fmt, false);
+
+  const phaseEl = document.getElementById('phase-label');
+  phaseEl.textContent = 'YOUR TURN…';
+  phaseEl.className = 'phase-label thinking';
+
+  // Speak the problem
+  const problemText = buildProblemSpeech(a, b, op);
+  speak(problemText, () => {
+    if (session.paused) return;
+    // Start countdown for student wait time
+    startCountdown(cfg.waitTime, () => {
+      if (session.paused) return;
+      // Reveal answer
+      const answer = computeAnswer(a, b, op);
+      renderCard(a, b, op, fmt, true);
+      phaseEl.textContent = 'THE ANSWER IS…';
+      phaseEl.className = 'phase-label answer';
+
+      speak(buildAnswerSpeech(answer), () => {
+        if (session.paused) return;
+        phaseEl.textContent = '';
+        phaseEl.className = 'phase-label';
+        document.getElementById('countdown-ring').style.opacity = '0';
+        session.idx++;
+        updateProgress();
+        session.timeoutId = setTimeout(() => {
+          if (!session.paused) nextProblem();
+        }, cfg.postTime * 1000);
+      });
+    });
+  });
+}
+
+// ── CARD RENDERING ───────────────────────────────────────────────────────────
+function chooseFmt(op) {
+  // Beat the Tape: horizontal or vertical only, 50/50
+  return Math.random() < 0.5 ? 'horizontal' : 'vertical';
+}
+
+function computeAnswer(a, b, op) {
+  if (op==='+') return a+b;
+  if (op==='-') return a-b;
+  if (op==='x') return a*b;
+  if (op==='÷') return a/b;
+}
+
+function renderCard(a, b, op, fmt, showAnswer) {
+  const fc = document.getElementById('fc-content');
+  const badge = document.getElementById('answer-badge');
+  const card = document.getElementById('flashcard');
+  const answer = computeAnswer(a, b, op);
+  const sym = op==='x' ? '×' : op;
+
+  fc.style.color = '';
+  fc.style.fontSize = '';
+  fc.style.letterSpacing = '';
+
+  if (!showAnswer) {
+    card.classList.remove('flash-in');
+    void card.offsetWidth; // reflow
+    card.classList.add('flash-in');
+    badge.classList.remove('show');
+  } else {
+    badge.textContent = answer;
+    badge.classList.add('show');
+  }
+
+  if (fmt === 'horizontal') {
+    fc.className = 'fc-content fc-horizontal';
+    fc.innerHTML = `${a} ${sym} ${b} = <span style="color:#ddd">?</span>`;
+
+  } else if (fmt === 'vertical') {
+    const symColor = (op==='-'||op==='+') ? '#b42020' : '#0a6e28';
+    fc.className = 'fc-content fc-vertical';
+    fc.innerHTML = `
+      <div class="fc-num">${a}</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="fc-sym" style="color:${symColor}">${sym}</div>
+        <div class="fc-num">${b}</div>
+      </div>
+      <div class="fc-rule"></div>
+      <div class="fc-blank">?</div>`;
+
+  } else if (fmt === 'family') {
+    if (!showAnswer) session.familyCount++;
+    fc.className = 'fc-content fc-family';
+    const h = 120;
+    fc.innerHTML = `
+      <svg viewBox="0 0 150 ${h}" width="150" height="${h}">
+        <polygon points="75,4 146,${h-4} 4,${h-4}" fill="none" stroke="#142864" stroke-width="4"/>
+        <text x="75" y="${h*0.28}" font-family="Bebas Neue,cursive" font-size="26"
+          fill="#142864" text-anchor="middle" dominant-baseline="middle">${answer}</text>
+        <text x="22" y="${h-10}" font-family="Bebas Neue,cursive" font-size="22"
+          fill="#142864" text-anchor="middle">${a}</text>
+        <text x="128" y="${h-10}" font-family="Bebas Neue,cursive" font-size="22"
+          fill="#142864" text-anchor="middle">${b}</text>
+        <circle cx="75" cy="${h*0.55}" r="5" fill="#142864"/>
+      </svg>
+      <div class="fc-family-lines">
+        <div class="fc-family-line">___ + ___ = ___</div>
+        <div class="fc-family-line">___ + ___ = ___</div>
+      </div>`;
+
+  } else if (fmt === 'cloze-addend' || fmt === 'cloze') {
+    const hide = fmt === 'cloze-addend'
+      ? (Math.random()<0.5 ? 'a' : 'b')
+      : ['a','b','total'][Math.floor(Math.random()*3)];
+    const blank = '<span style="color:#ddd">___</span>';
+    const da  = hide==='a'     ? blank : a;
+    const db  = hide==='b'     ? blank : b;
+    const dan = hide==='total' ? blank : answer;
+    fc.className = 'fc-content fc-cloze';
+    fc.innerHTML = `${da} ${sym} ${db} = ${dan}`;
+  }
+}
+
+// ── SPEECH ───────────────────────────────────────────────────────────────────
+const NUM_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine',
+  'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen',
+  'nineteen','twenty','twenty-one','twenty-two','twenty-three','twenty-four','twenty-five',
+  'twenty-six','twenty-seven','twenty-eight','twenty-nine','thirty','thirty-one','thirty-two',
+  'thirty-three','thirty-four','thirty-five','thirty-six','thirty-seven','thirty-eight',
+  'thirty-nine','forty','forty-one','forty-two','forty-three','forty-four','forty-five',
+  'forty-six','forty-seven','forty-eight','forty-nine','fifty','fifty-four','fifty-six',
+  'sixty','sixty-three','sixty-four','seventy','seventy-two','eighty','eighty-one'];
+
+function numWord(n) {
+  if (n < NUM_WORDS.length && NUM_WORDS[n]) return NUM_WORDS[n];
+  return String(n); // fallback — browser TTS handles digits fine
+}
+
+function buildProblemSpeech(a, b, op) {
+  const na = numWord(a), nb = numWord(b);
+  if (op==='+') return `${na} plus ${nb}`;
+  if (op==='-') return `${na} minus ${nb}`;
+  if (op==='x') return `${na} times ${nb}`;
+  if (op==='÷') return `${na} divided by ${nb}`;
+}
+
+function buildAnswerSpeech(answer) {
+  return numWord(answer);
+}
+
+function speak(text, onEnd) {
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  if (cfg.voice) utt.voice = cfg.voice;
+  utt.rate = 0.95;
+  utt.pitch = 1.05;
+  utt.onend = onEnd;
+  utt.onerror = onEnd; // keep going even if speech fails
+  speechSynthesis.speak(utt);
+}
+
+// ── COUNTDOWN RING ───────────────────────────────────────────────────────────
+function startCountdown(seconds, onDone) {
+  const ring = document.getElementById('countdown-ring');
+  const arc  = document.getElementById('ring-arc');
+  const num  = document.getElementById('ring-num');
+  const circumference = 169.6;
+  ring.style.opacity = '1';
+
+  let elapsed = 0;
+  const interval = 100; // ms
+  const steps = seconds * 1000 / interval;
+  let step = 0;
+
+  const tick = () => {
+    if (session.paused) { clearInterval(timerId); return; }
+    step++;
+    elapsed = step * interval / 1000;
+    const frac = Math.min(elapsed / seconds, 1);
+    arc.style.strokeDashoffset = circumference * frac;
+    const remaining = Math.max(0, Math.ceil(seconds - elapsed));
+    num.textContent = remaining > 0 ? remaining : '…';
+
+    if (elapsed >= seconds) {
+      clearInterval(timerId);
+      ring.style.opacity = '0';
+      onDone();
+    }
+  };
+  arc.style.strokeDashoffset = '0';
+  const timerId = setInterval(tick, interval);
+  session.activeCountdown = timerId;
+}
+
+// ── PROGRESS ─────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const pct = session.total > 0 ? (session.idx / session.total * 100) : 0;
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = `${session.idx} / ${session.total}`;
+}
+
+// ── FINISH ───────────────────────────────────────────────────────────────────
+function finishSession() {
+  session.playing = false;
+  speechSynthesis.cancel();
+  document.getElementById('phase-label').textContent = 'DONE!';
+  document.getElementById('phase-label').className = 'phase-label answer';
+  document.getElementById('play-pause-btn').textContent = '▶ Play';
+  document.getElementById('done-summary').textContent =
+    `${session.total} problems · ${cfg.skillLabel}`;
+  speak(`Great work! Session complete.`, () => {
+    document.getElementById('done-overlay').classList.add('show');
+  });
+}
+
+function endSession() {
+  speechSynthesis.cancel();
+  clearTimeout(session.timeoutId);
+  clearInterval(session.activeCountdown);
+  session.playing = false;
+  backToSetup();
+}
+
+function backToSetup() {
+  speechSynthesis.cancel();
+  document.getElementById('done-overlay').classList.remove('show');
+  showScreen('screen-setup');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>

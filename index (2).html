@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facts on Fire — Teacher Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #FAFAF7;
+  --surface:  #FFFFFF;
+  --ink:      #0E1117;
+  --ink2:     #3A4150;
+  --muted:    #8A94A0;
+  --border:   #E4E6EA;
+  --fire:     #FF4F00;
+  --fire2:    #FF9000;
+  --ember:    #FFF0E8;
+  --teal:     #007A6E;
+  --teal-lt:  #E6F4F2;
+  --blue:     #1B4FCC;
+  --blue-lt:  #EBF0FF;
+  --gold:     #B87800;
+  --gold-lt:  #FFF8E6;
+  --lock:     #6B3FA0;
+  --lock-lt:  #F2EAF9;
+  --radius:   16px;
+  --shadow:   0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Archivo', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────── */
+header {
+  background: var(--ink);
+  padding: 0 40px;
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 3px solid var(--fire);
+}
+.header-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; gap: 20px;
+  height: 64px;
+}
+.logo {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.35rem;
+  color: white;
+  letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+.logo-flame {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 8px rgba(255,79,0,0.6));
+}
+.logo-text span { color: var(--fire2); }
+.header-nav {
+  margin-left: auto;
+  display: flex; gap: 8px; align-items: center;
+}
+.nav-link {
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+  letter-spacing: 0.02em;
+}
+.nav-link:hover { color: white; background: rgba(255,255,255,0.08); }
+.nav-lock {
+  color: white;
+  background: var(--lock);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.88rem; font-weight: 700;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 6px;
+  transition: filter 0.15s;
+}
+.nav-lock:hover { filter: brightness(1.15); }
+
+/* ── HERO ────────────────────────────────────────────────────────── */
+.hero {
+  background: var(--ink);
+  padding: 72px 40px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 55% 70% at 90% 50%, rgba(255,79,0,0.18) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(255,144,0,0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+/* Subtle grid texture */
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1100px; margin: 0 auto;
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 40px;
+}
+.hero-eyebrow {
+  font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--fire2);
+  margin-bottom: 14px;
+}
+.hero-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  color: white;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+}
+.hero-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--fire), var(--fire2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-desc {
+  color: rgba(255,255,255,0.58);
+  font-size: 1.05rem;
+  max-width: 520px;
+  line-height: 1.7;
+}
+.hero-stats {
+  display: flex; flex-direction: column; gap: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  min-width: 200px;
+}
+.stat-item { text-align: center; }
+.stat-num {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 2.4rem;
+  color: var(--fire2);
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.stat-divider { height: 1px; background: rgba(255,255,255,0.08); }
+
+/* ── MAIN CONTENT ────────────────────────────────────────────────── */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 40px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+
+/* ── SECTION ─────────────────────────────────────────────────────── */
+.section-header {
+  display: flex; align-items: flex-end; gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+}
+.section-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.section-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.section-badge {
+  margin-left: auto;
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 4px 10px; border-radius: 20px;
+}
+
+/* ── CARD GRID ───────────────────────────────────────────────────── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.card-grid.wide { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+
+/* ── RESOURCE CARD ───────────────────────────────────────────────── */
+.res-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+.res-card:hover {
+  border-color: var(--fire);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+.res-card::before {
+  content: '';
+  position: absolute; top:0; left:0; right:0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--fire), var(--fire2));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.25s ease;
+}
+.res-card:hover::before { transform: scaleX(1); }
+
+.res-card-top {
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.res-card-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; flex-shrink: 0;
+}
+.res-card-meta { flex: 1; }
+.res-card-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.res-card-type {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-top: 3px;
+}
+.res-card-desc {
+  font-size: 0.88rem;
+  color: var(--ink2);
+  line-height: 1.6;
+}
+.res-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+.res-card-tag {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 20px;
+  color: var(--muted); background: var(--bg);
+  border: 1px solid var(--border);
+}
+.res-card-cta {
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--fire);
+  display: flex; align-items: center; gap: 4px;
+}
+.res-card-cta::after { content: '→'; }
+
+/* coming-soon state */
+.res-card.soon {
+  opacity: 0.6;
+  cursor: default;
+  pointer-events: none;
+}
+.res-card.soon:hover { transform: none; box-shadow: none; border-color: var(--border); }
+.soon-pill {
+  font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  background: var(--border); color: var(--muted);
+  padding: 2px 8px; border-radius: 20px; margin-left: 8px;
+}
+
+/* locked section */
+.locked-section {
+  background: var(--lock-lt);
+  border: 2px dashed #C9A8E8;
+  border-radius: var(--radius);
+  padding: 48px 40px;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.lock-icon {
+  width: 64px; height: 64px;
+  background: var(--lock);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 20px rgba(107,63,160,0.3);
+}
+.locked-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.5rem; color: var(--lock);
+  letter-spacing: -0.02em;
+}
+.locked-desc {
+  font-size: 0.95rem; color: var(--ink2);
+  max-width: 480px; line-height: 1.7;
+}
+.locked-features {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+  margin-top: 4px;
+}
+.locked-feat {
+  background: white; border: 1px solid #C9A8E8;
+  color: var(--lock); font-size: 0.82rem; font-weight: 600;
+  padding: 6px 14px; border-radius: 20px;
+  display: flex; align-items: center; gap: 6px;
+}
+.locked-cta {
+  margin-top: 8px;
+  background: var(--lock); color: white;
+  border: none; border-radius: 10px;
+  font-family: 'Archivo', sans-serif; font-weight: 700;
+  font-size: 0.95rem; padding: 12px 28px; cursor: pointer;
+  transition: filter 0.15s;
+}
+.locked-cta:hover { filter: brightness(1.12); }
+
+/* ── COLOR VARIANTS ──────────────────────────────────────────────── */
+.ic-fire  { background: var(--ember);  }
+.ic-teal  { background: var(--teal-lt); }
+.ic-blue  { background: var(--blue-lt); }
+.ic-gold  { background: var(--gold-lt); }
+.ic-lock  { background: var(--lock-lt); }
+
+.tp-fire  { color: var(--fire); }
+.tp-teal  { color: var(--teal); }
+.tp-blue  { color: var(--blue); }
+.tp-gold  { color: var(--gold); }
+
+.si-fire  { background: var(--ember);  }
+.si-teal  { background: var(--teal-lt); }
+.si-blue  { background: var(--blue-lt); }
+.si-gold  { background: var(--gold-lt); }
+
+.sb-fire  { background: var(--ember); color: var(--fire); }
+.sb-teal  { background: var(--teal-lt); color: var(--teal); }
+.sb-blue  { background: var(--blue-lt); color: var(--blue); }
+.sb-gold  { background: var(--gold-lt); color: var(--gold); }
+
+/* ── FOOTER ──────────────────────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  padding: 28px 40px;
+  font-size: 0.82rem;
+}
+footer a { color: var(--fire2); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ── SCOPE SEQUENCE TABLE ────────────────────────────────────────── */
+.scope-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border);
+}
+.scope-table th {
+  background: var(--ink); color: white;
+  padding: 12px 16px; text-align: left;
+  font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.08em; font-weight: 700;
+}
+.scope-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink2);
+  vertical-align: top;
+}
+.scope-table tr:last-child td { border-bottom: none; }
+.scope-table tr:hover td { background: var(--bg); }
+.grade-pill {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 8px; border-radius: 20px; margin-right: 4px;
+  background: var(--ember); color: var(--fire);
+}
+.skill-name { font-weight: 600; color: var(--ink); }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  header { padding: 0 20px; }
+  .hero { padding: 48px 20px 56px; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  main { padding: 40px 20px 80px; gap: 48px; }
+  .header-nav .nav-link { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <span class="logo-flame">🔥</span>
+      <span>Facts on Fire <span>· Teacher Hub</span></span>
+    </a>
+    <nav class="header-nav">
+      <a class="nav-link" href="#workbooks">Workbooks</a>
+      <a class="nav-link" href="#resources">Resources</a>
+      <a class="nav-link" href="#practice">Practice Tools</a>
+      <a class="nav-lock" href="#data">🔒 Data Portal</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">M.I.N.D. 2.0 · Baymonte Christian School Implementation</div>
+      <h1 class="hero-title">
+        Every teacher.<br>
+        Every student.<br>
+        <em>On Fire.</em>
+      </h1>
+      <p class="hero-desc">
+        Daily 5–10 minute fact fluency practice, school-wide.
+        Find your skill set, print the workbook, and launch today.
+        All materials are free.
+      </p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">11</div>
+        <div class="stat-lbl">Skill Sets</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-num">K–6</div>
+        <div class="stat-lbl">Grade Levels</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-num">5 min</div>
+        <div class="stat-lbl">Per Day</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── WORKBOOKS ── -->
+  <section id="workbooks">
+    <div class="section-header">
+      <div class="section-icon si-fire">📓</div>
+      <div>
+        <div class="section-title">Student Workbooks</div>
+        <div class="section-sub">Print-and-use workbooks — one per skill set. Each includes probes, CCC practice, fact families, and cloze activities.</div>
+      </div>
+      <span class="section-badge sb-fire">PDF · Print-Ready</span>
+    </div>
+
+    <!-- Scope & Sequence summary -->
+    <table class="scope-table" style="margin-bottom:28px;">
+      <thead>
+        <tr>
+          <th>Grade</th>
+          <th>Skill Set</th>
+          <th>Workbook</th>
+          <th>Mastery Criteria</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="grade-pill">K</span></td>
+          <td><span class="skill-name">Sums to 6</span></td>
+          <td><a href="workbooks/sums-to-6.pdf" style="color:var(--fire);font-weight:600;">Download ↓</a></td>
+          <td>100% acc @ 20 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">K–1</span></td>
+          <td><span class="skill-name">Sums to 10</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 20–30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">1–2</span></td>
+          <td><span class="skill-name">Sums to 18</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">1–2</span></td>
+          <td><span class="skill-name">Subtraction from 10</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">2</span></td>
+          <td><span class="skill-name">Subtraction from 18</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">3</span></td>
+          <td><span class="skill-name">Multiplication to 81</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">3–4</span></td>
+          <td><span class="skill-name">Division from 81</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">4–5</span></td>
+          <td><span class="skill-name">Multidigit Multiplication</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 20 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">5–6</span></td>
+          <td><span class="skill-name">Multidigit Division</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 20 DCPM</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── TEACHER RESOURCES ── -->
+  <section id="resources">
+    <div class="section-header">
+      <div class="section-icon si-teal">📋</div>
+      <div>
+        <div class="section-title">Teacher Resources</div>
+        <div class="section-sub">Tracking sheets, implementation guides, and classroom tools.</div>
+      </div>
+      <span class="section-badge sb-teal">Print &amp; Digital</span>
+    </div>
+    <div class="card-grid">
+
+      <a class="res-card" href="resources/tracking-sheet.pdf">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-teal">📊</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Class Tracking Sheet</div>
+            <div class="res-card-type tp-teal">PDF · Printable</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Weekly progress tracking for the whole class. Records daily probe scores and completion codes for each activity.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">All Grades</span>
+          <span class="res-card-cta">Download</span>
+        </div>
+      </a>
+
+      <a class="res-card soon" href="#">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-teal">📈</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Scope &amp; Sequence Guide <span class="soon-pill">Soon</span></div>
+            <div class="res-card-type tp-teal">PDF · Reference</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Full school-wide scope and sequence with grade-level benchmarks and suggested pacing calendar.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">All Grades</span>
+          <span class="res-card-cta">Coming soon</span>
+        </div>
+      </a>
+
+      <a class="res-card soon" href="#">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-teal">📝</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Implementation Guide <span class="soon-pill">Soon</span></div>
+            <div class="res-card-type tp-teal">PDF · Reference</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Step-by-step setup guide for coaches and site leads, including training checklist and fidelity tools.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">Coaches</span>
+          <span class="res-card-cta">Coming soon</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ── WHOLE-CLASS PRACTICE TOOLS ── -->
+  <section id="practice">
+    <div class="section-header">
+      <div class="section-icon si-blue">🖥️</div>
+      <div>
+        <div class="section-title">Whole-Class Practice Tools</div>
+        <div class="section-sub">Run directly in any browser — no login, no install. Project on your smartboard and go.</div>
+      </div>
+      <span class="section-badge sb-blue">Web Apps · Free</span>
+    </div>
+    <div class="card-grid wide">
+
+      <!-- Class Challenge -->
+      <a class="res-card" href="class_reward_app.html">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-blue">🎯</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Class Challenge</div>
+            <div class="res-card-type tp-blue">Web App · Smartboard</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Progressive reward reveal — students answer one at a time to uncover a class goal image, square by square. Upload any photo, beat-the-clock option included.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">All Skills</span>
+          <span class="res-card-cta">Launch</span>
+        </div>
+      </a>
+
+      <!-- Beat the Tape -->
+      <a class="res-card" href="beat_the_tape.html">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-fire">📼</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Beat the Tape</div>
+            <div class="res-card-type tp-fire">Web App · Smartboard</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Spoken flashcard drill — the browser reads each problem aloud, waits for choral response, then reveals the answer. Works for every skill set, fully adjustable pacing.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">All Skills</span>
+          <span class="res-card-cta">Launch</span>
+        </div>
+      </a>
+
+      <!-- Four Strikes -->
+      <a class="res-card soon" href="#">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-gold">⚡</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Four Strikes <span class="soon-pill">Soon</span></div>
+            <div class="res-card-type tp-gold">Web App · Smartboard</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Team-based fact fluency game with categories matching each Facts on Fire skill set. Fast-paced and competitive.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">All Skills</span>
+          <span class="res-card-cta">Coming soon</span>
+        </div>
+      </a>
+
+      <!-- No Tech Resources -->
+      <a class="res-card soon" href="#">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-gold">🃏</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">No Tech Resources <span class="soon-pill">Soon</span></div>
+            <div class="res-card-type tp-gold">Print · No Tech Needed</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Printable materials for whole-class practice without a device — including classroom display cards and partner activity sheets.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">Print</span>
+          <span class="res-card-cta">Coming soon</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ── DATA PORTAL (LOCKED) ── -->
+  <section id="data">
+    <div class="section-header">
+      <div class="section-icon si-fire" style="background:var(--lock-lt)">🔒</div>
+      <div>
+        <div class="section-title">Data Portal</div>
+        <div class="section-sub">Track class and student progress across all skill sets.</div>
+      </div>
+      <span class="section-badge" style="background:var(--lock-lt);color:var(--lock);">Coming Soon</span>
+    </div>
+
+    <div class="locked-section">
+      <div class="lock-icon">🔒</div>
+      <div class="locked-title">Teacher &amp; Coach Data Portal</div>
+      <div class="locked-desc">
+        A protected area where teachers log weekly probe scores, coaches track school-wide mastery, and the system surfaces which students and classes are ready to advance to the next skill set.
+      </div>
+      <div class="locked-features">
+        <div class="locked-feat">📊 Class fluency dashboards</div>
+        <div class="locked-feat">👤 Individual student progress</div>
+        <div class="locked-feat">🏫 School-wide skill mastery view</div>
+        <div class="locked-feat">📥 Export to CSV / PDF</div>
+      </div>
+      <button class="locked-cta" onclick="alert('Data portal coming soon! Check back after the workbook series is complete.')">
+        Notify me when it's ready
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    Facts on Fire is based on the <a href="https://brianponcy.wixsite.com/my-site-2/m-i-n-d-2-0-facts-on-fire" target="_blank">M.I.N.D. 2.0 program</a> by Brian Poncy. All materials free for classroom use.
+  </p>
+</footer>
+
+</body>
+</html>
