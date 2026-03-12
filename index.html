@@ -422,6 +422,23 @@ footer a:hover { text-decoration: underline; }
 }
 .skill-name { font-weight: 600; color: var(--ink); }
 
+/* ── WORKBOOK LINKS ─────────────────────────────────────────────── */
+.wb-link {
+  display: inline-block;
+  color: var(--fire); font-weight: 700; font-size: 0.82rem;
+  text-decoration: none;
+  background: var(--ember); border: 1px solid #FFCDB0;
+  padding: 2px 9px; border-radius: 6px; margin: 2px 3px 2px 0;
+  transition: background 0.15s;
+}
+.wb-link:hover { background: #FFD9C5; }
+.wb-soon {
+  display: inline-block;
+  color: var(--muted); font-size: 0.78rem; font-weight: 600;
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 2px 9px; border-radius: 6px; margin: 2px 3px 2px 0;
+}
+
 /* ── RESPONSIVE ──────────────────────────────────────────────────── */
 @media (max-width: 720px) {
   header { padding: 0 20px; }
@@ -469,7 +486,7 @@ footer a:hover { text-decoration: underline; }
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <div class="stat-num">11</div>
+        <div class="stat-num">13</div>
         <div class="stat-lbl">Skill Sets</div>
       </div>
       <div class="stat-divider"></div>
@@ -505,51 +522,91 @@ footer a:hover { text-decoration: underline; }
         <tr>
           <th>Grade</th>
           <th>Skill Set</th>
-          <th>Workbook</th>
+          <th>Workbooks</th>
           <th>Mastery Criteria</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><span class="grade-pill">K</span></td>
-          <td><span class="skill-name">Sums to 6</span></td>
-          <td><a href="workbooks/sums-to-6.pdf" style="color:var(--fire);font-weight:600;">Download ↓</a></td>
-          <td>100% acc @ 20 PPM</td>
+          <td><span class="skill-name">Number Writing</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 30 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">K</span></td>
+          <td><span class="skill-name">Dot-Number-Total</span></td>
+          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>100% acc @ 10 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">K–1</span></td>
-          <td><span class="skill-name">Sums to 10</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td><span class="skill-name">Sums to 6</span></td>
+          <td>
+            <a href="workbooks/sums-to-6-book-a.pdf" class="wb-link">Book A ↓</a>
+            <span class="wb-soon">Book B</span>
+            <span class="wb-soon">Book C</span>
+          </td>
           <td>100% acc @ 20–30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">1</span></td>
+          <td><span class="skill-name">Sums to 10</span></td>
+          <td>
+            <span class="wb-soon">Book A</span>
+            <span class="wb-soon">Book B</span>
+            <span class="wb-soon">Book C</span>
+          </td>
+          <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">1–2</span></td>
           <td><span class="skill-name">Sums to 18</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>
+            <span class="wb-soon">Book A</span>
+            <span class="wb-soon">Book B</span>
+            <span class="wb-soon">Book C</span>
+          </td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">1–2</span></td>
           <td><span class="skill-name">Subtraction from 10</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>
+            <span class="wb-soon">Book A</span>
+            <span class="wb-soon">Book B</span>
+            <span class="wb-soon">Book C</span>
+          </td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">2</span></td>
           <td><span class="skill-name">Subtraction from 18</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>
+            <span class="wb-soon">Book A</span>
+            <span class="wb-soon">Book B</span>
+            <span class="wb-soon">Book C</span>
+          </td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">3</span></td>
           <td><span class="skill-name">Multiplication to 81</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>
+            <span class="wb-soon">Book A</span>
+            <span class="wb-soon">Book B</span>
+            <span class="wb-soon">Book C</span>
+          </td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">3–4</span></td>
           <td><span class="skill-name">Division from 81</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td>
+            <span class="wb-soon">Book A</span>
+            <span class="wb-soon">Book B</span>
+            <span class="wb-soon">Book C</span>
+          </td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
@@ -673,18 +730,50 @@ footer a:hover { text-decoration: underline; }
       </a>
 
       <!-- Four Strikes -->
-      <a class="res-card soon" href="#">
+      <a class="res-card" href="four-strikes.html">
         <div class="res-card-top">
           <div class="res-card-icon ic-gold">⚡</div>
           <div class="res-card-meta">
-            <div class="res-card-title">Four Strikes <span class="soon-pill">Soon</span></div>
+            <div class="res-card-title">Four Strikes</div>
             <div class="res-card-type tp-gold">Web App · Smartboard</div>
           </div>
         </div>
-        <div class="res-card-desc">Team-based fact fluency game with categories matching each Facts on Fire skill set. Fast-paced and competitive.</div>
+        <div class="res-card-desc">Digit-guessing game built around Facts on Fire skill sets. Guess which digits appear in a hidden math equation — four wrong guesses and you're out.</div>
         <div class="res-card-footer">
           <span class="res-card-tag">All Skills</span>
-          <span class="res-card-cta">Coming soon</span>
+          <span class="res-card-cta">Launch</span>
+        </div>
+      </a>
+
+      <!-- Choral Counting -->
+      <a class="res-card" href="choral_counting.html">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-teal">🔢</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Choral Counting</div>
+            <div class="res-card-type tp-teal">Web App · Smartboard</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Whole-class skip-counting on an animated hundreds chart. Choose any interval from 1–12, start number, direction, and pace — the browser calls each number aloud as the chart fills in.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">Multiplication Readiness</span>
+          <span class="res-card-cta">Launch</span>
+        </div>
+      </a>
+
+      <!-- Sequence Puzzles -->
+      <a class="res-card" href="sequence_puzzles.html">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-blue">🔣</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Sequence Puzzles</div>
+            <div class="res-card-type tp-blue">Web App · Smartboard</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Skip-count sequences with two missing values — displayed one puzzle at a time on the smartboard. Four difficulty levels including descending sequences and offset patterns. Beat-the-clock mode with a report screen.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">×2–×12</span>
+          <span class="res-card-cta">Launch</span>
         </div>
       </a>
 
