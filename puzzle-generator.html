@@ -49,11 +49,6 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .diffs input[type=radio]{accent-color:var(--fire);margin-top:2px;flex-shrink:0}
 .dl{font-weight:700}.dd{color:var(--muted)}
 
-.count-row{display:flex;gap:6px}
-.cbtn{flex:1;padding:7px 0;border:2px solid var(--border);border-radius:7px;background:var(--bg);font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:.15s;color:var(--ink)}
-.cbtn:hover{border-color:var(--fire)}
-.cbtn.on{background:var(--fire);border-color:var(--fire);color:#fff}
-
 .title-inp{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-family:'Archivo',sans-serif;font-size:13px;background:var(--bg);color:var(--ink)}
 .title-inp:focus{outline:none;border-color:var(--fire)}
 .hint{font-size:10.5px;color:var(--muted);margin-top:4px}
@@ -62,12 +57,13 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .btn-gen:hover{background:#e03900}
 .btn-gen:active{transform:scale(.98)}
 
-.print-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.pdf-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .pbtn{padding:9px 4px;border-radius:7px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;cursor:pointer;border:2px solid;background:var(--surf);transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.pbtn:disabled{opacity:.5;cursor:wait}
 .pbtn span{font-size:16px}
-.pbtn.ps{border-color:var(--teal);color:var(--teal)}.pbtn.ps:hover{background:var(--teal-lt)}
-.pbtn.pk{border-color:var(--blue);color:var(--blue)}.pbtn.pk:hover{background:var(--blue-lt)}
-.pbtn.pb{border-color:var(--purple);color:var(--purple)}.pbtn.pb:hover{background:var(--purple-lt)}
+.pbtn.ps{border-color:var(--teal);color:var(--teal)}.pbtn.ps:hover:not(:disabled){background:var(--teal-lt)}
+.pbtn.pk{border-color:var(--blue);color:var(--blue)}.pbtn.pk:hover:not(:disabled){background:var(--blue-lt)}
+.pbtn.pb{border-color:var(--purple);color:var(--purple)}.pbtn.pb:hover:not(:disabled){background:var(--purple-lt)}
 
 .sb-div{border:none;border-top:1px solid var(--border);margin:0 -4px}
 
@@ -132,6 +128,8 @@ table.cr td{width:30px;height:34px;text-align:center;vertical-align:middle;font-
 .ms-circ{width:26px;height:26px;border-radius:50%;border:1.5px solid #666;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:transparent}
 .ms-circ.show{color:#b83000}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -177,18 +175,6 @@ table.cr td{width:30px;height:34px;text-align:center;vertical-align:middle;font-
     <hr class="sb-div">
 
     <div>
-      <span class="sb-label">Number of Puzzles</span>
-      <div class="count-row">
-        <button class="cbtn" data-n="2" onclick="selCount(this)">2</button>
-        <button class="cbtn on" data-n="4" onclick="selCount(this)">4</button>
-        <button class="cbtn" data-n="6" onclick="selCount(this)">6</button>
-        <button class="cbtn" data-n="8" onclick="selCount(this)">8</button>
-      </div>
-    </div>
-
-    <hr class="sb-div">
-
-    <div>
       <span class="sb-label">Custom Title <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(optional)</span></span>
       <input class="title-inp" id="pg-title" type="text" placeholder="e.g. Week 3 — Bell Ringer">
       <div class="hint">Leave blank to use the default puzzle name.</div>
@@ -201,13 +187,13 @@ table.cr td{width:30px;height:34px;text-align:center;vertical-align:middle;font-
     <hr class="sb-div">
 
     <div>
-      <span class="sb-label">Print / Save PDF</span>
-      <div class="print-grid">
-        <button class="pbtn ps" onclick="doPrint('student')"><span>🖨</span>Student</button>
-        <button class="pbtn pk" onclick="doPrint('key')"><span>🗝</span>Key</button>
-        <button class="pbtn pb" onclick="doPrint('both')"><span>📋</span>Both</button>
+      <span class="sb-label">Download PDF</span>
+      <div class="pdf-grid">
+        <button class="pbtn ps" onclick="downloadPDF('student',this)"><span>📄</span>Student</button>
+        <button class="pbtn pk" onclick="downloadPDF('key',this)"><span>🗝</span>Key</button>
+        <button class="pbtn pb" onclick="downloadPDF('both',this)"><span>⬇</span>Both</button>
       </div>
-      <div class="hint" style="margin-top:6px">Opens print dialog — use "Save as PDF".</div>
+      <div class="hint" style="margin-top:6px">Downloads a ready-to-print PDF file.</div>
     </div>
 
   </aside>
@@ -485,14 +471,13 @@ function renderPuz(p,key){
 
 function buildSheet(isKey){
   const title=document.getElementById('pg-title').value.trim()||PTITLES[TYPE];
-  const cols=COUNT<=4?2:COUNT<=6?3:4;
   const minH={crossnumber:165,twoout:165,crypto:165,mismo:210}[TYPE]||165;
   const badge=isKey?`<span class="key-badge">ANSWER KEY</span>`:'';
   const cells=PUZZLES.map((p,i)=>`<div class="pc" style="min-height:${minH}px"><div class="pc-n">${i+1}</div>${renderPuz(p,isKey)}</div>`).join('');
   return`<div class="sheet">
     <div class="sh-hdr"><div class="sh-title">${eh(title)}${badge}</div><div class="sh-src">M.I.N.D. — Facts on Fire</div></div>
     <div class="sh-dir">${DIRS[TYPE]}</div>
-    <div class="pg" style="grid-template-columns:repeat(${cols},1fr)">${cells}</div>
+    <div class="pg" style="grid-template-columns:repeat(2,1fr)">${cells}</div>
   </div>`;
 }
 
@@ -521,35 +506,87 @@ function refresh(){
     :`<div style="padding:60px;text-align:center;color:#888;font-weight:600">No puzzles generated — try again.</div>`;
 }
 
-// ─── Print ───────────────────────────────────────────────────
-function doPrint(mode){
+// ─── Download PDF ────────────────────────────────────────────
+async function downloadPDF(mode, btn){
   const title=document.getElementById('pg-title').value.trim()||PTITLES[TYPE];
-  let css='';
-  for(const s of document.styleSheets){try{for(const r of s.cssRules)css+=r.cssText+'\n';}catch(e){}}
-  const stu=mode!=='key'?buildSheet(false):'';
-  const key=mode!=='student'?buildSheet(true):'';
-  const pb=stu&&key?'<div style="page-break-before:always"></div>':'';
-  const w=window.open('','_blank','width=900,height=1100');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${eh(title)}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Archivo',sans-serif;padding:24px;background:#fff}
-    ${css}
-    .sheet{box-shadow:none!important;border:none!important;max-width:100%!important;padding:18px 22px 24px}
-    @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{padding:10px}}
-    </style></head><body>${stu}${pb}${key}
-    <script>document.fonts.ready.then(()=>setTimeout(()=>window.print(),350));<\/script>
-    </body></html>`);
-  w.document.close();
+  const filename=(title.replace(/[^a-z0-9]+/gi,'_').replace(/^_|_$/g,'').toLowerCase()||'puzzles')+'.pdf';
+
+  // Disable all pdf buttons during generation
+  const allBtns=document.querySelectorAll('.pbtn');
+  const origLabels=[...allBtns].map(b=>b.innerHTML);
+  allBtns.forEach(b=>{b.disabled=true;});
+  btn.innerHTML='<span>⏳</span>Working…';
+
+  try{
+    const{jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'pt',format:'letter'});
+    // Letter: 612 × 792 pt
+
+    // Collect all page-level styles from this document
+    let styleText='';
+    for(const s of document.styleSheets){
+      try{for(const r of s.cssRules)styleText+=r.cssText+'\n';}catch(e){}
+    }
+
+    const pages=[];
+    if(mode!=='key')pages.push(buildSheet(false));
+    if(mode!=='student')pages.push(buildSheet(true));
+
+    // Off-screen render container — letter width at 96dpi ≈ 816px, we use 780px for margins
+    const container=document.createElement('div');
+    container.style.cssText='position:fixed;left:-9999px;top:0;width:780px;background:#fff;padding:0';
+    document.body.appendChild(container);
+
+    for(let i=0;i<pages.length;i++){
+      container.innerHTML=
+        `<style>
+          ${styleText}
+          body{background:#fff}
+          .sheet{box-shadow:none!important;border:none!important;max-width:780px!important;padding:32px 36px 36px;background:#fff}
+          .pg{gap:18px}
+          .pc{min-height:180px}
+        </style>
+        <div style="background:#fff;min-height:1010px;display:flex;flex-direction:column;justify-content:flex-start">
+          ${pages[i]}
+        </div>`;
+
+      // Wait for fonts and layout
+      await document.fonts.ready;
+      await new Promise(r=>setTimeout(r,150));
+
+      const canvas=await html2canvas(container,{
+        scale:2,
+        useCORS:true,
+        backgroundColor:'#ffffff',
+        width:780,
+        windowWidth:780,
+        logging:false
+      });
+
+      if(i>0)pdf.addPage();
+
+      const imgData=canvas.toDataURL('image/jpeg',0.97);
+      // Scale image to fill letter page width, preserve aspect ratio
+      const pdfW=612;
+      const pdfH=Math.min(792,(canvas.height/canvas.width)*pdfW);
+      pdf.addImage(imgData,'JPEG',0,0,pdfW,pdfH);
+    }
+
+    document.body.removeChild(container);
+    pdf.save(filename);
+
+  }catch(err){
+    console.error('PDF error:',err);
+    alert('PDF generation failed — please try again.');
+  }
+
+  allBtns.forEach((b,i)=>{b.disabled=false;b.innerHTML=origLabels[i];});
 }
 
 // ─── UI ──────────────────────────────────────────────────────
 function selType(btn){
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');TYPE=btn.dataset.type;DIFF=0;buildDiffUI();generate();
-}
-function selCount(btn){
-  document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');COUNT=parseInt(btn.dataset.n);generate();
 }
 function setView(v){
   SHOW_KEY=v==='key';
