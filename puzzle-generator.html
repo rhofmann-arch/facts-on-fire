@@ -381,7 +381,7 @@ const DIRS={
   megamismo:'Fill each empty circle with +, −, or = so every row and column forms a true equation reading left-to-right and top-to-bottom.',
   twoout:'Cross out exactly two numbers so that the remaining numbers in every row and column add up to the target sum.',
   crypto:'Find the digit each letter stands for. Each letter represents a different digit.',
-  honeycomb:'Fill every empty hexagon with a number so that a path of consecutive numbers passes through every hexagon.',
+  honeycomb:'Fill every empty hexagon with a number so that consecutive numbers form a connected path. The ▶ marks the smallest number; the ■ marks the largest.',
   triangle:'Fill each empty circle so that the three numbers on each side of the triangle add up to 100.',
   xout:'Cross out one number in each row and column so that the remaining numbers in every row and column add up to the target sum.',
   factorblob:'Circle connected groups of 2 or more numbers whose product equals the target. Every number must belong to exactly one group.',
@@ -741,24 +741,57 @@ function renderHoneycomb(p,key){
   const svgW=(maxX+halfW+6).toFixed(0);
   const svgH=(maxY+R+6).toFixed(0);
   let s=`<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // Path overlay in key mode
   if(key){
     for(let i=0;i<N-1;i++){
       const[x1,y1]=POS[path[i]],[x2,y2]=POS[path[i+1]];
       s+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#FF4F00" stroke-width="2.5" stroke-opacity="0.22" stroke-linecap="round"/>`;
     }
   }
+
+  // Find sequence min/max values
+  const seqMin=Math.min(...grid.filter(v=>v!=null));
+  const seqMax=Math.max(...grid.filter(v=>v!=null));
+
+  // Icon geometry constants
+  const ir=R*0.18;           // icon half-size
+  const TRI_X=0.333, TRI_Y=0.577;  // triangle centre offset (fraction of R)
+
   for(let cell=0;cell<N;cell++){
     const[cx,cy]=POS[cell];
     const pts=hcPts(cx,cy,pr);
     const isGiven=clues[cell]!==null;
     s+=`<polygon points="${pts}" fill="${isGiven?'#ececec':'#ffffff'}" stroke="#2a2a2a" stroke-width="1.5"/>`;
+
     const val=key?grid[cell]:clues[cell];
+    const isStart=(grid[cell]===seqMin);
+    const isEnd  =(grid[cell]===seqMax);
+    const fs=val!==null&&val>=100?(R<25?9:11):(R<25?10.5:13);
+
+    // Number (shift left when triangle shares cell)
+    const numDx=isStart?(-ir*0.4):0;
     if(val!==null){
       const col=(key&&!isGiven)?'#b83000':'#1a1a1a';
-      const fs=val>=100?(R<25?9:11):(R<25?10.5:13);
-      s+=`<text x="${cx.toFixed(1)}" y="${(cy+0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="Archivo,Helvetica,sans-serif" font-weight="800" font-size="${fs}" fill="${col}">${val}</text>`;
-    }else{
-      // blank hex — no dot
+      s+=`<text x="${(cx+numDx).toFixed(1)}" y="${(cy+0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="Archivo,Helvetica,sans-serif" font-weight="800" font-size="${fs}" fill="${col}">${val}</text>`;
+    }
+
+    // ▶ Start triangle (upper-right, inset from hex edge)
+    if(isStart){
+      const tx=(cx+TRI_X*R).toFixed(1), ty=(cy+TRI_Y*R).toFixed(1);
+      const hs=ir;
+      const p0=`${(cx+TRI_X*R-hs*0.75).toFixed(1)},${(cy+TRI_Y*R-hs).toFixed(1)}`;
+      const p1=`${(cx+TRI_X*R-hs*0.75).toFixed(1)},${(cy+TRI_Y*R+hs).toFixed(1)}`;
+      const p2=`${(cx+TRI_X*R+hs).toFixed(1)},${(cy+TRI_Y*R).toFixed(1)}`;
+      s+=`<polygon points="${p0} ${p1} ${p2}" fill="#1d7a1d"/>`;
+    }
+
+    // ■ End square (below number, centred on hex centre x)
+    if(isEnd){
+      const numBaseline=cy+0.5+fs*0.38;  // approximate baseline in SVG (y down)
+      const sqCY=(numBaseline+ir*1.3).toFixed(1);
+      const hs=(ir*0.85).toFixed(1);
+      s+=`<rect x="${(cx-ir*0.85).toFixed(1)}" y="${(numBaseline+ir*0.45).toFixed(1)}" width="${(ir*1.7).toFixed(1)}" height="${(ir*1.7).toFixed(1)}" fill="#8b1a1a"/>`;
     }
   }
   s+='</svg>';
