@@ -7,470 +7,151 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:       #FAFAF7;
-  --surface:  #FFFFFF;
-  --ink:      #0E1117;
-  --ink2:     #3A4150;
-  --muted:    #8A94A0;
-  --border:   #E4E6EA;
-  --fire:     #FF4F00;
-  --fire2:    #FF9000;
-  --ember:    #FFF0E8;
-  --teal:     #007A6E;
-  --teal-lt:  #E6F4F2;
-  --blue:     #1B4FCC;
-  --blue-lt:  #EBF0FF;
-  --gold:     #B87800;
-  --gold-lt:  #FFF8E6;
-  --lock:     #6B3FA0;
-  --lock-lt:  #F2EAF9;
-  --radius:   16px;
-  --shadow:   0 2px 12px rgba(0,0,0,0.07);
-  --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
+  --bg:#FAFAF7;--surface:#FFFFFF;--ink:#0E1117;--ink2:#3A4150;
+  --muted:#8A94A0;--border:#E4E6EA;
+  --fire:#FF4F00;--fire2:#FF9000;--ember:#FFF0E8;
+  --teal:#007A6E;--teal-lt:#E6F4F2;
+  --blue:#1B4FCC;--blue-lt:#EBF0FF;
+  --gold:#B87800;--gold-lt:#FFF8E6;
+  --lock:#6B3FA0;--lock-lt:#F2EAF9;
+  --radius:16px;--shadow:0 2px 12px rgba(0,0,0,0.07);--shadow-lg:0 8px 40px rgba(0,0,0,0.12);
 }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+/* ── HEADER ── */
+header{background:var(--ink);padding:0 40px;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--fire)}
+.header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:20px;height:64px}
+.logo{font-family:'Archivo Black',sans-serif;font-size:1.35rem;color:white;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer}
+.logo-flame{font-size:1.6rem;filter:drop-shadow(0 0 8px rgba(255,79,0,0.6))}
+.logo span span{color:var(--fire2)}
 
-body {
-  font-family: 'Archivo', sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  line-height: 1.6;
-}
+/* ── HERO ── */
+.hero{background:var(--ink);padding:72px 40px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 70% at 90% 50%,rgba(255,79,0,0.18) 0%,transparent 65%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(255,144,0,0.10) 0%,transparent 60%);pointer-events:none}
+.hero::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;align-items:center;gap:40px}
+.hero-eyebrow{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:var(--fire2);margin-bottom:14px}
+.hero-title{font-family:'Archivo Black',sans-serif;font-size:clamp(2.8rem,5vw,4.2rem);color:white;line-height:1.05;letter-spacing:-0.03em;margin-bottom:18px}
+.hero-title em{font-style:normal;background:linear-gradient(90deg,var(--fire),var(--fire2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-desc{color:rgba(255,255,255,0.58);font-size:1.05rem;max-width:520px;line-height:1.7}
+.hero-stats{display:flex;flex-direction:column;gap:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:28px 32px;min-width:200px}
+.stat-item{text-align:center}
+.stat-num{font-family:'Archivo Black',sans-serif;font-size:2.4rem;color:var(--fire2);line-height:1}
+.stat-lbl{font-size:0.75rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-top:2px}
+.stat-divider{height:1px;background:rgba(255,255,255,0.08)}
 
-/* ── HEADER ─────────────────────────────────────────────────────── */
-header {
-  background: var(--ink);
-  padding: 0 40px;
-  position: sticky; top: 0; z-index: 100;
-  border-bottom: 3px solid var(--fire);
-}
-.header-inner {
-  max-width: 1100px; margin: 0 auto;
-  display: flex; align-items: center; gap: 20px;
-  height: 64px;
-}
-.logo {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 1.35rem;
-  color: white;
-  letter-spacing: -0.02em;
-  display: flex; align-items: center; gap: 10px;
-  text-decoration: none;
-}
-.logo-flame {
-  font-size: 1.6rem;
-  filter: drop-shadow(0 0 8px rgba(255,79,0,0.6));
-}
-.logo-text span { color: var(--fire2); }
-.header-nav {
-  margin-left: auto;
-  display: flex; gap: 8px; align-items: center;
-}
-.nav-link {
-  color: rgba(255,255,255,0.65);
-  text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 8px;
-  transition: color 0.15s, background 0.15s;
-  letter-spacing: 0.02em;
-}
-.nav-link:hover { color: white; background: rgba(255,255,255,0.08); }
-.nav-lock {
-  color: white;
-  background: var(--lock);
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 0.88rem; font-weight: 700;
-  text-decoration: none;
-  display: flex; align-items: center; gap: 6px;
-  transition: filter 0.15s;
-}
-.nav-lock:hover { filter: brightness(1.15); }
+/* ── HUB MENU ── */
+.hub{max-width:1100px;margin:0 auto;padding:60px 40px 80px}
+.hub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:820px;margin:0 auto}
+.hub-card{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:36px 32px;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:14px;transition:border-color 0.18s,box-shadow 0.18s,transform 0.18s;position:relative;overflow:hidden}
+.hub-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;transform:scaleX(0);transform-origin:left;transition:transform 0.25s ease}
+.hub-card:hover{border-color:var(--fire);box-shadow:var(--shadow-lg);transform:translateY(-4px)}
+.hub-card:hover::before{transform:scaleX(1)}
+.hub-card.hc-fire::before{background:linear-gradient(90deg,var(--fire),var(--fire2))}
+.hub-card.hc-teal::before{background:var(--teal)}
+.hub-card.hc-blue::before{background:var(--blue)}
+.hub-card.hc-lock::before{background:var(--lock)}
+.hub-card:hover.hc-fire{border-color:var(--fire)}
+.hub-card:hover.hc-teal{border-color:var(--teal)}
+.hub-card:hover.hc-blue{border-color:var(--blue)}
+.hub-card:hover.hc-lock{border-color:var(--lock)}
+.hub-ico{font-size:2.6rem;line-height:1}
+.hub-label{font-family:'Archivo Black',sans-serif;font-size:1.25rem;letter-spacing:-0.02em;color:var(--ink)}
+.hub-desc{font-size:0.88rem;color:var(--ink2);line-height:1.6}
+.hub-count{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:20px;margin-top:4px}
+.hc-fire .hub-count{background:var(--ember);color:var(--fire)}
+.hc-teal .hub-count{background:var(--teal-lt);color:var(--teal)}
+.hc-blue .hub-count{background:var(--blue-lt);color:var(--blue)}
+.hc-lock .hub-count{background:var(--lock-lt);color:var(--lock)}
 
-/* ── HERO ────────────────────────────────────────────────────────── */
-.hero {
-  background: var(--ink);
-  padding: 72px 40px 80px;
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 55% 70% at 90% 50%, rgba(255,79,0,0.18) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(255,144,0,0.10) 0%, transparent 60%);
-  pointer-events: none;
-}
-/* Subtle grid texture */
-.hero::after {
-  content: '';
-  position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
-.hero-inner {
-  max-width: 1100px; margin: 0 auto;
-  position: relative; z-index: 1;
-  display: grid; grid-template-columns: 1fr auto;
-  align-items: center; gap: 40px;
-}
-.hero-eyebrow {
-  font-size: 0.78rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.15em;
-  color: var(--fire2);
-  margin-bottom: 14px;
-}
-.hero-title {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: clamp(2.8rem, 5vw, 4.2rem);
-  color: white;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin-bottom: 18px;
-}
-.hero-title em {
-  font-style: normal;
-  background: linear-gradient(90deg, var(--fire), var(--fire2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.hero-desc {
-  color: rgba(255,255,255,0.58);
-  font-size: 1.05rem;
-  max-width: 520px;
-  line-height: 1.7;
-}
-.hero-stats {
-  display: flex; flex-direction: column; gap: 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius);
-  padding: 28px 32px;
-  min-width: 200px;
-}
-.stat-item { text-align: center; }
-.stat-num {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 2.4rem;
-  color: var(--fire2);
-  line-height: 1;
-}
-.stat-lbl {
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.45);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-  margin-top: 2px;
-}
-.stat-divider { height: 1px; background: rgba(255,255,255,0.08); }
+/* ── SECTION PANEL ── */
+.panel{display:none;max-width:1100px;margin:0 auto;padding:40px 40px 100px;flex-direction:column;gap:48px}
+.panel.active{display:flex}
+.panel-back{display:inline-flex;align-items:center;gap:8px;font-size:0.88rem;font-weight:700;color:var(--muted);cursor:pointer;background:none;border:none;font-family:'Archivo',sans-serif;padding:0;margin-bottom:8px;transition:color 0.15s}
+.panel-back:hover{color:var(--ink)}
+.section-header{display:flex;align-items:flex-end;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid var(--border)}
+.section-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.section-title{font-family:'Archivo Black',sans-serif;font-size:1.5rem;letter-spacing:-0.02em;color:var(--ink)}
+.section-sub{font-size:0.85rem;color:var(--muted);margin-top:2px}
+.section-badge{margin-left:auto;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;border-radius:20px}
 
-/* ── MAIN CONTENT ────────────────────────────────────────────────── */
-main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 60px 40px 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 64px;
-}
+/* ── CARDS ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.card-grid.wide{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+.res-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:12px;transition:border-color 0.18s,box-shadow 0.18s,transform 0.18s;position:relative;overflow:hidden}
+.res-card:hover{border-color:var(--fire);box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.res-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--fire),var(--fire2));transform:scaleX(0);transform-origin:left;transition:transform 0.25s ease}
+.res-card:hover::before{transform:scaleX(1)}
+.res-card-top{display:flex;align-items:flex-start;gap:14px}
+.res-card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.res-card-meta{flex:1}
+.res-card-title{font-family:'Archivo Black',sans-serif;font-size:1.05rem;letter-spacing:-0.01em;color:var(--ink);line-height:1.25}
+.res-card-type{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-top:3px}
+.res-card-desc{font-size:0.88rem;color:var(--ink2);line-height:1.6}
+.res-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);margin-top:auto}
+.res-card-tag{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:20px;color:var(--muted);background:var(--bg);border:1px solid var(--border);line-height:1.7}
+.res-card-cta{font-size:0.82rem;font-weight:700;color:var(--fire);display:flex;align-items:center;gap:4px}
+.res-card-cta::after{content:'→'}
+.res-card.soon{opacity:0.6;cursor:default;pointer-events:none}
+.res-card.soon:hover{transform:none;box-shadow:none;border-color:var(--border)}
+.soon-pill{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;background:var(--border);color:var(--muted);padding:2px 8px;border-radius:20px;margin-left:8px}
 
-/* ── SECTION ─────────────────────────────────────────────────────── */
-.section-header {
-  display: flex; align-items: flex-end; gap: 16px;
-  margin-bottom: 28px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--border);
-}
-.section-icon {
-  width: 44px; height: 44px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; flex-shrink: 0;
-}
-.section-title {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-.section-sub {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: 2px;
-}
-.section-badge {
-  margin-left: auto;
-  font-size: 0.72rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  padding: 4px 10px; border-radius: 20px;
-}
+/* ── SCOPE TABLE ── */
+.scope-table{width:100%;border-collapse:collapse;font-size:0.88rem;background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1.5px solid var(--border)}
+.scope-table th{background:var(--ink);color:white;padding:12px 16px;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700}
+.scope-table td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:top}
+.scope-table tr:last-child td{border-bottom:none}
+.scope-table tr:hover td{background:var(--bg)}
+.grade-pill{display:inline-block;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:2px 8px;border-radius:20px;margin-right:4px;background:var(--ember);color:var(--fire)}
+.skill-name{font-weight:600;color:var(--ink)}
+.wb-link{display:inline-block;color:var(--fire);font-weight:700;font-size:0.82rem;text-decoration:none;background:var(--ember);border:1px solid #FFCDB0;padding:2px 9px;border-radius:6px;margin:2px 3px 2px 0;transition:background 0.15s}
+.wb-link:hover{background:#FFD9C5}
+.wb-soon{display:inline-block;color:var(--muted);font-size:0.78rem;font-weight:600;background:var(--bg);border:1px solid var(--border);padding:2px 9px;border-radius:6px;margin:2px 3px 2px 0}
 
-/* ── CARD GRID ───────────────────────────────────────────────────── */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-.card-grid.wide { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+/* ── LOCKED ── */
+.locked-section{background:var(--lock-lt);border:2px dashed #C9A8E8;border-radius:var(--radius);padding:48px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
+.lock-icon{width:64px;height:64px;background:var(--lock);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;box-shadow:0 4px 20px rgba(107,63,160,0.3)}
+.locked-title{font-family:'Archivo Black',sans-serif;font-size:1.5rem;color:var(--lock);letter-spacing:-0.02em}
+.locked-desc{font-size:0.95rem;color:var(--ink2);max-width:480px;line-height:1.7}
+.locked-features{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:4px}
+.locked-feat{background:white;border:1px solid #C9A8E8;color:var(--lock);font-size:0.82rem;font-weight:600;padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:6px}
+.locked-cta{margin-top:8px;background:var(--lock);color:white;border:none;border-radius:10px;font-family:'Archivo',sans-serif;font-weight:700;font-size:0.95rem;padding:12px 28px;cursor:pointer;transition:filter 0.15s}
+.locked-cta:hover{filter:brightness(1.12)}
 
-/* ── RESOURCE CARD ───────────────────────────────────────────────── */
-.res-card {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
-  position: relative;
-  overflow: hidden;
-}
-.res-card:hover {
-  border-color: var(--fire);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-3px);
-}
-.res-card::before {
-  content: '';
-  position: absolute; top:0; left:0; right:0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--fire), var(--fire2));
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 0.25s ease;
-}
-.res-card:hover::before { transform: scaleX(1); }
+/* ── COLOR VARIANTS ── */
+.ic-fire{background:var(--ember)}.ic-teal{background:var(--teal-lt)}.ic-blue{background:var(--blue-lt)}.ic-gold{background:var(--gold-lt)}.ic-purple{background:var(--lock-lt)}
+.tp-fire{color:var(--fire)}.tp-teal{color:var(--teal)}.tp-blue{color:var(--blue)}.tp-gold{color:var(--gold)}.tp-purple{color:var(--lock)}
+.si-fire{background:var(--ember)}.si-teal{background:var(--teal-lt)}.si-blue{background:var(--blue-lt)}
+.sb-fire{background:var(--ember);color:var(--fire)}.sb-teal{background:var(--teal-lt);color:var(--teal)}.sb-blue{background:var(--blue-lt);color:var(--blue)}
 
-.res-card-top {
-  display: flex; align-items: flex-start; gap: 14px;
-}
-.res-card-icon {
-  width: 48px; height: 48px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; flex-shrink: 0;
-}
-.res-card-meta { flex: 1; }
-.res-card-title {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-  line-height: 1.25;
-}
-.res-card-type {
-  font-size: 0.72rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.1em;
-  margin-top: 3px;
-}
-.res-card-desc {
-  font-size: 0.88rem;
-  color: var(--ink2);
-  line-height: 1.6;
-}
-.res-card-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-  margin-top: auto;
-}
-.res-card-tag {
-  font-size: 0.72rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  padding: 3px 10px; border-radius: 20px;
-  color: var(--muted); background: var(--bg);
-  border: 1px solid var(--border);
-}
-.res-card-cta {
-  font-size: 0.82rem; font-weight: 700;
-  color: var(--fire);
-  display: flex; align-items: center; gap: 4px;
-}
-.res-card-cta::after { content: '→'; }
+/* ── FOOTER ── */
+footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;padding:28px 40px;font-size:0.82rem;margin-top:auto}
+footer a{color:var(--fire2);text-decoration:none}
+footer a:hover{text-decoration:underline}
 
-/* coming-soon state */
-.res-card.soon {
-  opacity: 0.6;
-  cursor: default;
-  pointer-events: none;
-}
-.res-card.soon:hover { transform: none; box-shadow: none; border-color: var(--border); }
-.soon-pill {
-  font-size: 0.68rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.1em;
-  background: var(--border); color: var(--muted);
-  padding: 2px 8px; border-radius: 20px; margin-left: 8px;
-}
-
-/* locked section */
-.locked-section {
-  background: var(--lock-lt);
-  border: 2px dashed #C9A8E8;
-  border-radius: var(--radius);
-  padding: 48px 40px;
-  text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-}
-.lock-icon {
-  width: 64px; height: 64px;
-  background: var(--lock);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem;
-  box-shadow: 0 4px 20px rgba(107,63,160,0.3);
-}
-.locked-title {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 1.5rem; color: var(--lock);
-  letter-spacing: -0.02em;
-}
-.locked-desc {
-  font-size: 0.95rem; color: var(--ink2);
-  max-width: 480px; line-height: 1.7;
-}
-.locked-features {
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
-  margin-top: 4px;
-}
-.locked-feat {
-  background: white; border: 1px solid #C9A8E8;
-  color: var(--lock); font-size: 0.82rem; font-weight: 600;
-  padding: 6px 14px; border-radius: 20px;
-  display: flex; align-items: center; gap: 6px;
-}
-.locked-cta {
-  margin-top: 8px;
-  background: var(--lock); color: white;
-  border: none; border-radius: 10px;
-  font-family: 'Archivo', sans-serif; font-weight: 700;
-  font-size: 0.95rem; padding: 12px 28px; cursor: pointer;
-  transition: filter 0.15s;
-}
-.locked-cta:hover { filter: brightness(1.12); }
-
-/* ── COLOR VARIANTS ──────────────────────────────────────────────── */
-.ic-fire  { background: var(--ember);  }
-.ic-teal  { background: var(--teal-lt); }
-.ic-blue  { background: var(--blue-lt); }
-.ic-gold  { background: var(--gold-lt); }
-.ic-lock  { background: var(--lock-lt); }
-.ic-purple{ background: var(--lock-lt); }
-
-.tp-fire  { color: var(--fire); }
-.tp-teal  { color: var(--teal); }
-.tp-blue  { color: var(--blue); }
-.tp-gold  { color: var(--gold); }
-.tp-purple{ color: var(--lock); }
-
-.si-fire  { background: var(--ember);  }
-.si-teal  { background: var(--teal-lt); }
-.si-blue  { background: var(--blue-lt); }
-.si-gold  { background: var(--gold-lt); }
-
-.sb-fire  { background: var(--ember); color: var(--fire); }
-.sb-teal  { background: var(--teal-lt); color: var(--teal); }
-.sb-blue  { background: var(--blue-lt); color: var(--blue); }
-.sb-gold  { background: var(--gold-lt); color: var(--gold); }
-
-/* ── FOOTER ──────────────────────────────────────────────────────── */
-footer {
-  background: var(--ink);
-  color: rgba(255,255,255,0.4);
-  text-align: center;
-  padding: 28px 40px;
-  font-size: 0.82rem;
-}
-footer a { color: var(--fire2); text-decoration: none; }
-footer a:hover { text-decoration: underline; }
-
-/* ── SCOPE SEQUENCE TABLE ────────────────────────────────────────── */
-.scope-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-  background: var(--surface);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  border: 1.5px solid var(--border);
-}
-.scope-table th {
-  background: var(--ink); color: white;
-  padding: 12px 16px; text-align: left;
-  font-size: 0.75rem; text-transform: uppercase;
-  letter-spacing: 0.08em; font-weight: 700;
-}
-.scope-table td {
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--border);
-  color: var(--ink2);
-  vertical-align: top;
-}
-.scope-table tr:last-child td { border-bottom: none; }
-.scope-table tr:hover td { background: var(--bg); }
-.grade-pill {
-  display: inline-block;
-  font-size: 0.7rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  padding: 2px 8px; border-radius: 20px; margin-right: 4px;
-  background: var(--ember); color: var(--fire);
-}
-.skill-name { font-weight: 600; color: var(--ink); }
-
-/* ── WORKBOOK LINKS ─────────────────────────────────────────────── */
-.wb-link {
-  display: inline-block;
-  color: var(--fire); font-weight: 700; font-size: 0.82rem;
-  text-decoration: none;
-  background: var(--ember); border: 1px solid #FFCDB0;
-  padding: 2px 9px; border-radius: 6px; margin: 2px 3px 2px 0;
-  transition: background 0.15s;
-}
-.wb-link:hover { background: #FFD9C5; }
-.wb-soon {
-  display: inline-block;
-  color: var(--muted); font-size: 0.78rem; font-weight: 600;
-  background: var(--bg); border: 1px solid var(--border);
-  padding: 2px 9px; border-radius: 6px; margin: 2px 3px 2px 0;
-}
-
-/* ── RESPONSIVE ──────────────────────────────────────────────────── */
-@media (max-width: 720px) {
-  header { padding: 0 20px; }
-  .hero { padding: 48px 20px 56px; }
-  .hero-inner { grid-template-columns: 1fr; }
-  .hero-stats { flex-direction: row; flex-wrap: wrap; justify-content: center; }
-  main { padding: 40px 20px 80px; gap: 48px; }
-  .header-nav .nav-link { display: none; }
+@media(max-width:720px){
+  header{padding:0 20px}
+  .hero{padding:48px 20px 56px}
+  .hero-inner{grid-template-columns:1fr}
+  .hero-stats{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .hub{padding:40px 20px 60px}
+  .hub-grid{grid-template-columns:1fr;max-width:100%}
+  .panel{padding:32px 20px 80px}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="header-inner">
-    <a class="logo" href="index.html">
+    <div class="logo" onclick="showHub()">
       <span class="logo-flame">🔥</span>
       <span>Facts on Fire <span>· Teacher Hub</span></span>
-    </a>
-    <nav class="header-nav">
-      <a class="nav-link" href="#workbooks">Workbooks</a>
-      <a class="nav-link" href="#resources">Resources</a>
-      <a class="nav-link" href="#practice">Practice Tools</a>
-      <a class="nav-lock" href="#data">🔒 Data Portal</a>
-    </nav>
+    </div>
   </div>
 </header>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
     <div>
@@ -505,10 +186,40 @@ footer a:hover { text-decoration: underline; }
   </div>
 </div>
 
-<main>
+<!-- ── HUB MENU ── -->
+<div class="hub" id="hub">
+  <div class="hub-grid">
+    <div class="hub-card hc-fire" onclick="showPanel('workbooks')">
+      <div class="hub-ico">📓</div>
+      <div class="hub-label">Student Workbooks</div>
+      <div class="hub-desc">Print-and-use PDF workbooks — one per skill set. Probes, CCC practice, fact families, and cloze activities.</div>
+      <span class="hub-count">27 Skill Sets · K–8</span>
+    </div>
+    <div class="hub-card hc-teal" onclick="showPanel('practice')">
+      <div class="hub-ico">🖥️</div>
+      <div class="hub-label">Whole-Class Practice</div>
+      <div class="hub-desc">Browser-based tools for smartboard drills, choral counting, puzzle practice, and class challenges.</div>
+      <span class="hub-count">7 Tools · Free · No Login</span>
+    </div>
+    <div class="hub-card hc-blue" onclick="showPanel('resources')">
+      <div class="hub-ico">📋</div>
+      <div class="hub-label">Teacher Resources</div>
+      <div class="hub-desc">Tracking sheets, implementation guides, and classroom tools for teachers and coaches.</div>
+      <span class="hub-count">Print &amp; Digital</span>
+    </div>
+    <div class="hub-card hc-lock" onclick="showPanel('data')">
+      <div class="hub-ico">🔒</div>
+      <div class="hub-label">Data Portal</div>
+      <div class="hub-desc">Track class and student progress across all skill sets. Dashboards for teachers and coaches.</div>
+      <span class="hub-count">Coming Soon</span>
+    </div>
+  </div>
+</div>
 
-  <!-- ── WORKBOOKS ── -->
-  <section id="workbooks">
+<!-- ── PANEL: WORKBOOKS ── -->
+<div class="panel" id="panel-workbooks">
+  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <section>
     <div class="section-header">
       <div class="section-icon si-fire">📓</div>
       <div>
@@ -517,15 +228,10 @@ footer a:hover { text-decoration: underline; }
       </div>
       <span class="section-badge sb-fire">PDF · Print-Ready</span>
     </div>
-
-    <!-- Scope & Sequence summary -->
-    <table class="scope-table" style="margin-bottom:28px;">
+    <table class="scope-table">
       <thead>
         <tr>
-          <th>Grade</th>
-          <th>Skill Set</th>
-          <th>Workbooks</th>
-          <th>Mastery Criteria</th>
+          <th>Grade</th><th>Skill Set</th><th>Workbooks</th><th>Mastery Criteria</th>
         </tr>
       </thead>
       <tbody>
@@ -725,23 +431,25 @@ footer a:hover { text-decoration: underline; }
           <td><span style="color:var(--muted);">Coming soon</span></td>
           <td>100% acc @ 20 DCPM</td>
         </tr>
-      </tbody>
+            </tbody>
     </table>
   </section>
+</div>
 
-  <!-- ── WHOLE-CLASS PRACTICE TOOLS ── -->
-  <section id="practice">
+<!-- ── PANEL: PRACTICE TOOLS ── -->
+<div class="panel" id="panel-practice">
+  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <section>
     <div class="section-header">
-      <div class="section-icon si-blue">🖥️</div>
+      <div class="section-icon si-teal">🖥️</div>
       <div>
         <div class="section-title">Whole-Class Practice Tools</div>
         <div class="section-sub">Run directly in any browser — no login, no install. Project on your smartboard and go.</div>
       </div>
-      <span class="section-badge sb-blue">Web Apps · Free</span>
+      <span class="section-badge sb-teal">Web Apps · Free</span>
     </div>
     <div class="card-grid wide">
 
-      <!-- Class Challenge -->
       <a class="res-card" href="class_reward_app.html">
         <div class="res-card-top">
           <div class="res-card-icon ic-blue">🎯</div>
@@ -752,12 +460,11 @@ footer a:hover { text-decoration: underline; }
         </div>
         <div class="res-card-desc">Progressive reward reveal — students answer one at a time to uncover a class goal image, square by square. Upload any photo, beat-the-clock option included.</div>
         <div class="res-card-footer">
-          <span class="res-card-tag">Addition · Subtraction · Multiplication · Division</span>
+          <span class="res-card-tag">Addition · Subtraction<br>Multiplication · Division</span>
           <span class="res-card-cta">Launch</span>
         </div>
       </a>
 
-      <!-- Beat the Tape -->
       <a class="res-card" href="beat_the_tape.html">
         <div class="res-card-top">
           <div class="res-card-icon ic-fire">📼</div>
@@ -768,12 +475,11 @@ footer a:hover { text-decoration: underline; }
         </div>
         <div class="res-card-desc">Spoken flashcard drill — the browser reads each problem aloud, waits for choral response, then reveals the answer. Adjustable pacing and wait time for any fact set.</div>
         <div class="res-card-footer">
-          <span class="res-card-tag">Addition · Subtraction · Multiplication · Division</span>
+          <span class="res-card-tag">Addition · Subtraction<br>Multiplication · Division</span>
           <span class="res-card-cta">Launch</span>
         </div>
       </a>
 
-      <!-- Four Strikes -->
       <a class="res-card" href="four-strikes.html">
         <div class="res-card-top">
           <div class="res-card-icon ic-gold">⚡</div>
@@ -784,12 +490,11 @@ footer a:hover { text-decoration: underline; }
         </div>
         <div class="res-card-desc">Digit-guessing game — guess which digits appear in a hidden math equation, four wrong guesses and you're out. Works with addition, subtraction, multiplication, and division fact sets.</div>
         <div class="res-card-footer">
-          <span class="res-card-tag">Addition · Subtraction · Multiplication · Division</span>
+          <span class="res-card-tag">Addition · Subtraction<br>Multiplication · Division</span>
           <span class="res-card-cta">Launch</span>
         </div>
       </a>
 
-      <!-- Choral Counting -->
       <a class="res-card" href="choral_counting.html">
         <div class="res-card-top">
           <div class="res-card-icon ic-teal">🔢</div>
@@ -805,7 +510,6 @@ footer a:hover { text-decoration: underline; }
         </div>
       </a>
 
-      <!-- Sequence Puzzles -->
       <a class="res-card" href="sequence_puzzles.html">
         <div class="res-card-top">
           <div class="res-card-icon ic-blue">🔣</div>
@@ -816,41 +520,10 @@ footer a:hover { text-decoration: underline; }
         </div>
         <div class="res-card-desc">Skip-count sequences with two missing values — displayed one puzzle at a time on the smartboard. Four difficulty levels including descending sequences and offset patterns. Beat-the-clock mode with a report screen.</div>
         <div class="res-card-footer">
-          <span class="res-card-tag">×2–×12</span>
+          <span class="res-card-tag">×2–×12 · Multiplication Readiness</span>
           <span class="res-card-cta">Launch</span>
         </div>
       </a>
-
-      <!-- No Tech Resources -->
-      <a class="res-card soon" href="#">
-        <div class="res-card-top">
-          <div class="res-card-icon ic-gold">🃏</div>
-          <div class="res-card-meta">
-            <div class="res-card-title">No Tech Resources <span class="soon-pill">Soon</span></div>
-            <div class="res-card-type tp-gold">Print · No Tech Needed</div>
-          </div>
-        </div>
-        <div class="res-card-desc">Printable materials for whole-class practice without a device — including classroom display cards and partner activity sheets.</div>
-        <div class="res-card-footer">
-          <span class="res-card-tag">Print</span>
-          <span class="res-card-cta">Coming soon</span>
-        </div>
-      </a>
-
-    </div>
-  </section>
-
-  <!-- ── TEACHER RESOURCES ── -->
-  <section id="resources">
-    <div class="section-header">
-      <div class="section-icon si-teal">📋</div>
-      <div>
-        <div class="section-title">Teacher Resources</div>
-        <div class="section-sub">Tracking sheets, implementation guides, and classroom tools.</div>
-      </div>
-      <span class="section-badge sb-teal">Print &amp; Digital</span>
-    </div>
-    <div class="card-grid">
 
       <a class="res-card" href="puzzle-generator.html">
         <div class="res-card-top">
@@ -860,12 +533,30 @@ footer a:hover { text-decoration: underline; }
             <div class="res-card-type tp-purple">Web App · Print to PDF</div>
           </div>
         </div>
-        <div class="res-card-desc">Generate fresh puzzles across 10 types — Cross-Number, Mismo, Mega Mismo, Cryptarithms, Two-Out, X-Out, 100 Triangles, Honeycomb Path, Multiple Maze, and Factor Blob. Preview student and answer-key versions instantly, then print or save as PDF.</div>
+        <div class="res-card-desc">Generate fresh puzzles across 10 types — Cross-Number, Mismo, Mega Mismo, Cryptarithms, Two-Out, X-Out, 100 Triangles, Honeycomb Path, Multiple Maze, and Factor Blob. Preview student and key versions, then download as PDF.</div>
         <div class="res-card-footer">
-          <span class="res-card-tag">Addition · Reasoning · Problem Solving</span>
+          <span class="res-card-tag">Addition · Subtraction<br>Multiplication · Division<br>Number Writing · Problem Solving</span>
           <span class="res-card-cta">Launch</span>
         </div>
       </a>
+
+    </div>
+  </section>
+</div>
+
+<!-- ── PANEL: TEACHER RESOURCES ── -->
+<div class="panel" id="panel-resources">
+  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <section>
+    <div class="section-header">
+      <div class="section-icon si-blue">📋</div>
+      <div>
+        <div class="section-title">Teacher Resources</div>
+        <div class="section-sub">Tracking sheets, implementation guides, and classroom tools.</div>
+      </div>
+      <span class="section-badge sb-blue">Print &amp; Digital</span>
+    </div>
+    <div class="card-grid">
 
       <a class="res-card" href="resources/tracking-sheet.pdf">
         <div class="res-card-top">
@@ -914,43 +605,54 @@ footer a:hover { text-decoration: underline; }
 
     </div>
   </section>
+</div>
 
-  <!-- ── DATA PORTAL (LOCKED) ── -->
-  <section id="data">
+<!-- ── PANEL: DATA PORTAL ── -->
+<div class="panel" id="panel-data">
+  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <section>
     <div class="section-header">
-      <div class="section-icon si-fire" style="background:var(--lock-lt)">🔒</div>
+      <div class="section-icon" style="background:var(--lock-lt)">🔒</div>
       <div>
         <div class="section-title">Data Portal</div>
         <div class="section-sub">Track class and student progress across all skill sets.</div>
       </div>
-      <span class="section-badge" style="background:var(--lock-lt);color:var(--lock);">Coming Soon</span>
+      <span class="section-badge" style="background:var(--lock-lt);color:var(--lock)">Coming Soon</span>
     </div>
-
     <div class="locked-section">
       <div class="lock-icon">🔒</div>
       <div class="locked-title">Teacher &amp; Coach Data Portal</div>
-      <div class="locked-desc">
-        A protected area where teachers log weekly probe scores, coaches track school-wide mastery, and the system surfaces which students and classes are ready to advance to the next skill set.
-      </div>
+      <div class="locked-desc">A protected area where teachers log weekly probe scores, coaches track school-wide mastery, and the system surfaces which students and classes are ready to advance.</div>
       <div class="locked-features">
         <div class="locked-feat">📊 Class fluency dashboards</div>
         <div class="locked-feat">👤 Individual student progress</div>
         <div class="locked-feat">🏫 School-wide skill mastery view</div>
         <div class="locked-feat">📥 Export to CSV / PDF</div>
       </div>
-      <button class="locked-cta" onclick="alert('Data portal coming soon! Check back after the workbook series is complete.')">
-        Notify me when it's ready
-      </button>
+      <button class="locked-cta" onclick="alert('Data portal coming soon! Check back after the workbook series is complete.')">Notify me when it's ready</button>
     </div>
   </section>
-
-</main>
+</div>
 
 <footer>
-  <p>
-    Facts on Fire is based on the <a href="https://brianponcy.wixsite.com/my-site-2/m-i-n-d-2-0-facts-on-fire" target="_blank">M.I.N.D. 2.0 program</a> by Brian Poncy. All materials free for classroom use.
-  </p>
+  <p>Facts on Fire is based on the <a href="https://brianponcy.wixsite.com/my-site-2/m-i-n-d-2-0-facts-on-fire" target="_blank">M.I.N.D. 2.0 program</a> by Brian Poncy. All materials free for classroom use.</p>
 </footer>
 
+<script>
+function showHub(){
+  document.getElementById('hub').style.display='';
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showPanel(id){
+  document.getElementById('hub').style.display='none';
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+// Support direct hash links
+const hash=location.hash.replace('#','');
+if(['workbooks','practice','resources','data'].includes(hash))showPanel(hash);
+</script>
 </body>
 </html>
