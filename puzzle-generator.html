@@ -1465,36 +1465,75 @@ function refresh(){
 
 // ─── Download PDF ────────────────────────────────────────────
 // ─── Print / Save PDF ────────────────────────────────────────
-function downloadPDF(mode){
+// ─── Download PDF ────────────────────────────────────────────
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${src}"]`)){res();return;}
+    const s=document.createElement('script');s.src=src;
+    s.onload=res;s.onerror=()=>rej(new Error('Failed to load '+src));
+    document.head.appendChild(s);
+  });
+}
+
+async function downloadPDF(mode){
   const title=document.getElementById('pg-title').value.trim()||PTITLES[TYPE];
-  let css='';
-  for(const s of document.styleSheets){
-    try{for(const r of s.cssRules)css+=r.cssText+'\n';}catch(e){}
+  const pbtns=document.querySelectorAll('.pbtn');
+  pbtns.forEach(b=>{b.disabled=true;b._txt=b.lastChild.textContent;b.lastChild.textContent='…';});
+
+  try{
+    await Promise.all([
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+    ]);
+
+    const pages=[];
+    if(mode!=='key')     pages.push(buildSheet(false));
+    if(mode!=='student') pages.push(buildSheet(true));
+
+    // Off-screen render container — same page so all CSS applies
+    const wrap=document.createElement('div');
+    wrap.style.cssText='position:fixed;left:-9999px;top:0;width:740px;background:#fff;padding:32px;box-sizing:border-box;';
+    document.body.appendChild(wrap);
+
+    const{jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'pt',format:'letter'});
+    const PW=pdf.internal.pageSize.getWidth();   // 612 pt
+    const PH=pdf.internal.pageSize.getHeight();  // 792 pt
+    const MARGIN=32; // pt
+    const CONTENT_W=PW-MARGIN*2;
+
+    for(let i=0;i<pages.length;i++){
+      if(i>0) pdf.addPage();
+      wrap.innerHTML=pages[i];
+      // Let fonts/SVGs settle
+      await new Promise(r=>setTimeout(r,300));
+      const canvas=await html2canvas(wrap,{
+        scale:2,
+        useCORS:true,
+        allowTaint:true,
+        backgroundColor:'#ffffff',
+        logging:false,
+      });
+      const imgW=CONTENT_W;
+      const imgH=(canvas.height/canvas.width)*imgW;
+      // If taller than page, scale down to fit
+      const scale=Math.min(1,(PH-MARGIN*2)/imgH);
+      const finalW=imgW*scale, finalH=imgH*scale;
+      const offsetX=MARGIN+(CONTENT_W-finalW)/2;
+      const offsetY=MARGIN+(PH-MARGIN*2-finalH)/2;
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.94),'JPEG',offsetX,offsetY,finalW,finalH);
+    }
+
+    document.body.removeChild(wrap);
+    const filename=(title.replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-')||'puzzle')+'.pdf';
+    pdf.save(filename);
+
+  }catch(err){
+    alert('PDF generation failed: '+err.message+'\n\nTry allowing pop-ups or use a different browser.');
+    console.error(err);
+  }finally{
+    pbtns.forEach(b=>{b.disabled=false;if(b._txt)b.lastChild.textContent=b._txt;});
   }
-  const pages=[];
-  if(mode!=='key')     pages.push(buildSheet(false));
-  if(mode!=='student') pages.push(buildSheet(true));
-  const pageBreak='<div style="page-break-before:always"></div>';
-  const body=pages.map(p=>`<div class="print-page">${p}</div>`).join(pageBreak);
-  const printHTML=`<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>${eh(title)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Archivo',sans-serif;background:#fff;color:#0E1117}
-${css}
-.sheet{box-shadow:none!important;border:none!important;max-width:100%!important;padding:30px 36px 36px;background:#fff}
-.print-page{width:100%;background:#fff;page-break-after:always}
-.print-page:last-child{page-break-after:avoid}
-@page{size:letter portrait;margin:0.45in 0.5in}
-@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{padding:0}}
-</style></head><body>${body}
-<script>document.fonts.ready.then(()=>setTimeout(()=>window.print(),400));<\/script>
-</body></html>`;
-  const w=window.open('','_blank','width=860,height=1100');
-  if(!w){alert('Pop-up blocked — please allow pop-ups for this page and try again.');return;}
-  w.document.write(printHTML);
-  w.document.close();
 }
 
 // ─── UI ──────────────────────────────────────────────────────
