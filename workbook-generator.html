@@ -1234,9 +1234,9 @@ const MM_CFG=[
   {R:8,C:8,count:1,cols:1,csz:50,fsz:13,gap:2},
 ];
 
-async function genMaze(R,C,k){
+async function genMaze(R,C,k,maxVal=k*24){
   const allMults=[];
-  for(let m=1;m<=24;m++) allMults.push(m*k);
+  for(let m=k;m<=maxVal;m+=k) allMults.push(m);
   const deadMin=R<=4?2:R<=5?3:4;   // minimum dead-ends required
   const deadMax=R<=4?3:R<=5?5:7;   // cap to avoid cluttering grid
   const deadline=Date.now()+2000;
@@ -1812,21 +1812,21 @@ const SKILLS = [
   {id:'md_sub_2wr', name:'2-Digit, With Regrouping', op:'−', genType:'multisub2wr', digits:2, interventions:['ccc','ff','tablescaffold'],     avail:[...MULTIDIGIT_AVAIL]},
   {id:'md_sub_3wr', name:'3-Digit, With Regrouping', op:'−', genType:'multisub3wr', digits:3, interventions:['ccc','ff','tablescaffold'],     avail:[...MULTIDIGIT_AVAIL]},
   // Multiplication Facts
-  {id:'mult18',  name:'Facts to 18',  op:'×', genType:'mult', maxProd:18,  avail:[...MULTDIV_AVAIL]},
-  {id:'mult36',  name:'Facts to 36',  op:'×', genType:'mult', maxProd:36,  avail:[...MULTDIV_AVAIL]},
-  {id:'mult49',  name:'Facts to 49',  op:'×', genType:'mult', maxProd:49,  avail:[...MULTDIV_AVAIL]},
-  {id:'mult100', name:'Facts to 100', op:'×', genType:'mult', maxProd:100, avail:[...MULTDIV_AVAIL]},
-  {id:'mult144', name:'Facts to 144', op:'×', genType:'mult', maxProd:144, avail:[...MULTDIV_AVAIL]},
-  {id:'mult225', name:'Facts to 225', op:'×', genType:'mult', maxProd:225, avail:[...MULTDIV_AVAIL]},
-  {id:'mult400', name:'Facts to 400', op:'×', genType:'mult', maxProd:400, avail:[...MULTDIV_AVAIL]},
+  {id:'mult18',  name:'Facts to 18',  op:'×', genType:'mult', maxProd:18,  interventions:['ccc','ff','factfamily'], avail:[...MULTDIV_AVAIL]},
+  {id:'mult36',  name:'Facts to 36',  op:'×', genType:'mult', maxProd:36,  prevMaxProd:18, interventions:['ccc','ff','factfamily'], avail:[...MULTDIV_AVAIL]},
+  {id:'mult49',  name:'Facts to 49',  op:'×', genType:'mult', maxProd:49,  prevMaxProd:36,  interventions:['ccc','ff','factfamily'], avail:[...MULTDIV_AVAIL]},
+  {id:'mult100', name:'Facts to 100', op:'×', genType:'mult', maxProd:100, prevMaxProd:49,  interventions:['ccc','ff','factfamily'], avail:[...MULTDIV_AVAIL]},
+  {id:'mult144', name:'Facts to 144', op:'×', genType:'mult', maxProd:144, prevMaxProd:100, interventions:['ccc','ff','factfamily'], avail:[...MULTDIV_AVAIL]},
+  {id:'mult225', name:'Facts to 225', op:'×', genType:'mult', maxProd:225, prevMaxProd:144, interventions:['ccc','ff','factfamily'], avail:[...MULTDIV_AVAIL]},
+  {id:'mult400', name:'Facts to 400', op:'×', genType:'mult', maxProd:400, prevMaxProd:225, interventions:['ccc','ff','factfamily'], avail:[...MULTDIV_AVAIL]},
   // Division Facts
-  {id:'div18',  name:'Facts to 18',  op:'÷', genType:'div', maxProd:18,  avail:[...MULTDIV_AVAIL]},
-  {id:'div36',  name:'Facts to 36',  op:'÷', genType:'div', maxProd:36,  avail:[...MULTDIV_AVAIL]},
-  {id:'div49',  name:'Facts to 49',  op:'÷', genType:'div', maxProd:49,  avail:[...MULTDIV_AVAIL]},
-  {id:'div100', name:'Facts to 100', op:'÷', genType:'div', maxProd:100, avail:[...MULTDIV_AVAIL]},
-  {id:'div144', name:'Facts to 144', op:'÷', genType:'div', maxProd:144, avail:[...MULTDIV_AVAIL]},
-  {id:'div225', name:'Facts to 225', op:'÷', genType:'div', maxProd:225, avail:[...MULTDIV_AVAIL]},
-  {id:'div400', name:'Facts to 400', op:'÷', genType:'div', maxProd:400, avail:[...MULTDIV_AVAIL]},
+  {id:'div18',  name:'Facts to 18',  op:'÷', genType:'div', maxProd:18,  prevMaxProd:undefined, interventions:['ccc','ff'], avail:[...MULTDIV_AVAIL]},
+  {id:'div36',  name:'Facts to 36',  op:'÷', genType:'div', maxProd:36,  prevMaxProd:18,  interventions:['ccc','ff'], avail:[...MULTDIV_AVAIL]},
+  {id:'div49',  name:'Facts to 49',  op:'÷', genType:'div', maxProd:49,  prevMaxProd:36,  interventions:['ccc','ff'], avail:[...MULTDIV_AVAIL]},
+  {id:'div100', name:'Facts to 100', op:'÷', genType:'div', maxProd:100, prevMaxProd:49,  interventions:['ccc','ff'], avail:[...MULTDIV_AVAIL]},
+  {id:'div144', name:'Facts to 144', op:'÷', genType:'div', maxProd:144, prevMaxProd:100, interventions:['ccc','ff'], avail:[...MULTDIV_AVAIL]},
+  {id:'div225', name:'Facts to 225', op:'÷', genType:'div', maxProd:225, prevMaxProd:144, interventions:['ccc','ff'], avail:[...MULTDIV_AVAIL]},
+  {id:'div400', name:'Facts to 400', op:'÷', genType:'div', maxProd:400, prevMaxProd:225, interventions:['ccc','ff'], avail:[...MULTDIV_AVAIL]},
 ];
 
 // ── CATEGORIES ──────────────────────────────────────────────────────────────────
@@ -1913,9 +1913,49 @@ function genProblems(skill, n=16) {
     const mx = s.maxMin;
     for(let a=2;a<=mx;a++) for(let b=1;b<a&&b<=9&&(a-b)>=1;b++) pool.push({a,b,op:'−'});
   } else if (s.genType==='mult') {
-    for(let a=2;a<=9;a++) for(let b=2;b<=9;b++) if(a*b<=81) pool.push({a,b,op:'×'});
+    const mp = s.maxProd || 81;
+    const maxF = Math.min(20, Math.max(9, Math.round(Math.sqrt(mp))));
+    if (s.prevMaxProd) {
+      // 80% new facts (prevMaxProd < product ≤ maxProd), 20% review from previous tier
+      const prev = s.prevMaxProd;
+      const newPool = [], oldPool = [];
+      for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++){
+        const p=a*b;
+        if(p>prev&&p<=mp) newPool.push({a,b,op:'×'});
+        if(p<=prev)       oldPool.push({a,b,op:'×'});
+      }
+      shuffle(newPool); shuffle(oldPool);
+      while(newPool.length < n)  newPool.push(...newPool.slice(0,n));
+      while(oldPool.length < n)  oldPool.push(...oldPool.slice(0,n));
+      const newCount = Math.round(0.8 * n);
+      const oldCount = n - newCount;
+      pool.push(...newPool.slice(0, newCount), ...oldPool.slice(0, oldCount));
+      shuffle(pool);
+      return pool.slice(0, n);
+    }
+    for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++) if(a*b<=mp) pool.push({a,b,op:'×'});
   } else if (s.genType==='div') {
-    for(let a=2;a<=9;a++) for(let b=2;b<=9;b++) if(a*b<=81) pool.push({a:a*b,b:a,op:'÷',ans:b});
+    const mp = s.maxProd || 81;
+    const maxF = Math.min(20, Math.max(9, Math.round(Math.sqrt(mp))));
+    if (s.prevMaxProd) {
+      // 80% new facts (prevMaxProd < dividend ≤ maxProd), 20% review from previous tier
+      const prev = s.prevMaxProd;
+      const newPool = [], oldPool = [];
+      for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++){
+        const p=a*b;
+        if(p>prev&&p<=mp) newPool.push({a:p,b:a,op:'÷',ans:b});
+        if(p<=prev)       oldPool.push({a:p,b:a,op:'÷',ans:b});
+      }
+      shuffle(newPool); shuffle(oldPool);
+      while(newPool.length < n)  newPool.push(...newPool.slice(0,n));
+      while(oldPool.length < n)  oldPool.push(...oldPool.slice(0,n));
+      const newCount = Math.round(0.8 * n);
+      const oldCount = n - newCount;
+      pool.push(...newPool.slice(0, newCount), ...oldPool.slice(0, oldCount));
+      shuffle(pool);
+      return pool.slice(0, n);
+    }
+    for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++) if(a*b<=mp) pool.push({a:a*b,b:a,op:'÷',ans:b});
   } else if (s.genType==='multiadd') {
     // 3-digit + 3-digit, no regroup — no carry in any column
     const noReg=(x,y)=>{let xx=x,yy=y;for(let i=0;i<3;i++){if((xx%10)+(yy%10)>9)return false;xx=Math.floor(xx/10);yy=Math.floor(yy/10);}return true;};
@@ -1989,6 +2029,51 @@ function probPageHTML(problems, key, pageNum, cycleNum, dayLabel, title, rightAl
 }
 // ================================================================
 // END LOCKED FORMAT
+// ================================================================
+
+// ================================================================
+// LOCKED FORMAT — MULT/DIV PROBE & TARGET PAGE RENDERER (v1)
+// Approved format. DO NOT MODIFY without explicit sign-off.
+// 30 problems per page in a 5-row x 6-column table.
+// Digit font: 36px. Answer space: 72px.
+// Separate from probPageHTML — does NOT affect add/sub skills.
+// ================================================================
+function probCellHTMLMult(p, num, key) {
+  const ans = p.op==='×' ? p.a*p.b : p.ans;
+  const op  = p.op==='÷' ? '÷' : '×';
+  const ansHTML = key ? `<div style="display:inline-block;width:42px;text-align:center;font-size:36px;font-weight:bold;color:#b83000;line-height:1.15">${ans}</div>` : '';
+  return `<td><div class="wb-pr-wrap">
+  <div class="wb-pr-n">${num}</div>
+  <div class="wb-pr-top"><span style="display:inline-block;width:22px"></span><span style="display:inline-block;width:42px;text-align:center;font-size:36px;font-weight:bold;color:#1a1a1a;line-height:1.15">${p.a}</span></div>
+  <div class="wb-pr-bot"><span style="display:inline-block;width:22px;font-size:36px;font-weight:bold;color:#1a1a1a;line-height:1.0">${op}</span><span style="display:inline-block;width:42px;text-align:center;font-size:36px;font-weight:bold;color:#1a1a1a;line-height:1.15">${p.b}</span></div>
+  <div style="height:2px;background:#1a1a1a;width:64px;border-radius:1px;margin:4px 0"></div>
+  <div style="height:72px">${ansHTML}</div>
+</div></td>`;
+}
+
+function probPageHTMLMult(problems, key, pageNum, cycleNum, dayLabel, title) {
+  const n = Math.min(problems.length, 30);
+  let rows = '';
+  for(let r=0;r<5;r++){
+    let cells = '';
+    for(let c=0;c<6;c++){
+      const idx = r*6+c;
+      cells += idx < n ? probCellHTMLMult(problems[idx], idx+1, key) : '<td></td>';
+    }
+    rows += `<tr>${cells}</tr>`;
+  }
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span></span>
+    <span class="wb-meta-act">${dayLabel}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+  <table class="wb-pr-table" style="table-layout:fixed"><tbody>${rows}</tbody></table>
+</div>`;
+}
+// ================================================================
+// END LOCKED FORMAT — MULT/DIV PROBE & TARGET
 // ================================================================
 
 // ================================================================
@@ -2572,7 +2657,7 @@ function trackingPageHTML(title, schedule, weeks) {
     let rows='';
     for(let d=0;d<5;d++){
       const dy=schedule[d];
-      const intLabels={ccc:'Cover-Copy-Compare',ff:'Fact Families',touchmath:'TouchMath',tablescaffold:'Table Scaffold'};
+      const intLabels={ccc:'Cover-Copy-Compare',ff:'Fact Families',factfamily:'Fact Family Practice',touchmath:'TouchMath',tablescaffold:'Table Scaffold'};
       const lbl=dy.type==='probe'?'Probe'
                :dy.type==='target'?'Target Skill Practice'
                :dy.type==='intervention'?(intLabels[dy.intType||'ccc']||'Intervention')
@@ -2605,15 +2690,20 @@ function trackingPageHTML(title, schedule, weeks) {
 function cccCellHTML(a, b, op, num, key) {
   const ans = op==='+' ? a+b : op==='-'||op==='−' ? a-b : op==='×' ? a*b : Math.round(a/b);
   const opDisp = op==='-'?'−': op==='÷'?'÷': op==='×'?'×': '+';
+  // Scale fonts for larger numbers so 2-digit factors and 3-digit products fit the column
+  const maxFDigits = Math.max(String(a).length, String(b).length);
+  const ansDigits  = String(ans).length;
+  const fFactor = maxFDigits >= 2 ? 26 : 38;
+  const fAns    = ansDigits  >= 3 ? 20 : maxFDigits >= 2 ? 26 : 34;
   const ansHTML = key
-    ? `<div class="ccc-ans-shown" style="color:#b83000">${ans}</div>`
-    : `<div class="ccc-ans-shown">${ans}</div>`;
+    ? `<div class="ccc-ans-shown" style="font-size:${fAns}px;color:#b83000">${ans}</div>`
+    : `<div class="ccc-ans-shown" style="font-size:${fAns}px">${ans}</div>`;
   return `<td>
 <table class="ccc-inner"><tbody><tr>
   <td class="ccc-col-num"><span class="ccc-num">${num}</span></td>
   <td class="ccc-col-model">
-    <div class="ccc-n">${a}</div>
-    <div class="ccc-n2"><span class="ccc-op">${opDisp}</span><span class="ccc-dig">${b}</span></div>
+    <div class="ccc-n" style="font-size:${fFactor}px">${a}</div>
+    <div class="ccc-n2" style="font-size:${fFactor}px"><span class="ccc-op" style="font-size:${fFactor}px">${opDisp}</span><span class="ccc-dig">${b}</span></div>
     <div class="ccc-bar"></div>
     ${ansHTML}
     <div class="ccc-spacer"></div>
@@ -2686,9 +2776,15 @@ function genCCCProblems(skill, op, n=16) {
   } else if (isSub && skill.maxMin) {
     for(let a=2;a<=skill.maxMin;a++) for(let b=1;b<a&&b<=9&&(a-b)>=1;b++) pool.push([a,b]);
   } else if (isMult) {
-    for(let a=2;a<=9;a++) for(let b=2;b<=9;b++) if(a*b<=81) pool.push([a,b]);
+    const mp = skill.maxProd || 81;
+    const maxF = Math.min(20, Math.max(9, Math.round(Math.sqrt(mp))));
+    const minP = skill.prevMaxProd || 0;
+    for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++) if(a*b<=mp && a*b>minP) pool.push([a,b]);
   } else if (isDiv) {
-    for(let a=2;a<=9;a++) for(let b=2;b<=9;b++) if(a*b<=81) pool.push([a*b,a]);
+    const mp = skill.maxProd || 81;
+    const maxF = Math.min(20, Math.max(9, Math.round(Math.sqrt(mp))));
+    const minP = skill.prevMaxProd || 0;
+    for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++) if(a*b<=mp && a*b>minP) pool.push([a*b,a]);
   }
   // shuffle and pick n
   for(let i=pool.length-1;i>0;i--){const j=ri(0,i);[pool[i],pool[j]]=[pool[j],pool[i]];}
@@ -2725,9 +2821,15 @@ function genFFProblems(skill, op, n=12) {
       const d=a-b; if(b!==d&&b<=9&&d>=1&&d<=9) pool.push([a,b]);
     }
   } else if (isMult) {
-    for(let a=2;a<=9;a++) for(let b=a+1;b<=9;b++) if(a*b<=81) pool.push([a,b]);
+    const mp = skill.maxProd || 81;
+    const maxF = Math.min(20, Math.max(9, Math.round(Math.sqrt(mp))));
+    const minP = skill.prevMaxProd || 0;
+    for(let a=2;a<=maxF;a++) for(let b=a+1;b<=maxF;b++) if(a*b<=mp && a*b>minP) pool.push([a,b]);
   } else if (isDiv) {
-    for(let a=2;a<=9;a++) for(let b=a+1;b<=9;b++) if(a*b<=81) pool.push([a*b,a]);
+    const mp = skill.maxProd || 81;
+    const maxF = Math.min(20, Math.max(9, Math.round(Math.sqrt(mp))));
+    const minP = skill.prevMaxProd || 0;
+    for(let a=2;a<=maxF;a++) for(let b=a+1;b<=maxF;b++) if(a*b<=mp && a*b>minP) pool.push([a*b,a]);
   }
   for(let i=pool.length-1;i>0;i--){const j=ri(0,i);[pool[i],pool[j]]=[pool[j],pool[i]];}
   while(pool.length < n) pool.push(...pool.slice(0,n));
@@ -2744,15 +2846,17 @@ function genFFProblems(skill, op, n=12) {
 // ================================================================
 
 function ffScTriSVG(total, a, b, op='+') {
-  const sym = (op==='-'||op==='−') ? '−' : '+';
+  const sym = (op==='-'||op==='−') ? '−' : (op==='×') ? '×' : (op==='÷') ? '÷' : '+';
+  const fs = v => String(v).length >= 3 ? 11 : String(v).length === 2 ? 15 : 20;
+  const dy = v => String(v).length >= 3 ? 4 : 7;  // vertical offset to centre in circle
   return `<svg width="190" height="150" viewBox="0 0 190 150" style="display:block;margin:0 auto 10px;">
   <polygon points="95,8 15,142 175,142" fill="none" stroke="#555" stroke-width="2"/>
   <circle cx="95" cy="22" r="20" fill="white" stroke="#555" stroke-width="2.5"/>
-  <text x="95" y="29" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="20">${total}</text>
+  <text x="95" y="${22+dy(total)}" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="${fs(total)}">${total}</text>
   <circle cx="23" cy="130" r="20" fill="white" stroke="#555" stroke-width="2.5"/>
-  <text x="23" y="137" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="20">${a}</text>
+  <text x="23" y="${130+dy(a)}" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="${fs(a)}">${a}</text>
   <circle cx="167" cy="130" r="20" fill="white" stroke="#555" stroke-width="2.5"/>
-  <text x="167" y="137" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="20">${b}</text>
+  <text x="167" y="${130+dy(b)}" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="${fs(b)}">${b}</text>
   <text x="95" y="88" text-anchor="middle" font-family="Helvetica" font-size="15" fill="#aaa">${sym}</text>
 </svg>`;
 }
@@ -2772,6 +2876,20 @@ function ffScEqShownBlankDiff(minuend, sub) {
 }
 function ffScEqAllBlankSub() {
   return `<div style="${FF_SC_EQ_STYLE}">${FF_SC_BLANK_NUM} − ${FF_SC_BLANK_NUM} = ${FF_SC_BLANK_NUM}</div>`;
+}
+// Multiplication scaffold equation helpers
+function ffScEqShownBlankProd(a, b) {
+  return `<div style="${FF_SC_EQ_STYLE}">${a} × ${b} = ${FF_SC_BLANK_NUM}</div>`;
+}
+function ffScEqAllBlankMult() {
+  return `<div style="${FF_SC_EQ_STYLE}">${FF_SC_BLANK_NUM} × ${FF_SC_BLANK_NUM} = ${FF_SC_BLANK_NUM}</div>`;
+}
+// Division scaffold equation helpers
+function ffScEqShownBlankQuot(dividend, divisor) {
+  return `<div style="${FF_SC_EQ_STYLE}">${dividend} ÷ ${divisor} = ${FF_SC_BLANK_NUM}</div>`;
+}
+function ffScEqAllBlankDiv() {
+  return `<div style="${FF_SC_EQ_STYLE}">${FF_SC_BLANK_NUM} ÷ ${FF_SC_BLANK_NUM} = ${FF_SC_BLANK_NUM}</div>`;
 }
 
 function ffScCellHTML(a, b, num, eq1HTML, eq2HTML, rowClass) {
@@ -2851,6 +2969,86 @@ function ffScaffoldPageHTML(families, cycleNum, dayLabel, title, op='+') {
 }
 // ================================================================
 // END LOCKED FORMAT — FF SCAFFOLD
+// ================================================================
+
+// ================================================================
+// LOCKED FORMAT — MULT/DIV FACT FAMILY SCAFFOLD PAGE RENDERER (v1)
+// Approved format. DO NOT MODIFY without explicit sign-off.
+// 9 triangles, 3×3 table, three scaffolding rows.
+// Row 1: both facts shown (student writes answers).
+// Row 2: first fact shown; second fully blank.
+// Row 3: both facts fully blank.
+// Mult: triangle top = product, bottom = factors, center = ×
+// Div:  triangle top = product, bottom = factors, center = ÷
+// ================================================================
+function ffScMDPageHTML(families, cycleNum, dayLabel, title, op) {
+  const isMult = (op==='×');
+  const opSym  = isMult ? '×' : '÷';
+  const dir = isMult
+    ? 'Use the triangle to write the multiplication facts. Fill in the missing numbers.'
+    : 'Use the triangle to write the division facts. Fill in the missing numbers.';
+  const rowClasses = ['row-1','row-2','row-3'];
+  let rows = '';
+  let n = 0;
+  for(let r=0;r<3;r++){
+    let cells = '';
+    for(let c=0;c<3;c++){
+      const f = families[n]||{a:2,b:2};
+      const fa = f.a||f[0], fb = f.b||f[1];
+      let eq1, eq2, triSVG;
+      if(isMult){
+        // fa and fb are factors; product = fa*fb
+        const prod = fa * fb;
+        triSVG = ffScTriSVG(prod, fa, fb, '×');
+        if(r===0){
+          eq1 = ffScEqShownBlankProd(fa, fb);
+          eq2 = ffScEqShownBlankProd(fb, fa);
+        } else if(r===1){
+          eq1 = ffScEqShownBlankProd(fa, fb);
+          eq2 = ffScEqAllBlankMult();
+        } else {
+          eq1 = ffScEqAllBlankMult();
+          eq2 = ffScEqAllBlankMult();
+        }
+      } else {
+        // fa = product, fb = one factor, fc = other factor
+        const fc = fa / fb;
+        triSVG = ffScTriSVG(fa, fb, fc, '÷');
+        if(r===0){
+          eq1 = ffScEqShownBlankQuot(fa, fb);
+          eq2 = ffScEqShownBlankQuot(fa, fc);
+        } else if(r===1){
+          eq1 = ffScEqShownBlankQuot(fa, fb);
+          eq2 = ffScEqAllBlankDiv();
+        } else {
+          eq1 = ffScEqAllBlankDiv();
+          eq2 = ffScEqAllBlankDiv();
+        }
+      }
+      cells += `<td class="ff-sc-td ${rowClasses[r]}">
+  <span class="ff-sc-num">${n+1}</span>
+  ${triSVG}
+  ${eq1}
+  ${eq2}
+  <div class="ff-sc-spacer"></div>
+</td>`;
+      n++;
+    }
+    rows += `<tr>${cells}</tr>`;
+  }
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span></span>
+    <span class="wb-meta-act">${dayLabel}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+  <div class="wb-dir">${dir}</div>
+  <table class="ff-sc-table"><tbody>${rows}</tbody></table>
+</div>`;
+}
+// ================================================================
+// END LOCKED FORMAT — MULT/DIV FF SCAFFOLD
 // ================================================================
 
 function ffTriangleHTML(a, b, op, num, key) {
@@ -3282,7 +3480,7 @@ function buildRefinePanel() {
       byInt[it].push(d.dayNum);
     }
 
-    const intLabels = {ccc:'Cover-Copy-Compare', ff:'Fact Families', touchmath:'TouchMath', tablescaffold:'Table Scaffold'};
+    const intLabels = {ccc:'Cover-Copy-Compare', ff:'Fact Families', factfamily:'Fact Family Practice', touchmath:'TouchMath', tablescaffold:'Table Scaffold'};
     // Intervention scaffold options (for FF only)
     const FF_SCAFFOLD_OPTS = [
       {v:0, l:'Both equations shown (fill answers)'},
@@ -3300,7 +3498,9 @@ function buildRefinePanel() {
       const iparams = window.INT_PARAMS[it];
 
       let paramSelects = '';
-      if (it === 'ff') {
+      if (it === 'factfamily') {
+        paramSelects = '<span style="font-size:12px;color:var(--muted);align-self:center">Fact Family Practice — family is set per day in the schedule.</span>';
+      } else if (it === 'ff') {
         paramSelects = '<span style="font-size:12px;color:var(--muted);align-self:center">Fact Families — no additional options.</span>';
       } else if (it === 'touchmath') {
         paramSelects = '<span style="font-size:12px;color:var(--muted);align-self:center">TouchMath — no additional options.</span>';
@@ -3797,6 +3997,135 @@ async function nwDownload() {
   }
 }
 
+// ================================================================
+// LOCKED FORMAT — FACT FAMILY INTERVENTION PAGE RENDERER (v1)
+// Approved format. DO NOT MODIFY without explicit sign-off.
+// One page per fact family (k = 2–12). Sections:
+//   1 Read multiples   2 Write multiples   3 Horizontal practice
+//   4 Vertical practice (6 facts, 2×3)     5 Targets (4, 2×2)
+//   6 Number maze (4×4, multiples capped at k×12)
+// ================================================================
+async function factFamilyPageHTML(k, cycNum, dayLabel) {
+  const title = `${k}s Fact Family`;
+  const mults = Array.from({length:12}, (_,i)=>(i+1)*k);
+
+  // Section 1 — read
+  const readCells = mults.map((v,i)=>`<div style="text-align:center;width:48px;display:inline-block">
+    <span style="font-size:18px;font-weight:bold;color:#1a1a1a;width:48px;text-align:center;display:inline-block">${v}</span>
+    <span style="font-size:8px;font-weight:bold;color:#888;width:48px;text-align:center;display:block">${i+1}×${k}</span>
+  </div>`).join('');
+
+  // Section 2 — write (two blank rows of 12)
+  const blankRow = mults.map(()=>`<span style="width:48px;height:20px;border-bottom:1.8px solid #555;display:inline-block;margin:0 1px;vertical-align:bottom"></span>`).join('');
+
+  // Section 3 — horizontal (12 facts, 2-col)
+  const hFacts = shuffle([...Array.from({length:12},(_,i)=>i+1)]);
+  const hCells = hFacts.map((n,i)=>`<div style="font-size:18px;font-weight:bold;display:flex;align-items:baseline;gap:3px;white-space:nowrap;margin-bottom:5px">
+    ${n} × ${k} =<span style="display:inline-block;width:32px;border-bottom:1.8px solid #555;height:13px;vertical-align:baseline;margin-left:2px"></span>
+  </div>`).join('');
+
+  // Section 4 — vertical (6 facts, 2×3 grid)
+  const vNums = shuffle([...Array.from({length:12},(_,i)=>i+1)]).slice(0,6);
+  const vCells = vNums.map((n,i)=>`<div style="text-align:left">
+    <div style="font-size:8px;font-weight:bold;color:#bbb;margin-bottom:1px">${i+1}</div>
+    <div style="font-size:18px;font-weight:bold;line-height:1;padding-left:14px">${n}</div>
+    <div style="font-size:18px;font-weight:bold;line-height:1;display:flex;align-items:baseline">
+      <span style="font-size:18px;font-weight:bold;width:14px">×</span><span>${k}</span>
+    </div>
+    <div style="height:1.5px;background:#1a1a1a;width:34px;margin:3px 0 10px"></div>
+  </div>`).join('');
+
+  // Section 5 — targets (4 in 2×2)
+  const CX=64,CY=64,R_IN=18,R_MID=40,R_OUT=60,N=8,SZ=128;
+  function tPt(r,a){const rad=(a-90)*Math.PI/180;return[CX+r*Math.cos(rad),CY+r*Math.sin(rad)];}
+  function buildTarget(factors){
+    const step=360/N;
+    let spokes='',labels='';
+    for(let i=0;i<N;i++){
+      const a=i*step;const[x2,y2]=tPt(R_OUT,a);
+      spokes+=`<line x1="${CX}" y1="${CY}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#ccc" stroke-width="0.9"/>`;
+      const[tx,ty]=tPt((R_IN+R_MID)/2, a+step/2);
+      labels+=`<text x="${tx.toFixed(1)}" y="${(ty+4.5).toFixed(1)}" text-anchor="middle" font-family="Helvetica" font-size="12" font-weight="bold" fill="#1a1a1a">${factors[i]}</text>`;
+    }
+    return`<svg width="${SZ}" height="${SZ}" viewBox="0 0 ${SZ} ${SZ}" style="display:block">
+      <circle cx="${CX}" cy="${CY}" r="${R_OUT}" fill="none" stroke="#bbb" stroke-width="1"/>
+      <circle cx="${CX}" cy="${CY}" r="${R_MID}" fill="none" stroke="#bbb" stroke-width="1"/>
+      <circle cx="${CX}" cy="${CY}" r="${R_IN}" fill="#1a1a1a"/>
+      ${spokes}
+      <text x="${CX}" y="${CY+5}" text-anchor="middle" font-family="Helvetica" font-size="14" font-weight="bold" fill="#fff">${k}</text>
+      ${labels}
+    </svg>`;
+  }
+  const allFactors = shuffle([1,2,3,4,5,6,7,8,9,10,11,12]);
+  const targetSets = [
+    allFactors.slice(0,8), allFactors.slice(8,16).concat(allFactors.slice(0,8)).slice(0,8),
+    allFactors.slice(4,12), allFactors.slice(8,16).concat(allFactors.slice(0,4))
+  ].map(fs => shuffle([...fs]).slice(0,8));
+  const targetCells = targetSets.map(fs=>`<div style="display:flex;justify-content:center">${buildTarget(fs)}</div>`).join('');
+
+  // Section 6 — maze
+  const mazePuz = await genMaze(4, 4, k, k * 12);
+  const mazeHTML = mazePuz ? renderMaze(mazePuz, false) : '<span style="font-size:9px;color:#aaa">—</span>';
+
+  const secHdr = (n,lbl) => `<span style="font-size:8.5px;font-weight:bold;text-transform:uppercase;letter-spacing:.08em;color:#fff;background:#1a1a1a;padding:2px 7px;border-radius:3px;display:inline-block;margin-bottom:5px">${n} — ${lbl}</span>`;
+  const colLabel = `<span style="font-size:9px;font-weight:bold;color:#888;margin-right:6px;vertical-align:bottom">${k}×</span>`;
+
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycNum}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span></span>
+    <span class="wb-meta-act">${dayLabel}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+
+  <div style="margin-bottom:10px">
+    ${secHdr(1,'Read the multiples')}
+    <div style="display:flex;align-items:flex-end;margin-top:2px">
+      ${colLabel}${readCells}
+    </div>
+  </div>
+
+  <div style="margin-bottom:10px">
+    ${secHdr(2,'Write the multiples')}
+    <div style="margin-top:4px">
+      <div style="display:flex;align-items:flex-end;margin-bottom:8px">${colLabel}${blankRow}</div>
+      <div style="display:flex;align-items:flex-end">${colLabel}${blankRow}</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:10px">
+    <div>
+      ${secHdr(3,'Practice: horizontal')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin-top:5px">
+        ${hCells}
+      </div>
+    </div>
+    <div>
+      ${secHdr(4,'Practice: vertical')}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:5px">
+        ${vCells}
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+    <div>
+      ${secHdr(5,'Target practice')}
+      <div style="font-size:8px;color:#555;margin:3px 0 8px">Multiply each number in the inner ring by the center. Write the answer in the outer ring.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${targetCells}</div>
+    </div>
+    <div>
+      ${secHdr(6,'Number maze')}
+      <div style="font-size:8px;color:#555;margin:3px 0 6px">Move through multiples of ${k} only — up, down, left, right. One path from GO to END.</div>
+      <div style="display:flex;justify-content:flex-start">${mazeHTML}</div>
+    </div>
+  </div>
+</div>`;
+}
+// ================================================================
+// END LOCKED FORMAT — FACT FAMILY INTERVENTION PAGE
+// ================================================================
+
 async function buildWorkbook(skill, schedule, weeks, key) {
   const title = skill.name + (key ? ' — Teacher Key' : '');
   const pages = [];
@@ -3819,7 +4148,8 @@ async function buildWorkbook(skill, schedule, weeks, key) {
       await new Promise(r=>setTimeout(r,0));
       if(typeof window.onBuildProgress==='function') window.onBuildProgress(++pagesBuilt, totalPages);
       const cycNum = w+1;
-      const intLabel = dy.intType==='ff'?'Fact Families':dy.intType==='touchmath'?'TouchMath':dy.intType==='tablescaffold'?'Table Scaffold':'CCC Standard';
+      const ffK = dy.ffFamily || 2;
+      const intLabel = dy.intType==='ff'?'Fact Families':dy.intType==='factfamily'?`Fact Family Practice (${ffK}s)`:dy.intType==='touchmath'?'TouchMath':dy.intType==='tablescaffold'?'Table Scaffold':'CCC Standard';
       const dayLabel = `Day ${d+1} \u2013 ${
         dy.type==='probe'?'Probe':
         dy.type==='target'?'Target Skill Practice':
@@ -3831,6 +4161,7 @@ async function buildWorkbook(skill, schedule, weeks, key) {
 
       if(dy.type==='probe'||dy.type==='target'){
         const MD_TYPES = ['multiadd','multiadd2wr','multiadd3wr','multisub','multisub2wr','multisub3wr'];
+        const MULTDIV_TYPES = ['mult','div'];
         if(MD_TYPES.includes(skill.genType)){
           const probs = genProblems(skill, 16);
           if(skill.genType==='multiadd2wr'){
@@ -3840,12 +4171,18 @@ async function buildWorkbook(skill, schedule, weeks, key) {
           } else {
             pages.push(mdProbPageHTML(probs, key, pg, cycNum, dayLabel, skill.name, skill.digits||3));
           }
+        } else if(MULTDIV_TYPES.includes(skill.genType)){
+          const probs = genProblems(skill, 30);
+          pages.push(probPageHTMLMult(probs, key, pg, cycNum, dayLabel, skill.name));
         } else {
           const probs = genProblems(skill, 20);
           pages.push(probPageHTML(probs, key, pg, cycNum, dayLabel, skill.name, !!skill.rightAlign));
         }
       } else if(dy.type==='intervention'){
         const intT = dy.intType || 'ccc';
+        if(intT==='factfamily'){
+          pages.push(await factFamilyPageHTML(dy.ffFamily||2, cycNum, dayLabel));
+        } else {
         const isAddSub = skill.genType==='addsub';
         const MD_INT_TYPES = ['multiadd','multiadd2wr','multiadd3wr','multisub','multisub2wr','multisub3wr'];
         const isMD = MD_INT_TYPES.includes(skill.genType);
@@ -3875,13 +4212,22 @@ async function buildWorkbook(skill, schedule, weeks, key) {
           const probs = genTMProblems(skill, 16);
           pages.push(tmPageHTML(probs, hdrDigs, cycNum, dayLabel, skill.name, skillOp));
         } else {
-          // Fact Families — locked scaffold format (v1)
-          const ffOp = skill.op==='−'?'-':'+';
-          const fams = (skill.genType==='addsub')
-            ? genFFMixed(skill, 9)
-            : genFFProblems(skill, ffOp, 9);
-          pages.push(ffScaffoldPageHTML(fams, cycNum, dayLabel, skill.name, ffOp));
+          // Fact Families
+          const isMDFF = skill.genType==='mult' || skill.genType==='div';
+          if(isMDFF){
+            const ffOp = skill.op==='÷' ? '÷' : '×';
+            const fams = genFFProblems(skill, ffOp, 9);
+            pages.push(ffScMDPageHTML(fams, cycNum, dayLabel, skill.name, ffOp));
+          } else {
+            // locked scaffold format (v1) for add/sub
+            const ffOp = skill.op==='−'?'-':'+';
+            const fams = (skill.genType==='addsub')
+              ? genFFMixed(skill, 9)
+              : genFFProblems(skill, ffOp, 9);
+            pages.push(ffScaffoldPageHTML(fams, cycNum, dayLabel, skill.name, ffOp));
+          }
         }
+        } // end else (non-factfamily interventions)
       } else if(dy.type==='puzzle' && dy.puzzle){
         if(false) { // placeholder: removed isCCC/isFF from puzzle branch
         } else {
@@ -4203,6 +4549,7 @@ const DAY_TYPE_OPTIONS = [
 const INTERVENTION_TYPES = [
   {id:'ccc',           label:'Cover-Copy-Compare'},
   {id:'ff',            label:'Fact Families'},
+  {id:'factfamily',    label:'Fact Family Practice'},
   {id:'touchmath',     label:'TouchMath'},
   {id:'tablescaffold', label:'Table Scaffold'},
 ];
@@ -4225,6 +4572,9 @@ function rebuildScheduleTable(){
     const hasPuz = SEL_SKILL.avail.filter(p=>!p.isCCC&&!p.isFF).length > 0;
     const isPuz = current.type==='puzzle';
     const isInt = current.type==='intervention';
+    const isFF = current.type==='intervention' && (current.intType||'ccc')==='factfamily';
+    const ffFamilyOpts = [2,3,4,5,6,7,8,9,10,11,12].map(n=>
+      `<option value="${n}"${(current.ffFamily||2)===n?' selected':''}>${n}s</option>`).join('');
     html += `<tr>
       <td><span class="day-label">Day ${d+1}</span></td>
       <td><select class="day-type-select" onchange="onDayTypeChange(${d},this.value)">${typeOpts}</select></td>
@@ -4233,6 +4583,8 @@ function rebuildScheduleTable(){
           onchange="onPuzzlePick(${d},this.value)" style="display:${isPuz?'inline-block':'none'}">${puzOpts||'<option>—</option>'}</select>
         <select class="puzzle-pick" id="ip-${d}" ${!isInt?'disabled':''}
           onchange="onIntPick(${d},this.value)" style="display:${isInt?'inline-block':'none'}">${intOpts}</select>
+        <select class="puzzle-pick" id="fp-${d}" ${!isFF?'disabled':''}
+          onchange="onFamilyPick(${d},this.value)" style="display:${isFF?'inline-block':'none'};margin-left:6px">${ffFamilyOpts}</select>
         <span id="no-pick-${d}" style="display:${!isPuz&&!isInt?'inline-block':'none'};font-size:12px;color:var(--muted)">—</span>
       </td>
     </tr>`;
@@ -4254,18 +4606,27 @@ function onPuzzlePick(d, val){
 
 function onIntPick(d, val){
   DAY_SCHEDULE[d].intType = val;
+  if(val === 'factfamily' && !DAY_SCHEDULE[d].ffFamily) DAY_SCHEDULE[d].ffFamily = 2;
+  syncDayState(d);
+}
+
+function onFamilyPick(d, val){
+  DAY_SCHEDULE[d].ffFamily = parseInt(val, 10);
 }
 
 function syncDayState(d){
   const pp = document.getElementById('pp-'+d);
   const ip = document.getElementById('ip-'+d);
+  const fp = document.getElementById('fp-'+d);
   const np = document.getElementById('no-pick-'+d);
   const isPuz = DAY_SCHEDULE[d].type==='puzzle';
   const isInt = DAY_SCHEDULE[d].type==='intervention';
+  const isFF  = isInt && (DAY_SCHEDULE[d].intType||'ccc')==='factfamily';
   const purePuz = SEL_SKILL ? SEL_SKILL.avail.filter(p=>!p.isCCC&&!p.isFF) : [];
   const hasPuz = purePuz.length > 0;
   if(pp){ pp.disabled = !isPuz || !hasPuz; pp.style.display = isPuz ? 'inline-block' : 'none'; }
   if(ip){ ip.disabled = !isInt; ip.style.display = isInt ? 'inline-block' : 'none'; }
+  if(fp){ fp.disabled = !isFF;  fp.style.display = isFF  ? 'inline-block' : 'none'; }
   if(np){ np.style.display = (!isPuz && !isInt) ? 'inline-block' : 'none'; }
   if(isPuz && hasPuz){
     const sel = purePuz.find(p=>p.id===(pp?pp.value:''))||purePuz[0];
