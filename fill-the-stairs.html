@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fill the Stairs</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#fdf6e3;--cream2:#f0e8d0;--ink:#2c2010;--ink-lt:rgba(44,32,16,.45);
+  --rule:rgba(44,32,16,.12);--shadow:0 2px 8px rgba(44,32,16,.13);
+  --shadow-lg:0 6px 24px rgba(44,32,16,.18);
+}
+html,body{height:100%;overflow:hidden;background:var(--cream)}
+body{font-family:'Nunito',sans-serif;color:var(--ink);
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(44,32,16,.045) 27px,rgba(44,32,16,.045) 28px)}
+
+.screen{position:absolute;inset:0;display:flex}
+.screen.hidden{display:none!important}
+
+/* ── SETUP ── */
+#setup-screen{flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:20px}
+.s-title{font-family:'Baloo 2',sans-serif;font-size:52px;font-weight:800;line-height:1;letter-spacing:-1px}
+.s-title em{color:#e05c3a;font-style:normal}
+.s-sub{font-size:14px;color:var(--ink-lt);text-align:center;max-width:420px;line-height:1.6}
+.setup-card{background:white;border-radius:18px;padding:22px 28px;
+  box-shadow:var(--shadow-lg);width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px}
+.s-lbl{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2.5px;
+  color:var(--ink-lt);margin-bottom:8px;display:block}
+.stairs-row{display:flex;gap:8px;align-items:center}
+.pick-btn{
+  padding:9px 20px;border-radius:9px;border:2px solid var(--rule);
+  background:transparent;font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:700;
+  color:var(--ink-lt);cursor:pointer;transition:all .14s}
+.pick-btn:hover{border-color:#e05c3a;color:#e05c3a}
+.pick-btn.active{border-color:#e05c3a;background:rgba(224,92,58,.1);color:#e05c3a}
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nwrap label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:4px}
+.nwrap input{
+  width:100%;padding:8px 11px;border:2px solid var(--rule);border-radius:8px;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  color:var(--ink);background:var(--cream);outline:none;transition:border-color .14s}
+.nwrap input:focus{border-color:#e05c3a}
+.go-btn{
+  padding:15px;background:#e05c3a;color:white;border:none;border-radius:12px;
+  font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:800;cursor:pointer;
+  transition:all .16s;box-shadow:0 4px 0 #b03a1a}
+.go-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #b03a1a}
+.go-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #b03a1a}
+
+/* ── GAME SCREEN ── */
+#game-screen{flex-direction:column;padding:8px 10px 6px;gap:7px;height:100vh}
+
+/* Top bar */
+.top-bar{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.g-logo{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;line-height:1;white-space:nowrap}
+.g-logo em{color:#e05c3a;font-style:normal}
+.round-badge{background:var(--ink);color:var(--cream);font-size:10px;font-weight:900;
+  text-transform:uppercase;letter-spacing:2px;padding:4px 11px;border-radius:20px}
+.spacer{flex:1}
+.ng-btn{padding:6px 16px;border-radius:8px;border:2px solid var(--rule);background:transparent;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--ink-lt);cursor:pointer;transition:all .14s}
+.ng-btn:hover{border-color:var(--ink);color:var(--ink)}
+
+/* Dice zone */
+.dice-zone{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:16px;
+  background:white;border-radius:14px;padding:10px 20px;box-shadow:var(--shadow)}
+.die-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.die-face{
+  width:70px;height:70px;border-radius:12px;background:white;
+  border:2.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.die-face svg{width:60px;height:60px}
+.die-face.rolling{animation:droll .55s ease-out}
+@keyframes droll{
+  0%{transform:rotate(0) scale(1)}
+  20%{transform:rotate(-16deg) scale(1.1)}
+  40%{transform:rotate(13deg) scale(.95)}
+  60%{transform:rotate(-9deg) scale(1.06)}
+  80%{transform:rotate(5deg) scale(.98)}
+  100%{transform:rotate(0) scale(1)}}
+.die-lbl{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-lt)}
+.dice-sep{font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:800;color:var(--rule)}
+
+.combo-zone{display:flex;flex-direction:column;align-items:center;gap:5px}
+.combo-lbl{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-lt)}
+.combo-btns{display:flex;gap:7px}
+.combo-btn{
+  min-width:58px;padding:7px 12px;border-radius:9px;border:2px solid var(--rule);
+  background:var(--cream);font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;
+  color:var(--ink-lt);cursor:pointer;transition:all .14s}
+.combo-btn:hover:not(:disabled){border-color:var(--ink);color:var(--ink);transform:translateY(-2px)}
+.combo-btn.chosen{border-color:#27a060;background:rgba(39,160,96,.1);color:#27a060;box-shadow:0 3px 0 rgba(39,160,96,.25)}
+.combo-btn:disabled{opacity:.3;cursor:not-allowed}
+
+.roll-btn{
+  padding:11px 24px;background:#e05c3a;color:white;border:none;border-radius:11px;
+  font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;cursor:pointer;
+  transition:all .16s;box-shadow:0 4px 0 #b03a1a;white-space:nowrap;flex-shrink:0}
+.roll-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 #b03a1a}
+.roll-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #b03a1a}
+.roll-btn:disabled{background:#ccc;box-shadow:0 3px 0 #999;cursor:not-allowed}
+
+.dice-status{font-size:13px;font-weight:700;color:var(--ink-lt);text-align:center;min-width:110px}
+
+/* Player grid */
+.player-grid{
+  flex:1;min-height:0;
+  display:grid;gap:8px;
+  grid-template-columns:1fr 1fr;
+  align-items:stretch}
+
+/* Player card */
+.player-card{
+  background:white;border-radius:12px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;overflow:hidden;
+  border-top:4px solid var(--pc);min-width:0}
+.player-card.eliminated-card{opacity:.65;border-top-color:#888}
+.player-card.done-card{box-shadow:0 0 0 2.5px var(--pc),var(--shadow-lg)}
+
+.p-header{
+  padding:5px 10px 4px;display:flex;align-items:center;gap:6px;
+  border-bottom:1px solid var(--rule);flex-shrink:0}
+.p-name{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;
+  color:var(--pc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.p-status-badge{font-size:10px;font-weight:900;color:white;padding:2px 7px;
+  border-radius:20px;display:none;white-space:nowrap}
+.p-discard-ct{font-size:10px;font-weight:700;color:var(--ink-lt);white-space:nowrap}
+.eliminated-card .p-status-badge{display:inline-block;background:#888}
+.done-card .p-status-badge{display:inline-block;background:var(--pc)}
+.eliminated-card .p-discard-ct,.done-card .p-discard-ct{display:none}
+
+.stair-area{flex:1;min-height:0;padding:4px;overflow:hidden}
+.stair-area svg{display:block;width:100%;height:100%}
+
+/* Step rects — hover effect via JS */
+.step-rect-interactive{cursor:pointer}
+
+/* Discard tray */
+.discard-tray{
+  flex-shrink:0;border-top:1px dashed var(--rule);
+  padding:4px 8px;display:flex;align-items:center;gap:5px;min-height:32px;flex-wrap:wrap}
+.d-lbl{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--ink-lt);flex-shrink:0}
+.d-pill{padding:1px 7px;border-radius:20px;background:rgba(44,32,16,.07);
+  font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;color:var(--ink-lt)}
+.d-btn{
+  margin-left:auto;padding:3px 10px;border-radius:7px;flex-shrink:0;
+  border:1.5px solid rgba(200,60,60,.3);background:rgba(200,60,60,.05);
+  font-family:'Nunito',sans-serif;font-size:10px;font-weight:900;
+  color:#c83c3c;cursor:pointer;transition:all .14s}
+.d-btn:hover:not(:disabled){background:rgba(200,60,60,.12);border-color:#c83c3c}
+.d-btn:disabled{opacity:.25;cursor:not-allowed}
+
+/* ── CONFIRMATION MODAL ── */
+#confirm-modal{
+  position:fixed;inset:0;background:rgba(44,32,16,.55);
+  display:flex;align-items:center;justify-content:center;
+  z-index:200;backdrop-filter:blur(4px)}
+#confirm-modal.hidden{display:none}
+.confirm-box{
+  background:white;border-radius:18px;padding:28px 32px;
+  box-shadow:0 16px 48px rgba(44,32,16,.28);
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  max-width:360px;width:90%;text-align:center}
+.confirm-icon{font-size:40px;line-height:1}
+.confirm-title{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;line-height:1.2}
+.confirm-desc{font-size:13px;color:var(--ink-lt);line-height:1.5;max-width:280px}
+.confirm-btns{display:flex;gap:10px;width:100%;margin-top:4px}
+.confirm-yes{
+  flex:1;padding:12px;background:#27a060;color:white;border:none;
+  border-radius:10px;font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;
+  cursor:pointer;transition:all .14s;box-shadow:0 3px 0 #1a7044}
+.confirm-yes:hover{transform:translateY(-1px);box-shadow:0 5px 0 #1a7044}
+.confirm-no{
+  flex:1;padding:12px;background:transparent;color:var(--ink);
+  border:2px solid var(--rule);border-radius:10px;
+  font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;
+  cursor:pointer;transition:all .14s}
+.confirm-no:hover{border-color:var(--ink)}
+
+/* ── WIN OVERLAY ── */
+#win-overlay{
+  position:fixed;inset:0;background:rgba(44,32,16,.6);
+  display:flex;align-items:center;justify-content:center;
+  z-index:300;backdrop-filter:blur(6px)}
+#win-overlay.hidden{display:none}
+.win-box{
+  background:white;border-radius:22px;padding:36px 44px;text-align:center;
+  box-shadow:0 20px 60px rgba(44,32,16,.3);
+  display:flex;flex-direction:column;gap:14px;align-items:center;
+  max-width:400px;width:90%}
+.win-emoji{font-size:60px;line-height:1}
+.win-title{font-family:'Baloo 2',sans-serif;font-size:38px;font-weight:800;line-height:1}
+.win-sub{font-size:15px;color:var(--ink-lt);line-height:1.5}
+.win-btn{
+  padding:14px 36px;background:#e05c3a;color:white;border:none;border-radius:12px;
+  font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;cursor:pointer;
+  transition:all .16s;box-shadow:0 4px 0 #b03a1a;margin-top:4px}
+.win-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #b03a1a}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SETUP ═══════════ -->
+<div id="setup-screen" class="screen">
+  <div class="s-title">Fill the <em>Stairs</em></div>
+  <p class="s-sub">Roll two dice each round. Place the number on a stair — but every number must be bigger than the ones below it! First to fill all stairs wins.</p>
+  <div class="setup-card">
+    <div>
+      <span class="s-lbl">Player Names</span>
+      <div class="name-grid" id="name-grid"></div>
+    </div>
+    <div>
+      <span class="s-lbl">Stair Count</span>
+      <div class="stairs-row">
+        <button class="pick-btn" onclick="setStairs(8)">8</button>
+        <button class="pick-btn active" onclick="setStairs(10)">10</button>
+        <button class="pick-btn" onclick="setStairs(12)">12</button>
+      </div>
+    </div>
+    <button class="go-btn" onclick="startGame()">▶ Start Game</button>
+  </div>
+</div>
+
+<!-- ═══════════ GAME ═══════════ -->
+<div id="game-screen" class="screen hidden">
+  <div class="top-bar">
+    <div class="g-logo">Fill the <em>Stairs</em></div>
+    <div class="round-badge" id="round-badge">Round 0</div>
+    <div class="spacer"></div>
+    <button class="ng-btn" onclick="goSetup()">↩ New Game</button>
+  </div>
+
+  <div class="dice-zone">
+    <div class="die-wrap">
+      <div class="die-face" id="die-a"><svg id="die-a-svg" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="die-lbl">Tens?</div>
+    </div>
+    <div class="dice-sep">·</div>
+    <div class="die-wrap">
+      <div class="die-face" id="die-b"><svg id="die-b-svg" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="die-lbl">Ones?</div>
+    </div>
+
+    <div class="combo-zone" id="combo-zone" style="visibility:hidden">
+      <div class="combo-lbl">Pick your number</div>
+      <div class="combo-btns">
+        <button class="combo-btn" id="combo-ab" disabled onclick="chooseNumber('ab')"></button>
+        <button class="combo-btn" id="combo-ba" disabled onclick="chooseNumber('ba')"></button>
+      </div>
+    </div>
+
+    <button class="roll-btn" id="roll-btn" onclick="rollDice()">🎲 Roll!</button>
+    <div class="dice-status" id="dice-status">Press Roll!</div>
+  </div>
+
+  <div id="player-grid" class="player-grid"></div>
+</div>
+
+<!-- ═══════════ CONFIRM MODAL ═══════════ -->
+<div id="confirm-modal" class="hidden">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">📝</div>
+    <div class="confirm-title" id="confirm-title">Place here?</div>
+    <div class="confirm-desc" id="confirm-desc"></div>
+    <div class="confirm-btns">
+      <button class="confirm-yes" onclick="confirmYes()">Yes!</button>
+      <button class="confirm-no" onclick="confirmNo()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ WIN OVERLAY ═══════════ -->
+<div id="win-overlay" class="hidden">
+  <div class="win-box">
+    <div class="win-emoji">🏆</div>
+    <div class="win-title" id="win-title">Winner!</div>
+    <div class="win-sub" id="win-sub"></div>
+    <button class="win-btn" onclick="goSetup()">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════
+const COLORS   = ['#e05c3a','#2a7fd4','#27a060','#d4880a','#9b3ec8','#d4306a'];
+const COLORS_L = ['rgba(224,92,58,.12)','rgba(42,127,212,.12)','rgba(39,160,96,.12)',
+                  'rgba(212,136,10,.12)','rgba(155,62,200,.12)','rgba(212,48,106,.12)'];
+const DNAMES   = ['Player 1','Player 2','Player 3','Player 4','Player 5','Player 6'];
+
+// Dot positions in a 60×60 SVG die face (matching viewBox)
+const DP = {
+  TL:[17,17], TC:[30,17], TR:[43,17],
+  ML:[17,30], MC:[30,30], MR:[43,30],
+  BL:[17,43], BC:[30,43], BR:[43,43]
+};
+const DOT_PAT = [
+  [],                                          // 0
+  [DP.MC],                                     // 1
+  [DP.TR,DP.BL],                               // 2
+  [DP.TR,DP.MC,DP.BL],                         // 3
+  [DP.TL,DP.TR,DP.BL,DP.BR],                  // 4
+  [DP.TL,DP.TR,DP.MC,DP.BL,DP.BR],            // 5
+  [DP.TL,DP.ML,DP.BL,DP.TR,DP.MR,DP.BR],     // 6
+  [DP.TL,DP.ML,DP.BL,DP.MC,DP.TR,DP.MR,DP.BR], // 7
+  [DP.TL,DP.TC,DP.TR,DP.BL,DP.BC,DP.BR,DP.ML,DP.MR], // 8
+  [DP.TL,DP.TC,DP.TR,DP.ML,DP.MC,DP.MR,DP.BL,DP.BC,DP.BR] // 9
+];
+
+// ══════════════════════════════════════════
+// DICE SVG
+// ══════════════════════════════════════════
+function renderDie(svgEl, value) {
+  // clear
+  while (svgEl.firstChild) svgEl.removeChild(svgEl.firstChild);
+  const dots = (value >= 0 && value <= 9) ? DOT_PAT[value] : [];
+  if (value === 0) {
+    // small ring for zero
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx','30'); c.setAttribute('cy','30');
+    c.setAttribute('r','5'); c.setAttribute('fill','none');
+    c.setAttribute('stroke','#a89060'); c.setAttribute('stroke-width','2');
+    svgEl.appendChild(c);
+  } else {
+    for (const [cx,cy] of dots) {
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', cx); c.setAttribute('cy', cy);
+      c.setAttribute('r','4.5'); c.setAttribute('fill','#2c2010');
+      svgEl.appendChild(c);
+    }
+  }
+}
+
+function flashDie(svgEl, faceEl, finalVal, cb) {
+  faceEl.classList.add('rolling');
+  let t = 0;
+  const id = setInterval(() => {
+    renderDie(svgEl, Math.floor(Math.random()*10));
+    if (++t >= 11) {
+      clearInterval(id);
+      renderDie(svgEl, finalVal);
+      faceEl.classList.remove('rolling');
+      if (cb) cb();
+    }
+  }, 50);
+}
+
+// ══════════════════════════════════════════
+// SETUP STATE
+// ══════════════════════════════════════════
+const setupCount = 2;
+let setupStairs = 10;
+
+function setStairs(n) {
+  setupStairs = n;
+  document.querySelectorAll('.stairs-row .pick-btn').forEach(b=>b.classList.toggle('active',+b.textContent===n));
+}
+function rebuildNames() {
+  const grid = document.getElementById('name-grid');
+  const existing = [...grid.querySelectorAll('input')].map(i=>i.value);
+  grid.innerHTML = '';
+  for (let i=0;i<setupCount;i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'nwrap';
+    wrap.innerHTML = `<label style="color:${COLORS[i]}">Player ${i+1}</label>
+      <input id="pn-${i}" value="${existing[i]||DNAMES[i]}" maxlength="14">`;
+    grid.appendChild(wrap);
+  }
+}
+rebuildNames();
+
+// ══════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════
+let G = {};
+
+function initGame(names, N) {
+  G = {
+    N,
+    turn: 0,           // increments each individual turn
+    currentPlayer: 0,  // whose turn it is: 0 or 1
+    phase: 'roll',     // 'roll' | 'choose' | 'place' | 'done'
+    dA: null, dB: null,
+    chosenNum: null,
+    players: names.map((name,idx)=>({
+      name, idx,
+      stairs: new Array(N).fill(null),
+      discards: [],
+      done: false,
+      eliminated: false
+    }))
+  };
+}
+
+// ══════════════════════════════════════════
+// START / MENU
+// ══════════════════════════════════════════
+function startGame() {
+  const names = [];
+  for (let i=0;i<setupCount;i++) {
+    const v = document.getElementById(`pn-${i}`).value.trim() || DNAMES[i];
+    names.push(v);
+  }
+  initGame(names, setupStairs);
+
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('win-overlay').classList.add('hidden');
+  document.getElementById('confirm-modal').classList.add('hidden');
+
+  buildPlayerGrid();
+  resetDiceZone();
+  updateTurnUI();
+}
+
+function goSetup() {
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('setup-screen').classList.remove('hidden');
+  document.getElementById('win-overlay').classList.add('hidden');
+  document.getElementById('confirm-modal').classList.add('hidden');
+  rebuildNames();
+}
+
+// ══════════════════════════════════════════
+// PLAYER GRID
+// ══════════════════════════════════════════
+function buildPlayerGrid() {
+  const grid = document.getElementById('player-grid');
+  grid.innerHTML = '';
+  G.players.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    card.id = `card-${p.idx}`;
+    card.style.setProperty('--pc', COLORS[p.idx]);
+    card.innerHTML = `
+      <div class="p-header">
+        <span class="p-name">${p.name}</span>
+        <span class="p-discard-ct" id="pdc-${p.idx}">0 discards</span>
+        <span class="p-status-badge" id="psb-${p.idx}">Active</span>
+      </div>
+      <div class="stair-area" id="sa-${p.idx}"></div>
+      <div class="discard-tray" id="dt-${p.idx}">
+        <span class="d-lbl">Discards</span>
+        <button class="d-btn" id="db-${p.idx}" disabled onclick="requestDiscard(${p.idx})">Discard</button>
+      </div>
+    `;
+    grid.appendChild(card);
+    renderStaircase(p.idx);
+  });
+
+  // Event delegation for stair clicks and hover
+  grid.addEventListener('click', e => {
+    const r = e.target.closest('rect[data-step]');
+    if (!r || !r.dataset.interactive) return;
+    const pi = parseInt(r.dataset.player);
+    const si = parseInt(r.dataset.step);
+    const p = G.players[pi];
+    if (G.phase !== 'place' || p.placed || p.done || p.eliminated) return;
+    if (p.stairs[si-1] !== null) return;
+    requestPlace(pi, si);
+  });
+  grid.addEventListener('mouseover', e => {
+    const r = e.target.closest('rect[data-step]');
+    if (!r || !r.dataset.interactive) return;
+    const pi = parseInt(r.dataset.player);
+    const si = parseInt(r.dataset.step);
+    if (G.players[pi].stairs[si-1] === null) r.setAttribute('fill', COLORS_L[pi]);
+  });
+  grid.addEventListener('mouseout', e => {
+    const r = e.target.closest('rect[data-step]');
+    if (!r || !r.dataset.interactive) return;
+    const pi = parseInt(r.dataset.player);
+    const si = parseInt(r.dataset.step);
+    if (G.players[pi].stairs[si-1] === null) r.setAttribute('fill', 'white');
+  });
+}
+
+// ══════════════════════════════════════════
+// STAIRCASE SVG
+// ══════════════════════════════════════════
+function renderStaircase(playerIdx) {
+  const p  = G.players[playerIdx];
+  const N  = G.N;
+  const sw = 46;   // step width in SVG units  (was 28)
+  const sh = 34;   // step height in SVG units (was 22)
+  const totalW = N * sw;
+  const totalH = N * sh;
+  const pad = {l:24, r:22, t:18, b:18};
+  const vbW = totalW + pad.l + pad.r;
+  const vbH = totalH + pad.t + pad.b;
+
+  // Staircase background path origin = (pad.l, pad.t)
+  // Step i (1=bottom, N=top):
+  //   tread rect x = pad.l + (i-1)*sw, y = pad.t + (N-i)*sh, w=sw, h=sh
+  const ox = pad.l, oy = pad.t;
+
+  // Background staircase path (the full triangle shape)
+  let d = `M ${ox} ${oy + totalH}`;
+  for (let i = 1; i <= N; i++) d += ` H ${ox + i*sw} V ${oy + (N-i)*sh}`;
+  d += ` H ${ox} Z`;
+
+  // Is this player interactive right now?
+  const inter = (G.phase === 'place' && playerIdx === G.currentPlayer && !p.done && !p.eliminated);
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox',`0 0 ${vbW} ${vbH}`);
+  svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
+
+  // Background path
+  const bg = document.createElementNS(ns,'path');
+  bg.setAttribute('d', d);
+  bg.setAttribute('fill', '#f0e8d0');
+  bg.setAttribute('stroke', '#b8a070');
+  bg.setAttribute('stroke-width','1.5');
+  bg.setAttribute('stroke-linejoin','round');
+  svg.appendChild(bg);
+
+  // Cell rects
+  for (let i = 1; i <= N; i++) {
+    const x = ox + (i-1)*sw;
+    const y = oy + (N-i)*sh;
+    const val = p.stairs[i-1];
+    const filled = val !== null;
+
+    const rect = document.createElementNS(ns,'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', y);
+    rect.setAttribute('width', sw);
+    rect.setAttribute('height', sh);
+    rect.setAttribute('rx', '2');
+    rect.setAttribute('fill', filled ? COLORS_L[playerIdx] : 'white');
+    rect.setAttribute('stroke', filled ? COLORS[playerIdx] : '#c8a860');
+    rect.setAttribute('stroke-width', filled ? '2' : '1.5');
+    rect.setAttribute('data-player', playerIdx);
+    rect.setAttribute('data-step', i);
+    if (inter && !filled) rect.setAttribute('data-interactive','1');
+    svg.appendChild(rect);
+
+    if (filled) {
+      const txt = document.createElementNS(ns,'text');
+      txt.setAttribute('x', x + sw/2);
+      txt.setAttribute('y', y + sh/2);
+      txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('dominant-baseline','central');
+      txt.setAttribute('font-family',"'Baloo 2', sans-serif");
+      txt.setAttribute('font-weight','800');
+      txt.setAttribute('font-size', Math.min(sw, sh) * 0.68);
+      txt.setAttribute('fill', COLORS[playerIdx]);
+      txt.setAttribute('pointer-events','none');
+      txt.textContent = val;
+      svg.appendChild(txt);
+    }
+  }
+
+  // "0" label — bottom-left of staircase
+  const lbl0 = document.createElementNS(ns,'text');
+  lbl0.setAttribute('x', ox - 3);
+  lbl0.setAttribute('y', oy + totalH + 12);
+  lbl0.setAttribute('text-anchor','end');
+  lbl0.setAttribute('font-family',"'Baloo 2', sans-serif");
+  lbl0.setAttribute('font-weight','800');
+  lbl0.setAttribute('font-size','16');
+  lbl0.setAttribute('fill','#2c2010');
+  lbl0.setAttribute('pointer-events','none');
+  lbl0.textContent = '0';
+  svg.appendChild(lbl0);
+
+  // "100" label — top-right of staircase
+  const lbl100 = document.createElementNS(ns,'text');
+  lbl100.setAttribute('x', ox + totalW + 3);
+  lbl100.setAttribute('y', oy - 3);
+  lbl100.setAttribute('text-anchor','start');
+  lbl100.setAttribute('dominant-baseline','auto');
+  lbl100.setAttribute('font-family',"'Baloo 2', sans-serif");
+  lbl100.setAttribute('font-weight','800');
+  lbl100.setAttribute('font-size','16');
+  lbl100.setAttribute('fill','#2c2010');
+  lbl100.setAttribute('pointer-events','none');
+  lbl100.textContent = '100';
+  svg.appendChild(lbl100);
+
+  // Eliminated overlay
+  if (p.eliminated) {
+    const overlay = document.createElementNS(ns,'path');
+    overlay.setAttribute('d', d);
+    overlay.setAttribute('fill','rgba(44,32,16,.3)');
+    overlay.setAttribute('pointer-events','none');
+    svg.appendChild(overlay);
+
+    const xt = document.createElementNS(ns,'text');
+    xt.setAttribute('x', ox + totalW/2);
+    xt.setAttribute('y', oy + totalH/2);
+    xt.setAttribute('text-anchor','middle');
+    xt.setAttribute('dominant-baseline','central');
+    xt.setAttribute('font-family',"'Baloo 2', sans-serif");
+    xt.setAttribute('font-weight','800');
+    xt.setAttribute('font-size', Math.max(14, sw * 1.1));
+    xt.setAttribute('fill','rgba(180,30,30,.85)');
+    xt.setAttribute('transform',`rotate(-25,${ox+totalW/2},${oy+totalH/2})`);
+    xt.setAttribute('pointer-events','none');
+    xt.textContent = 'OUT';
+    svg.appendChild(xt);
+  }
+
+  const area = document.getElementById(`sa-${playerIdx}`);
+  area.innerHTML = '';
+  area.appendChild(svg);
+}
+
+function refreshAllStaircases() {
+  G.players.forEach(p => renderStaircase(p.idx));
+}
+
+// ══════════════════════════════════════════
+// DICE ROLL
+// ══════════════════════════════════════════
+function rollDice() {
+  if (G.phase !== 'roll') return;
+  G.turn++;
+  G.chosenNum = null;
+
+  document.getElementById('roll-btn').disabled = true;
+  document.getElementById('combo-zone').style.visibility = 'hidden';
+  document.getElementById('dice-status').textContent = 'Rolling…';
+  document.getElementById('combo-ab').classList.remove('chosen');
+  document.getElementById('combo-ba').classList.remove('chosen');
+
+  G.dA = Math.floor(Math.random()*10);
+  G.dB = Math.floor(Math.random()*10);
+
+  const svgA = document.getElementById('die-a-svg');
+  const svgB = document.getElementById('die-b-svg');
+  const faceA = document.getElementById('die-a');
+  const faceB = document.getElementById('die-b');
+
+  let doneCount = 0;
+  const tryFinish = () => { if (++doneCount === 2) afterRoll(); };
+
+  flashDie(svgA, faceA, G.dA, tryFinish);
+  flashDie(svgB, faceB, G.dB, tryFinish);
+
+  refreshAllStaircases();
+}
+
+function afterRoll() {
+  const ab = G.dA * 10 + G.dB;
+  const ba = G.dB * 10 + G.dA;
+
+  const btnAB = document.getElementById('combo-ab');
+  const btnBA = document.getElementById('combo-ba');
+  btnAB.textContent = ab;
+  btnBA.textContent = (G.dA === G.dB) ? '—' : ba;
+  btnAB.disabled = false;
+  btnBA.disabled = (G.dA === G.dB);
+  document.getElementById('combo-zone').style.visibility = 'visible';
+  const cp = G.players[G.currentPlayer];
+  document.getElementById('dice-status').textContent = `${cp.name}: pick a number`;
+  G.phase = 'choose';
+}
+
+function chooseNumber(which) {
+  G.chosenNum = (which === 'ab') ? G.dA*10+G.dB : G.dB*10+G.dA;
+  document.getElementById('combo-ab').classList.toggle('chosen', which==='ab');
+  document.getElementById('combo-ba').classList.toggle('chosen', which==='ba');
+  document.getElementById('combo-ab').disabled = true;
+  document.getElementById('combo-ba').disabled = true;
+  G.phase = 'place';
+  const cp = G.players[G.currentPlayer];
+  document.getElementById('dice-status').textContent = `${cp.name}: place ${G.chosenNum}`;
+
+  // Enable discard button only for current player
+  G.players.forEach(p => {
+    const dbtn = document.getElementById(`db-${p.idx}`);
+    if (dbtn) dbtn.disabled = (p.idx !== G.currentPlayer || p.done || p.eliminated);
+  });
+
+  refreshAllStaircases();
+}
+
+// ══════════════════════════════════════════
+// PLACEMENT / DISCARD
+// ══════════════════════════════════════════
+let pendingAction = null;
+
+function requestPlace(playerIdx, stepNum) {
+  if (G.phase !== 'place') return;
+  if (playerIdx !== G.currentPlayer) return;
+  const p = G.players[playerIdx];
+  if (p.done || p.eliminated) return;
+
+  pendingAction = { type:'place', playerIdx, stepNum };
+  const sOrd = stepOrdinal(stepNum);
+  document.getElementById('confirm-icon').textContent = '📌';
+  document.getElementById('confirm-title').innerHTML =
+    `<span style="color:${COLORS[playerIdx]}">${p.name}</span>: place ${G.chosenNum} here?`;
+  document.getElementById('confirm-desc').textContent =
+    `You're placing ${G.chosenNum} on the ${sOrd} stair (counting from the bottom). Numbers must increase going up — an incorrect placement means you're out!`;
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function requestDiscard(playerIdx) {
+  const p = G.players[playerIdx];
+  if (G.phase !== 'place' || playerIdx !== G.currentPlayer || p.done || p.eliminated) return;
+
+  pendingAction = { type:'discard', playerIdx };
+  document.getElementById('confirm-icon').textContent = '🗑️';
+  document.getElementById('confirm-title').innerHTML =
+    `<span style="color:${COLORS[playerIdx]}">${p.name}</span>: discard ${G.chosenNum}?`;
+  document.getElementById('confirm-desc').textContent =
+    `This will add ${G.chosenNum} to your discard pile. You won't be able to use it.`;
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function confirmYes() {
+  document.getElementById('confirm-modal').classList.add('hidden');
+  if (!pendingAction) return;
+  const { type, playerIdx, stepNum } = pendingAction;
+  pendingAction = null;
+
+  if (type === 'place')   doPlace(playerIdx, stepNum);
+  else if (type === 'discard') doDiscard(playerIdx);
+}
+
+function confirmNo() {
+  document.getElementById('confirm-modal').classList.add('hidden');
+  pendingAction = null;
+}
+
+function isValidPlacement(playerIdx, stepIdx, value) {
+  // stepIdx is 0-based index into stairs array
+  const stairs = G.players[playerIdx].stairs;
+  for (let i = 0; i < stepIdx; i++) {
+    if (stairs[i] !== null && stairs[i] >= value) return false;
+  }
+  for (let i = stepIdx+1; i < G.N; i++) {
+    if (stairs[i] !== null && stairs[i] <= value) return false;
+  }
+  return true;
+}
+
+function doPlace(playerIdx, stepNum) {
+  const p = G.players[playerIdx];
+  const stepIdx = stepNum - 1;
+
+  if (!isValidPlacement(playerIdx, stepIdx, G.chosenNum)) {
+    p.eliminated = true;
+    updatePlayerCard(playerIdx);
+    renderStaircase(playerIdx);
+    document.getElementById(`db-${playerIdx}`).disabled = true;
+    advanceTurn();
+    return;
+  }
+
+  p.stairs[stepIdx] = G.chosenNum;
+  updatePlayerCard(playerIdx);
+  renderStaircase(playerIdx);
+  document.getElementById(`db-${playerIdx}`).disabled = true;
+
+  if (p.stairs.every(v => v !== null)) {
+    p.done = true;
+    const card = document.getElementById(`card-${playerIdx}`);
+    card.classList.add('done-card');
+    const badge = document.getElementById(`psb-${playerIdx}`);
+    if (badge) badge.textContent = '✓ Done!';
+    triggerWin(playerIdx);
+    return;
+  }
+
+  advanceTurn();
+}
+
+function doDiscard(playerIdx) {
+  const p = G.players[playerIdx];
+  p.discards.push(G.chosenNum);
+
+  const tray  = document.getElementById(`dt-${playerIdx}`);
+  const dbtn  = document.getElementById(`db-${playerIdx}`);
+  const pill  = document.createElement('span');
+  pill.className = 'd-pill';
+  pill.textContent = G.chosenNum;
+  tray.insertBefore(pill, dbtn);
+  dbtn.disabled = true;
+
+  const dcEl = document.getElementById(`pdc-${playerIdx}`);
+  if (dcEl) {
+    const n = p.discards.length;
+    dcEl.textContent = `${n} discard${n!==1?'s':''}`;
+  }
+
+  advanceTurn();
+}
+
+function advanceTurn() {
+  // Switch to the other player
+  G.currentPlayer = 1 - G.currentPlayer;
+  const next = G.players[G.currentPlayer];
+
+  // Skip if that player is done or eliminated
+  if (next.done || next.eliminated) {
+    // Only one active player remains — check game over
+    const anyActive = G.players.some(p => !p.done && !p.eliminated);
+    if (!anyActive) {
+      document.getElementById('win-title').textContent = 'Game Over!';
+      document.getElementById('win-title').style.color = '#2c2010';
+      document.getElementById('win-sub').textContent = 'Both players are out!';
+      document.getElementById('win-overlay').classList.remove('hidden');
+      G.phase = 'done';
+      return;
+    }
+    // The other player was just eliminated/done — current player keeps going
+    G.currentPlayer = 1 - G.currentPlayer;
+  }
+
+  G.phase = 'roll';
+  G.chosenNum = null;
+  document.getElementById('combo-zone').style.visibility = 'hidden';
+  document.getElementById('combo-ab').classList.remove('chosen');
+  document.getElementById('combo-ba').classList.remove('chosen');
+
+  // Disable all discard buttons until next place phase
+  G.players.forEach(p => {
+    const dbtn = document.getElementById(`db-${p.idx}`);
+    if (dbtn) dbtn.disabled = true;
+  });
+
+  refreshAllStaircases();
+  updateTurnUI();
+}
+
+function checkAllPlaced() {} // no longer needed — kept as stub
+
+function updatePlayerCard(playerIdx) {
+  const p = G.players[playerIdx];
+  const card = document.getElementById(`card-${playerIdx}`);
+  const badge = document.getElementById(`psb-${playerIdx}`);
+  if (p.eliminated) {
+    card.classList.add('eliminated-card');
+    if (badge) badge.textContent = '✗ Out';
+  }
+}
+
+// ══════════════════════════════════════════
+// WIN
+// ══════════════════════════════════════════
+function triggerWin(playerIdx) {
+  G.phase = 'done';
+  const p = G.players[playerIdx];
+  document.getElementById('win-title').textContent = `${p.name} wins!`;
+  document.getElementById('win-title').style.color = COLORS[playerIdx];
+  document.getElementById('win-sub').innerHTML =
+    `All ${G.N} stairs filled in ${G.turn} turn${G.turn!==1?'s':''}!<br>
+     ${p.discards.length} discard${p.discards.length!==1?'s':''} along the way.`;
+  document.getElementById('win-overlay').classList.remove('hidden');
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function resetDiceZone() {
+  renderDie(document.getElementById('die-a-svg'), null);
+  renderDie(document.getElementById('die-b-svg'), null);
+  document.getElementById('combo-zone').style.visibility = 'hidden';
+  document.getElementById('combo-ab').classList.remove('chosen');
+  document.getElementById('combo-ba').classList.remove('chosen');
+  G.phase = 'roll';
+}
+
+function updateTurnUI() {
+  const cp = G.players[G.currentPlayer];
+  document.getElementById('round-badge').textContent = `Turn ${G.turn + 1}`;
+  document.getElementById('roll-btn').disabled = false;
+  document.getElementById('roll-btn').textContent = `🎲 ${cp.name}'s Roll!`;
+  document.getElementById('dice-status').textContent = `${cp.name}'s turn`;
+  // Highlight active player card
+  G.players.forEach(p => {
+    const card = document.getElementById(`card-${p.idx}`);
+    if (!card) return;
+    card.style.outline = (p.idx === G.currentPlayer && !p.done && !p.eliminated)
+      ? `3px solid ${COLORS[p.idx]}` : 'none';
+  });
+}
+
+function renderDie(svgEl, value) {
+  while (svgEl.firstChild) svgEl.removeChild(svgEl.firstChild);
+  if (value === null) return;
+  const dots = DOT_PAT[value] || [];
+  if (value === 0) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx','30'); c.setAttribute('cy','30');
+    c.setAttribute('r','5'); c.setAttribute('fill','none');
+    c.setAttribute('stroke','#a89060'); c.setAttribute('stroke-width','2');
+    svgEl.appendChild(c);
+  } else {
+    for (const [cx,cy] of dots) {
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+      c.setAttribute('r','4.5'); c.setAttribute('fill','#2c2010');
+      svgEl.appendChild(c);
+    }
+  }
+}
+
+function stepOrdinal(n) {
+  const s = ['th','st','nd','rd'];
+  const v = n%100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+</script>
+</body>
+</html>

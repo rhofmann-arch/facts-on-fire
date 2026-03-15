@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oh No! 99!</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Fredoka+One&family=Nunito:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e2217;--bg2:#152d1e;
+  --chalk:#f0ead8;--chalk-dim:rgba(240,234,216,0.45);
+  --gold:#e8b840;--gold-glow:rgba(232,184,64,0.25);
+  --p1:#5b9bd5;--p1-bg:rgba(91,155,213,0.1);--p1-border:rgba(91,155,213,0.25);
+  --p2:#e06060;--p2-bg:rgba(224,96,96,0.1);--p2-border:rgba(224,96,96,0.25);
+  --card-bg:#fefcf5;--card-border:#d4c8a0;
+  --card-red:#cc1100;--card-black:#111;
+  --wb:#f4eed8;--wb-border:#c8b478;
+  --grid-line:rgba(255,255,255,0.04);
+}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);color:var(--chalk);
+  background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+
+/* ── SCREENS ── */
+.screen{position:absolute;inset:0;display:flex}
+.screen.hidden{display:none!important}
+
+/* ── MENU ── */
+#menu-screen{flex-direction:column;align-items:center;justify-content:center;gap:28px}
+.game-title{
+  font-family:'Fredoka One',sans-serif;font-size:80px;color:var(--gold);
+  text-shadow:0 4px 24px rgba(232,184,64,0.45),0 0 80px rgba(232,184,64,0.12);
+  letter-spacing:2px;line-height:1
+}
+.game-subtitle{
+  font-family:'Caveat',cursive;font-size:26px;
+  color:var(--chalk-dim);margin-top:-10px;letter-spacing:1px
+}
+.menu-block{display:flex;flex-direction:column;align-items:center;gap:12px}
+.menu-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:var(--chalk-dim)}
+.mode-btns{display:flex;gap:14px}
+.mode-btn{
+  padding:14px 30px;border:2px solid rgba(240,234,216,0.2);
+  border-radius:10px;background:transparent;color:var(--chalk);
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .18s;min-width:155px;text-align:center
+}
+.mode-btn:hover,.mode-btn.active{border-color:var(--gold);background:var(--gold-glow);color:var(--gold)}
+.name-inputs{display:flex;gap:20px}
+.name-wrap{display:flex;flex-direction:column;gap:6px}
+.name-lbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:2px}
+.name-lbl.lbl-p1{color:var(--p1)}.name-lbl.lbl-p2{color:var(--p2)}
+input.name-inp{
+  padding:10px 14px;border:2px solid rgba(240,234,216,0.18);
+  border-radius:8px;background:rgba(255,255,255,0.05);
+  color:var(--chalk);font-family:'Nunito',sans-serif;
+  font-size:15px;font-weight:700;width:170px;outline:none;transition:border-color .18s
+}
+input.name-inp:focus{border-color:var(--gold)}
+.start-btn{
+  padding:16px 60px;background:var(--gold);color:#1a1200;
+  border:none;border-radius:12px;font-family:'Fredoka One',sans-serif;
+  font-size:22px;cursor:pointer;transition:all .18s;
+  box-shadow:0 4px 24px rgba(232,184,64,0.3)
+}
+.start-btn:hover{background:#f0c840;transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,184,64,0.5)}
+.rules-summary{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;padding:14px 22px;max-width:480px;
+  font-size:12px;color:var(--chalk-dim);line-height:1.7;text-align:center
+}
+.rules-summary strong{color:var(--chalk);font-weight:800}
+
+/* ── GAME SCREEN ── */
+#game-screen{flex-direction:column;padding:8px;gap:8px;height:100vh}
+.game-rows{display:flex;flex-direction:column;height:100%;gap:8px}
+
+/* Player rows */
+.player-row{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 14px;border-radius:14px;flex-shrink:0
+}
+.p2-row{background:var(--p2-bg);border:1.5px solid var(--p2-border)}
+.p1-row{background:var(--p1-bg);border:1.5px solid var(--p1-border)}
+.player-row.active-row.p1-row{border-color:var(--p1);box-shadow:0 0 16px rgba(91,155,213,0.25)}
+.player-row.active-row.p2-row{border-color:var(--p2);box-shadow:0 0 16px rgba(224,96,96,0.25)}
+
+/* Player info panel */
+.player-info{display:flex;flex-direction:column;gap:4px;min-width:90px}
+.player-name{font-family:'Fredoka One',sans-serif;font-size:18px}
+.p1-row .player-name{color:var(--p1)}
+.p2-row .player-name{color:var(--p2)}
+.lives-row{display:flex;gap:4px;align-items:center}
+.life{font-size:18px;transition:transform .3s,opacity .3s}
+.life.lost{opacity:.15;transform:scale(.7)}
+.turn-indicator{
+  font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+  color:var(--gold);opacity:0;transition:opacity .3s
+}
+.active-row .turn-indicator{opacity:1}
+
+/* Hand area */
+.hand-area{display:flex;gap:10px;align-items:center;flex:1;justify-content:center;flex-wrap:wrap}
+
+/* Cards */
+.card{
+  width:64px;height:90px;border-radius:8px;
+  background:var(--card-bg);border:1.5px solid var(--card-border);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:4px 5px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s,opacity .2s,filter .2s;
+  position:relative;user-select:none;flex-shrink:0
+}
+.card:not(.unplayable):hover{
+  transform:translateY(-10px) scale(1.05);
+  box-shadow:0 12px 28px rgba(0,0,0,0.5)
+}
+.card.unplayable{opacity:.4;cursor:not-allowed;filter:grayscale(.6)}
+.card.unplayable:hover{transform:none;box-shadow:none}
+.card.red-card{color:var(--card-red)}.card.black-card{color:var(--card-black)}
+.card-top{font-size:16px;font-weight:900;line-height:1}
+.card-mid{font-size:26px;text-align:center;flex:1;display:flex;align-items:center;justify-content:center}
+.card-bot{font-size:16px;font-weight:900;line-height:1;transform:rotate(180deg);text-align:right}
+.card-back{
+  width:64px;height:90px;border-radius:8px;
+  background:linear-gradient(135deg,#1a5a9a 0%,#112c5a 50%,#1a4a8a 100%);
+  border:2px solid #2a5a9a;flex-shrink:0;
+  box-shadow:inset 0 0 0 4px rgba(255,255,255,0.08);
+  position:relative;overflow:hidden
+}
+.card-back::after{
+  content:'';position:absolute;inset:6px;border:1.5px solid rgba(255,255,255,0.15);
+  border-radius:4px;
+  background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,255,255,0.05) 4px,rgba(255,255,255,0.05) 8px)
+}
+.card-special-badge{
+  position:absolute;bottom:2px;left:0;right:0;
+  text-align:center;font-size:8px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.5px;
+  background:rgba(0,0,0,0.18);border-radius:0 0 6px 6px;padding:1px 0;
+  color:rgba(0,0,0,0.55)
+}
+.card.red-card .card-special-badge{color:rgba(180,0,0,0.6)}
+.card-special-badge.wild{background:rgba(120,60,180,0.2);color:#8030c0}
+
+/* 100s Chart */
+.chart-wrap{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.chart-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--chalk-dim);text-align:center}
+.hundreds-chart{
+  display:grid;grid-template-columns:repeat(10,1fr);
+  gap:2px;width:186px
+}
+.cc{
+  width:17px;height:17px;border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:700;
+  background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.28);
+  transition:background .3s,color .3s,transform .2s
+}
+.cc.visited-p1{background:var(--p1-bg);color:rgba(91,155,213,0.8)}
+.cc.visited-p2{background:var(--p2-bg);color:rgba(224,96,96,0.8)}
+.cc.current{background:var(--gold)!important;color:#1a1200!important;font-size:9px;transform:scale(1.15);z-index:1;position:relative}
+.cc.danger{background:rgba(224,96,96,0.2);color:rgba(224,96,96,0.7)}
+
+/* ── CENTER ROW ── */
+.center-row{flex:1;display:flex;align-items:center;justify-content:center;gap:20px;min-height:0}
+
+/* Whiteboard */
+.whiteboard{
+  background:var(--wb);border:3px solid var(--wb-border);
+  border-radius:16px;padding:18px 24px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 0 -2px 0 rgba(0,0,0,0.1);
+  width:260px;min-height:140px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  position:relative
+}
+.wb-label{
+  font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:2px;
+  color:#8a7850;position:absolute;top:10px;left:0;right:0;text-align:center
+}
+.wb-total{
+  font-family:'Caveat',cursive;font-size:80px;font-weight:700;
+  color:#1a1200;line-height:1;transition:color .3s
+}
+.wb-total.danger-num{color:#cc2200;animation:pulse-red .5s ease-in-out}
+@keyframes pulse-red{0%,100%{color:#cc2200}50%{color:#ff4420}}
+.wb-equation{font-family:'Caveat',cursive;font-size:20px;color:#4a3820;min-height:26px;text-align:center}
+.wb-who{font-family:'Caveat',cursive;font-size:14px;color:#7a6840;min-height:18px}
+
+/* Deck area */
+.deck-area{display:flex;flex-direction:column;align-items:center;gap:8px}
+.deck-pile{
+  width:64px;height:90px;border-radius:8px;
+  background:linear-gradient(135deg,#1a5a9a,#112c5a,#1a4a8a);
+  border:2px solid #2a5a9a;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:6px;cursor:default;
+  box-shadow:2px 2px 0 rgba(0,0,0,0.4),4px 4px 0 rgba(0,0,0,0.25)
+}
+.deck-count{font-size:10px;font-weight:900;color:rgba(255,255,255,0.6);text-align:center}
+.deck-label-txt{font-size:11px;font-weight:700;color:var(--chalk-dim)}
+
+/* ── OVERLAYS ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  display:flex;align-items:center;justify-content:center;z-index:100;
+  backdrop-filter:blur(4px)
+}
+.overlay.hidden{display:none}
+.overlay-box{
+  background:var(--bg2);border:2px solid rgba(255,255,255,0.12);
+  border-radius:20px;padding:32px 40px;
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  max-width:400px;width:90%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5)
+}
+.overlay-title{font-family:'Fredoka One',sans-serif;font-size:36px;color:var(--gold)}
+.overlay-msg{font-family:'Caveat',cursive;font-size:22px;color:var(--chalk);line-height:1.4}
+.overlay-sub{font-size:13px;color:var(--chalk-dim)}
+.overlay-btn{
+  padding:13px 40px;background:var(--gold);color:#1a1200;
+  border:none;border-radius:10px;font-family:'Fredoka One',sans-serif;
+  font-size:18px;cursor:pointer;transition:all .18s;width:100%
+}
+.overlay-btn:hover{background:#f0c840;transform:translateY(-1px)}
+
+/* Queen modal */
+#queen-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+  backdrop-filter:blur(4px)
+}
+#queen-modal.hidden{display:none}
+.queen-box{
+  background:var(--bg2);border:2px solid rgba(200,140,255,0.3);
+  border-radius:16px;padding:24px 28px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.5)
+}
+.queen-title{font-family:'Fredoka One',sans-serif;font-size:24px;color:#c080ff}
+.queen-sub{font-size:13px;color:var(--chalk-dim);text-align:center}
+.queen-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:280px}
+.queen-val-btn{
+  width:48px;height:48px;border-radius:10px;
+  border:2px solid rgba(200,140,255,0.3);background:transparent;
+  color:var(--chalk);font-family:'Fredoka One',sans-serif;
+  font-size:20px;cursor:pointer;transition:all .15s
+}
+.queen-val-btn:hover{border-color:#c080ff;background:rgba(192,128,255,0.15);color:#c080ff;transform:scale(1.1)}
+.queen-val-btn.invalid{opacity:.3;cursor:not-allowed}
+.queen-val-btn.invalid:hover{transform:none;border-color:rgba(200,140,255,0.3);background:transparent;color:var(--chalk)}
+
+/* Status message bar */
+.status-bar{
+  text-align:center;font-family:'Caveat',cursive;font-size:18px;
+  color:var(--chalk-dim);min-height:24px;padding:0 8px
+}
+
+/* ── COMPUTATION LOGS ── */
+.comp-log{
+  display:flex;flex-direction:column;
+  width:158px;flex-shrink:0;
+  background:rgba(255,255,255,0.03);
+  border-radius:10px;border:1px solid rgba(255,255,255,0.07);
+  overflow:hidden;max-height:190px;
+}
+.comp-log-header{
+  font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;
+  padding:5px 10px 4px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;
+}
+.comp-log.log-p1 .comp-log-header{color:var(--p1)}
+.comp-log.log-p2 .comp-log-header{color:var(--p2)}
+.comp-log-body{
+  overflow-y:auto;flex:1;padding:3px 0;
+  display:flex;flex-direction:column;scroll-behavior:smooth;
+}
+.comp-log-body::-webkit-scrollbar{width:3px}
+.comp-log-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:2px}
+.log-entry{
+  font-family:'Caveat',cursive;font-size:14.5px;
+  padding:0px 10px;line-height:1.55;white-space:nowrap;
+}
+.log-entry.log-new{animation:log-flash .7s ease-out}
+@keyframes log-flash{
+  0%{background:rgba(232,184,64,0.22);color:var(--gold)}
+  100%{background:transparent}
+}
+.log-entry.log-p1{color:rgba(91,155,213,0.85)}
+.log-entry.log-p2{color:rgba(224,96,96,0.85)}
+.log-round-divider{
+  font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+  color:rgba(255,255,255,0.18);padding:4px 10px 2px;
+  border-top:1px solid rgba(255,255,255,0.07);margin-top:2px;
+}
+
+/* Turn arrow */
+.turn-arrow{font-size:20px;animation:bounce .7s infinite alternate}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+
+/* Menu hearts decoration */
+.deco-hearts{font-size:22px;letter-spacing:8px;opacity:.4}
+</style>
+</head>
+<body>
+
+<!-- ── MENU SCREEN ── -->
+<div id="menu-screen" class="screen">
+  <p class="deco-hearts">♠ ♥ ♦ ♣</p>
+  <h1 class="game-title">Oh No! 99!</h1>
+  <p class="game-subtitle">The adding card game — don't go over!</p>
+
+  <div class="menu-block">
+    <p class="menu-label">Game Mode</p>
+    <div class="mode-btns">
+      <button class="mode-btn active" id="btn-2p" onclick="selectMode('2p')">👥 Two Players</button>
+      <button class="mode-btn" id="btn-ai" onclick="selectMode('ai')">🤖 vs Computer</button>
+    </div>
+  </div>
+
+  <div class="menu-block" id="name-block">
+    <p class="menu-label">Player Names</p>
+    <div class="name-inputs">
+      <div class="name-wrap">
+        <label class="name-lbl lbl-p1">Player 1</label>
+        <input class="name-inp" id="inp-p1" value="Player 1" maxlength="12">
+      </div>
+      <div class="name-wrap" id="p2-name-wrap">
+        <label class="name-lbl lbl-p2">Player 2</label>
+        <input class="name-inp" id="inp-p2" value="Player 2" maxlength="12">
+      </div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">▶ Play!</button>
+
+  <div class="rules-summary">
+    <strong>How to play:</strong> Take turns playing cards to a shared total. 
+    <strong>A</strong>=+1 &nbsp;|&nbsp; <strong>2–10</strong>=face value &nbsp;|&nbsp; 
+    <strong>J</strong>=−10 &nbsp;|&nbsp; <strong>Q</strong>=wild (+1–10) &nbsp;|&nbsp; <strong>K</strong>=+0<br>
+    If you can't play without going over <strong>99</strong>, you lose a life ❤️<br>
+    Each player has <strong>3 lives</strong>. Last one standing wins!
+  </div>
+</div>
+
+<!-- ── GAME SCREEN ── -->
+<div id="game-screen" class="screen hidden">
+  <div class="game-rows">
+    <!-- P2 row -->
+    <div class="player-row p2-row" id="p2-row">
+      <div class="player-info">
+        <span class="player-name" id="p2-name">Player 2</span>
+        <div class="lives-row" id="p2-lives"></div>
+        <span class="turn-indicator">▶ Your Turn</span>
+      </div>
+      <div class="hand-area" id="p2-hand"></div>
+      <div class="chart-wrap">
+        <div class="chart-title" id="p2-chart-title">100s Chart</div>
+        <div class="hundreds-chart" id="p2-chart"></div>
+      </div>
+    </div>
+
+    <!-- Center row -->
+    <div class="center-row">
+      <div class="comp-log log-p1" id="log-p1">
+        <div class="comp-log-header" id="log-p1-header">P1 Calculations</div>
+        <div class="comp-log-body" id="log-p1-body"></div>
+      </div>
+      <div class="whiteboard">
+        <span class="wb-label">Running Total</span>
+        <div class="wb-total" id="wb-total">0</div>
+        <div class="wb-equation" id="wb-eq"></div>
+        <div class="wb-who" id="wb-who"></div>
+      </div>
+      <div class="deck-area">
+        <div class="deck-pile" id="deck-pile">
+          <span class="deck-count" id="deck-count">52</span>
+          <span class="deck-count">cards</span>
+        </div>
+        <span class="deck-label-txt">Draw Pile</span>
+      </div>
+      <div class="comp-log log-p2" id="log-p2">
+        <div class="comp-log-header" id="log-p2-header">P2 Calculations</div>
+        <div class="comp-log-body" id="log-p2-body"></div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar" id="status-bar"></div>
+
+    <!-- P1 row -->
+    <div class="player-row p1-row" id="p1-row">
+      <div class="chart-wrap">
+        <div class="chart-title" id="p1-chart-title">100s Chart</div>
+        <div class="hundreds-chart" id="p1-chart"></div>
+      </div>
+      <div class="hand-area" id="p1-hand"></div>
+      <div class="player-info" style="align-items:flex-end">
+        <span class="player-name" id="p1-name">Player 1</span>
+        <div class="lives-row" id="p1-lives"></div>
+        <span class="turn-indicator">▶ Your Turn</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── QUEEN MODAL ── -->
+<div id="queen-modal" class="hidden">
+  <div class="queen-box">
+    <div class="queen-title">🃏 Queen — Wild Card!</div>
+    <div class="queen-sub" id="queen-sub">Choose a value to add (current total: <span id="queen-total">0</span>)</div>
+    <div class="queen-btns" id="queen-btns"></div>
+  </div>
+</div>
+
+<!-- ── ROUND OVER OVERLAY ── -->
+<div class="overlay hidden" id="round-overlay">
+  <div class="overlay-box">
+    <div class="overlay-title" id="round-title">Oh No!</div>
+    <div class="overlay-msg" id="round-msg"></div>
+    <div class="overlay-sub" id="round-sub"></div>
+    <button class="overlay-btn" onclick="nextRound()">Next Round →</button>
+  </div>
+</div>
+
+<!-- ── GAME OVER OVERLAY ── -->
+<div class="overlay hidden" id="gameover-overlay">
+  <div class="overlay-box">
+    <div class="overlay-title">🏆 Game Over!</div>
+    <div class="overlay-msg" id="gameover-msg"></div>
+    <button class="overlay-btn" onclick="backToMenu()">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DECK & CARD UTILITIES
+// ═══════════════════════════════════════════════
+const SUITS = ['♠','♥','♦','♣'];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const RED_SUITS = new Set(['♥','♦']);
+
+function createDeck() {
+  const d = [];
+  for (const s of SUITS) for (const r of RANKS) d.push({suit:s, rank:r});
+  return shuffle([...d]);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function cardValue(rank) {
+  if (rank === 'A') return 1;
+  if (rank === 'J') return -10;
+  if (rank === 'K') return 0;
+  if (rank === 'Q') return 'wild';
+  return parseInt(rank);
+}
+
+function isPlayable(card, total) {
+  const v = cardValue(card.rank);
+  if (v === 'wild') return total + 1 <= 99; // Queen: min +1
+  if (v === 0) return true;   // King always valid (stay)
+  if (v === -10) return true; // Jack always valid (floor at 0)
+  const newT = total + v;
+  return newT <= 99;
+}
+
+function hasValidPlay(hand, total) {
+  return hand.some(c => isPlayable(c, total));
+}
+
+function cardStr(card) {
+  const v = cardValue(card.rank);
+  if (card.rank === 'K') return 'King (stay)';
+  if (card.rank === 'Q') return 'Queen (wild)';
+  if (card.rank === 'J') return 'Jack (−10)';
+  return `${card.rank}${card.suit} (+${v})`;
+}
+
+// ═══════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════
+let G = {};
+
+function initState(mode, names) {
+  G = {
+    mode,       // '2p' or 'ai'
+    players: [
+      { name: names[0], hand: [], lives: 3, myTotals: [], playLog: [] },
+      { name: names[1], hand: [], lives: 3, myTotals: [], playLog: [] }
+    ],
+    deck: [],
+    discard: [],
+    total: 0,
+    current: 0,   // active player index
+    phase: 'playing',  // 'playing','roundOver','gameOver'
+    round: 1,
+    roundHistory: [],
+    lastPlay: null,
+    busy: false,
+    queenCardIdx: null
+  };
+}
+
+function dealRound() {
+  // Collect all cards back
+  G.deck = createDeck();
+  G.discard = [];
+  G.total = 0;
+  G.roundHistory = [];
+  G.lastPlay = null;
+  // Mark new round in logs (skip for round 1)
+  if (G.round > 1) {
+    for (const p of G.players) p.playLog.push({type:'divider', round: G.round});
+  }
+  // Deal 4 cards to each player
+  for (const p of G.players) {
+    p.hand = [];
+    for (let i = 0; i < 4; i++) p.hand.push(G.deck.pop());
+  }
+}
+
+function reshuffleIfNeeded() {
+  if (G.deck.length < 1) {
+    G.deck = shuffle(G.discard);
+    G.discard = [];
+  }
+}
+
+function drawCard(playerIdx) {
+  reshuffleIfNeeded();
+  if (G.deck.length > 0) {
+    G.players[playerIdx].hand.push(G.deck.pop());
+  }
+}
+
+// ═══════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════
+function startTurn() {
+  if (G.phase !== 'playing') return;
+  const p = G.players[G.current];
+  if (!hasValidPlay(p.hand, G.total)) {
+    // Can't play — lose a life
+    loseLife(G.current);
+    return;
+  }
+  if (G.mode === 'ai' && G.current === 1) {
+    // Computer's turn
+    setStatus(`${G.players[1].name} is thinking...`);
+    G.busy = true;
+    renderGame();
+    setTimeout(() => { G.busy = false; computerPlay(); }, 1100);
+  } else {
+    setStatus(`${p.name} — choose a card to play!`);
+    G.busy = false;
+    renderGame();
+  }
+}
+
+function humanPlayCard(playerIdx, cardIdx) {
+  if (G.busy || G.phase !== 'playing') return;
+  if (playerIdx !== G.current) return;
+  const card = G.players[playerIdx].hand[cardIdx];
+  if (!isPlayable(card, G.total)) return;
+
+  if (card.rank === 'Q') {
+    G.queenCardIdx = cardIdx;
+    showQueenModal();
+    return;
+  }
+  executePlay(playerIdx, cardIdx, null);
+}
+
+function executePlay(playerIdx, cardIdx, queenValue) {
+  G.busy = true;
+  const p = G.players[playerIdx];
+  const card = p.hand[cardIdx];
+  const rank = card.rank;
+  const prevTotal = G.total;
+
+  let delta, eqText, specialNote = '';
+
+  if (rank === 'A') { delta = 1; eqText = `${prevTotal} + 1`; }
+  else if (rank === 'J') {
+    delta = -10;
+    eqText = `${prevTotal} − 10`;
+    specialNote = '⚡ Jack!';
+  }
+  else if (rank === 'K') {
+    delta = 0;
+    eqText = `${prevTotal}`;
+    specialNote = '👑 King — stay!';
+  }
+  else if (rank === 'Q') {
+    delta = queenValue;
+    eqText = `${prevTotal} + ${queenValue}`;
+    specialNote = `🃏 Queen +${queenValue}!`;
+  }
+  else {
+    delta = parseInt(rank);
+    eqText = `${prevTotal} + ${delta}`;
+  }
+
+  const newTotal = Math.max(0, G.total + delta);
+  G.total = newTotal;
+  G.roundHistory.push(newTotal);
+  p.myTotals.push(newTotal);
+
+  // Build log text
+  let logText = G.lastPlay ? '' : '';
+  let logLabel = '';
+  if (rank === 'K') logLabel = `👑 ${prevTotal} (stay)`;
+  else if (rank === 'J') logLabel = `⚡ ${prevTotal} − 10 = ${newTotal}`;
+  else if (rank === 'Q') logLabel = `🃏 ${prevTotal} + ${queenValue} = ${newTotal}`;
+  else logLabel = `${prevTotal} + ${delta} = ${newTotal}`;
+  p.playLog.push({type:'play', text: logLabel, special: ['J','Q','K'].includes(rank)});
+
+  G.lastPlay = {
+    name: p.name,
+    cardStr: `${rank}${card.suit}`,
+    eqStr: `${eqText} = ${newTotal}`,
+    specialNote
+  };
+
+  // Remove card from hand
+  G.discard.push(p.hand.splice(cardIdx, 1)[0]);
+
+  // Draw replacement
+  drawCard(playerIdx);
+
+  // Switch player
+  G.current = 1 - G.current;
+
+  setStatus('');
+  renderGame();
+
+  // Brief pause then start next turn
+  setTimeout(() => {
+    if (G.phase === 'playing') startTurn();
+  }, 800);
+}
+
+function loseLife(playerIdx) {
+  const p = G.players[playerIdx];
+  p.lives--;
+
+  if (p.lives <= 0) {
+    G.phase = 'gameOver';
+    const winner = G.players[1 - playerIdx];
+    renderGame();
+    document.getElementById('gameover-msg').textContent =
+      `${winner.name} wins! 🎉\n${p.name} has no lives left.`;
+    document.getElementById('gameover-overlay').classList.remove('hidden');
+    return;
+  }
+
+  G.phase = 'roundOver';
+  const opponent = G.players[1 - playerIdx];
+  renderGame();
+  document.getElementById('round-title').textContent = 'Oh No! 99!';
+  document.getElementById('round-msg').textContent =
+    `${p.name} couldn't play without going over 99!`;
+  document.getElementById('round-sub').textContent =
+    `${p.name} loses a life ❤️  (${p.lives} remaining)`;
+  document.getElementById('round-overlay').classList.remove('hidden');
+}
+
+function nextRound() {
+  document.getElementById('round-overlay').classList.add('hidden');
+  G.phase = 'playing';
+  G.round++;
+  // Loser of the round goes first next round
+  dealRound();
+  renderGame();
+  setTimeout(() => startTurn(), 400);
+}
+
+// ═══════════════════════════════════════════════
+// COMPUTER AI
+// ═══════════════════════════════════════════════
+function computerPlay() {
+  const p = G.players[1];
+  const valid = p.hand.filter(c => isPlayable(c, G.total));
+  if (valid.length === 0) { loseLife(1); return; }
+
+  // Strategy scoring — higher = prefer to play now
+  function score(card) {
+    const v = cardValue(card.rank);
+    if (v === 0) return -60;     // Save King (always stay)
+    if (v === -10) {
+      if (G.total > 85) return 90;   // Play Jack to escape danger
+      if (G.total > 70) return 20;   // Jack still useful
+      return -50;                     // Save Jack when safe
+    }
+    if (v === 'wild') {
+      if (G.total > 82) return 30;   // Queen good in semi-danger (add 1-2)
+      return -30;                     // Save Queen otherwise
+    }
+    // Number cards
+    if (G.total < 55) return v + 5;  // Play high numbers when plenty of room
+    if (G.total < 75) return v;
+    if (G.total < 88) return 10 - v; // Play LOW numbers when approaching limit
+    return -v + 5;                   // Very near 99 — prefer lowest possible
+  }
+
+  const sorted = [...valid].sort((a,b) => score(b) - score(a));
+  const chosen = sorted[0];
+  const cardIdx = p.hand.indexOf(chosen);
+
+  let queenValue = null;
+  if (chosen.rank === 'Q') {
+    const maxAdd = 99 - G.total;
+    if (G.total > 88)      queenValue = 1;
+    else if (G.total > 70) queenValue = Math.min(3, maxAdd);
+    else if (G.total > 50) queenValue = Math.min(6, maxAdd);
+    else                   queenValue = Math.min(9, maxAdd);
+  }
+
+  executePlay(1, cardIdx, queenValue);
+}
+
+// ═══════════════════════════════════════════════
+// QUEEN MODAL
+// ═══════════════════════════════════════════════
+function showQueenModal() {
+  const max = 99 - G.total;
+  document.getElementById('queen-total').textContent = G.total;
+  const container = document.getElementById('queen-btns');
+  container.innerHTML = '';
+  for (let v = 1; v <= 10; v++) {
+    const btn = document.createElement('button');
+    btn.className = 'queen-val-btn' + (v > max ? ' invalid' : '');
+    btn.textContent = v;
+    if (v <= max) btn.onclick = () => confirmQueen(v);
+    container.appendChild(btn);
+  }
+  document.getElementById('queen-modal').classList.remove('hidden');
+}
+
+function confirmQueen(v) {
+  document.getElementById('queen-modal').classList.add('hidden');
+  executePlay(G.current, G.queenCardIdx, v);
+  G.queenCardIdx = null;
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════════════
+function setStatus(msg) {
+  document.getElementById('status-bar').textContent = msg;
+}
+
+function renderGame() {
+  renderPlayer(0, 'p1');
+  renderPlayer(1, 'p2');
+  renderCenter();
+  renderCharts();
+  renderLogs();
+  // Active row highlight
+  document.getElementById('p1-row').classList.toggle('active-row', G.current === 0 && !G.busy && G.phase === 'playing');
+  document.getElementById('p2-row').classList.toggle('active-row', G.current === 1 && !G.busy && G.phase === 'playing');
+}
+
+function renderLogs() {
+  renderOneLog('log-p1-header', 'log-p1-body', 0, 'p1');
+  renderOneLog('log-p2-header', 'log-p2-body', 1, 'p2');
+}
+
+function renderOneLog(headerId, bodyId, playerIdx, cls) {
+  const p = G.players[playerIdx];
+  document.getElementById(headerId).textContent = `${p.name}'s Calculations`;
+
+  const body = document.getElementById(bodyId);
+  // Only append new entries since last render to preserve scroll/animation
+  const rendered = body.children.length;
+  // Count actual rendered items (entries + dividers)
+  let logCount = 0;
+  for (const item of p.playLog) logCount++;
+
+  // Rebuild if counts differ in unexpected ways (e.g. new game)
+  const existingCount = body.dataset.logCount ? parseInt(body.dataset.logCount) : 0;
+  if (logCount < existingCount) {
+    body.innerHTML = '';
+    body.dataset.logCount = '0';
+  }
+
+  const startIdx = body.dataset.logCount ? parseInt(body.dataset.logCount) : 0;
+  for (let i = startIdx; i < p.playLog.length; i++) {
+    const item = p.playLog[i];
+    if (item.type === 'divider') {
+      const div = document.createElement('div');
+      div.className = 'log-round-divider';
+      div.textContent = `— Round ${item.round} —`;
+      body.appendChild(div);
+    } else {
+      const entry = document.createElement('div');
+      entry.className = `log-entry log-${cls}${item.special ? ' log-special' : ''} log-new`;
+      entry.textContent = item.text;
+      body.appendChild(entry);
+      // Remove animation class after it fires
+      setTimeout(() => entry.classList.remove('log-new'), 750);
+    }
+  }
+  body.dataset.logCount = p.playLog.length;
+  // Scroll to bottom
+  body.scrollTop = body.scrollHeight;
+}
+
+function renderPlayer(idx, prefix) {
+  const p = G.players[idx];
+  // Name
+  document.getElementById(`${prefix}-name`).textContent = p.name;
+  document.getElementById(`${prefix}-chart-title`).textContent = `${p.name}'s Chart`;
+  // Lives
+  const livesEl = document.getElementById(`${prefix}-lives`);
+  livesEl.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const span = document.createElement('span');
+    span.className = 'life' + (i >= p.lives ? ' lost' : '');
+    span.textContent = '❤️';
+    livesEl.appendChild(span);
+  }
+  // Hand
+  const handEl = document.getElementById(`${prefix}-hand`);
+  handEl.innerHTML = '';
+  const isComputer = (G.mode === 'ai' && idx === 1);
+  const isMyTurn = (G.current === idx && !G.busy && G.phase === 'playing');
+
+  p.hand.forEach((card, ci) => {
+    if (isComputer) {
+      const back = document.createElement('div');
+      back.className = 'card-back';
+      handEl.appendChild(back);
+    } else {
+      const el = createCardEl(card, ci, idx, isMyTurn);
+      handEl.appendChild(el);
+    }
+  });
+}
+
+function createCardEl(card, cardIdx, playerIdx, isMyTurn) {
+  const isRed = RED_SUITS.has(card.suit);
+  const playable = isMyTurn && isPlayable(card, G.total);
+  const notPlayable = isMyTurn && !isPlayable(card, G.total);
+
+  const div = document.createElement('div');
+  div.className = 'card ' + (isRed ? 'red-card' : 'black-card') + (notPlayable ? ' unplayable' : '');
+
+  const top = document.createElement('div');
+  top.className = 'card-top';
+  top.textContent = card.rank;
+
+  const mid = document.createElement('div');
+  mid.className = 'card-mid';
+  mid.textContent = card.suit;
+
+  const bot = document.createElement('div');
+  bot.className = 'card-bot';
+  bot.textContent = card.rank;
+
+  div.appendChild(top);
+  div.appendChild(mid);
+  div.appendChild(bot);
+
+  // Badge for special cards
+  if (['J','Q','K'].includes(card.rank)) {
+    const badge = document.createElement('div');
+    badge.className = 'card-special-badge' + (card.rank === 'Q' ? ' wild' : '');
+    badge.textContent = card.rank === 'J' ? '−10' : card.rank === 'K' ? 'stay' : 'wild';
+    div.appendChild(badge);
+  }
+
+  if (playable) {
+    div.addEventListener('click', () => humanPlayCard(playerIdx, cardIdx));
+    div.title = `Play ${cardStr(card)}`;
+  } else if (notPlayable) {
+    div.title = 'Cannot play — would exceed 99!';
+  }
+
+  return div;
+}
+
+function renderCenter() {
+  const totalEl = document.getElementById('wb-total');
+  totalEl.textContent = G.total;
+  totalEl.className = 'wb-total' + (G.total >= 90 ? ' danger-num' : '');
+
+  if (G.lastPlay) {
+    const sp = G.lastPlay.specialNote ? `${G.lastPlay.specialNote} ` : '';
+    document.getElementById('wb-eq').textContent = `${sp}${G.lastPlay.eqStr}`;
+    document.getElementById('wb-who').textContent = `— ${G.lastPlay.name}`;
+  } else {
+    document.getElementById('wb-eq').textContent = 'Game begins at zero';
+    document.getElementById('wb-who').textContent = '';
+  }
+
+  document.getElementById('deck-count').textContent = G.deck.length;
+}
+
+function renderCharts() {
+  renderOneChart('p1-chart', 0, 'p1');
+  renderOneChart('p2-chart', 1, 'p2');
+}
+
+function renderOneChart(elId, playerIdx, cls) {
+  const el = document.getElementById(elId);
+  const player = G.players[playerIdx];
+  const mySet = new Set(player.myTotals);
+  el.innerHTML = '';
+  for (let n = 1; n <= 100; n++) {
+    const cell = document.createElement('div');
+    cell.className = 'cc';
+    if (n >= 90) cell.classList.add('danger');
+    if (mySet.has(n)) cell.classList.add(`visited-${cls}`);
+    if (n === G.total && G.total > 0) cell.classList.add('current');
+    cell.textContent = n;
+    el.appendChild(cell);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// MENU ACTIONS
+// ═══════════════════════════════════════════════
+let selectedMode = '2p';
+
+function selectMode(m) {
+  selectedMode = m;
+  document.getElementById('btn-2p').classList.toggle('active', m === '2p');
+  document.getElementById('btn-ai').classList.toggle('active', m === 'ai');
+  const p2wrap = document.getElementById('p2-name-wrap');
+  if (m === 'ai') {
+    document.getElementById('inp-p2').value = 'Computer';
+    p2wrap.style.opacity = '.5';
+    p2wrap.style.pointerEvents = 'none';
+  } else {
+    document.getElementById('inp-p2').value = 'Player 2';
+    p2wrap.style.opacity = '';
+    p2wrap.style.pointerEvents = '';
+  }
+}
+
+function startGame() {
+  const n1 = document.getElementById('inp-p1').value.trim() || 'Player 1';
+  const n2 = (selectedMode === 'ai') ? 'Computer'
+    : (document.getElementById('inp-p2').value.trim() || 'Player 2');
+
+  initState(selectedMode, [n1, n2]);
+  dealRound();
+
+  document.getElementById('menu-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+
+  renderGame();
+  setTimeout(() => startTurn(), 500);
+}
+
+function backToMenu() {
+  document.getElementById('gameover-overlay').classList.add('hidden');
+  document.getElementById('round-overlay').classList.add('hidden');
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('menu-screen').classList.remove('hidden');
+  // Clear log DOM
+  ['log-p1-body','log-p2-body'].forEach(id => {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    delete el.dataset.logCount;
+  });
+  // Reset mode button
+  selectMode('2p');
+  document.getElementById('inp-p1').value = 'Player 1';
+  document.getElementById('inp-p2').value = 'Player 2';
+}
+</script>
+</body>
+</html>
