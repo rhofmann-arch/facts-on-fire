@@ -169,8 +169,8 @@ footer a:hover{text-decoration:underline}
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <div class="stat-num">27</div>
-        <div class="stat-lbl">Skill Sets</div>
+        <div class="stat-num">23</div>
+        <div class="stat-lbl">K–4 Skills</div>
       </div>
       <div class="stat-divider"></div>
       <div class="stat-item">
@@ -188,257 +188,232 @@ footer a:hover{text-decoration:underline}
 
 <!-- ── HUB MENU ── -->
 <div class="hub" id="hub">
-  <div class="hub-grid">
-    <div class="hub-card hc-fire" onclick="showPanel('workbooks')">
-      <div class="hub-ico">📓</div>
-      <div class="hub-label">Student Workbooks</div>
-      <div class="hub-desc">Print-and-use PDF workbooks — one per skill set. Probes, CCC practice, fact families, and cloze activities.</div>
-      <span class="hub-count">27 Skill Sets · K–8</span>
+
+  <!-- Grade Band: K–4 -->
+  <div style="max-width:960px;margin:0 auto 48px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--ink);letter-spacing:-0.01em;">Grades K–4</div>
+      <div style="flex:1;height:2px;background:var(--border);"></div>
     </div>
-    <div class="hub-card hc-teal" onclick="showPanel('practice')">
-      <div class="hub-ico">🖥️</div>
-      <div class="hub-label">Whole-Class Practice</div>
-      <div class="hub-desc">Browser-based tools for smartboard drills, choral counting, puzzle practice, and class challenges.</div>
-      <span class="hub-count">7 Tools · Free · No Login</span>
-    </div>
-    <div class="hub-card hc-blue" onclick="showPanel('resources')">
-      <div class="hub-ico">📋</div>
-      <div class="hub-label">Teacher Resources</div>
-      <div class="hub-desc">Tracking sheets, implementation guides, and classroom tools for teachers and coaches.</div>
-      <span class="hub-count">Print &amp; Digital</span>
-    </div>
-    <div class="hub-card hc-lock" onclick="showPanel('data')">
-      <div class="hub-ico">🔒</div>
-      <div class="hub-label">Data Portal</div>
-      <div class="hub-desc">Track class and student progress across all skill sets. Dashboards for teachers and coaches.</div>
-      <span class="hub-count">Coming Soon</span>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+      <div class="hub-card hc-fire" onclick="showPanel('workbooks')">
+        <div class="hub-ico">📓</div>
+        <div class="hub-label">Student Workbooks</div>
+        <div class="hub-desc">Download a starter workbook for any skill set, or build a custom book with the Workbook Generator.</div>
+        <span class="hub-count">19 Skills · Print-Ready</span>
+      </div>
+      <div class="hub-card hc-teal" onclick="showPanel('practice')">
+        <div class="hub-ico">🖥️</div>
+        <div class="hub-label">Whole-Class Practice</div>
+        <div class="hub-desc">Browser-based tools for smartboard drills, choral counting, puzzle practice, and class challenges.</div>
+        <span class="hub-count">6 Tools · Free · No Login</span>
+      </div>
+      <div class="hub-card hc-blue" onclick="showPanel('resources')">
+        <div class="hub-ico">📋</div>
+        <div class="hub-label">Teacher Resources</div>
+        <div class="hub-desc">Tracking sheets, implementation guides, and classroom tools for teachers and coaches.</div>
+        <span class="hub-count">Print &amp; Digital</span>
+      </div>
     </div>
   </div>
+
+  <!-- Grade Band: 5–8 -->
+  <div style="max-width:960px;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--muted);letter-spacing:-0.01em;">Grades 5–8</div>
+      <div style="flex:1;height:2px;background:var(--border);"></div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:20px;background:var(--lock-lt);color:var(--lock);">Coming Soon</div>
+    </div>
+    <div class="hub-card hc-lock" style="cursor:default;pointer-events:none;opacity:0.6;max-width:100%;">
+      <div style="display:flex;align-items:center;gap:20px;width:100%;">
+        <div style="font-size:2.2rem;">🔒</div>
+        <div>
+          <div style="font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--ink);margin-bottom:4px;">Grades 5–8 Materials</div>
+          <div style="font-size:0.88rem;color:var(--ink2);line-height:1.6;">Fractions, decimals, integers, estimation, and more. Workbooks and tools will appear here as they are built out.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ── PANEL: WORKBOOKS ── -->
 <div class="panel" id="panel-workbooks">
-  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <button class="panel-back" onclick="showHub()">← Back to K–4</button>
   <section>
     <div class="section-header">
       <div class="section-icon si-fire">📓</div>
       <div>
-        <div class="section-title">Student Workbooks</div>
-        <div class="section-sub">Print-and-use workbooks — one per skill set. Each includes probes, CCC practice, fact families, and cloze activities.</div>
+        <div class="section-title">Student Workbooks — Grades K–4</div>
+        <div class="section-sub">One starter workbook per skill to download and print. Need a different cycle count, schedule, or puzzle type? Use the Workbook Generator.</div>
       </div>
       <span class="section-badge sb-fire">PDF · Print-Ready</span>
     </div>
+
+    <!-- Workbook Generator card -->
+    <a class="res-card" href="workbook-generator.html" style="margin-bottom:32px;border-color:var(--fire);background:var(--ember);display:flex;flex-direction:row;align-items:center;gap:20px;padding:20px 24px;">
+      <div class="res-card-icon ic-fire" style="width:56px;height:56px;font-size:1.8rem;flex-shrink:0;">⚙️</div>
+      <div style="flex:1;">
+        <div class="res-card-title" style="font-size:1.1rem;">Workbook Generator</div>
+        <div class="res-card-desc" style="margin-top:4px;">Build a fully custom workbook — choose your skill, set the number of cycles, pick your weekly schedule, and select puzzle types. Download student and answer-key PDFs instantly.</div>
+      </div>
+      <div style="font-size:0.88rem;font-weight:700;color:var(--fire);white-space:nowrap;display:flex;align-items:center;gap:4px;">Launch →</div>
+    </a>
+
+    <!-- One-per-skill download table -->
     <table class="scope-table">
       <thead>
         <tr>
-          <th>Grade</th><th>Skill Set</th><th>Workbooks</th><th>Mastery Criteria</th>
+          <th>Grade</th><th>Skill</th><th>Starter Workbook</th><th>Mastery Criteria</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><span class="grade-pill">K</span></td>
-          <td><span class="skill-name">Number Writing</span></td>
-          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-1-5.pdf" class="wb-link">1–5 ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-6-10.pdf" class="wb-link">6–10 ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-11-15-a.pdf" class="wb-link">11–15a ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-11-15-b.pdf" class="wb-link">11–15b ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-16-20-a.pdf" class="wb-link">16–20a ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-16-20-b.pdf" class="wb-link">16–20b ↓</a></td>
+          <td><span class="skill-name">Number Writing 1–5</span></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-1-5.pdf" class="wb-link">Download ↓</a></td>
+          <td>100% acc @ 30 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">K</span></td>
+          <td><span class="skill-name">Number Writing 6–10</span></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-6-10.pdf" class="wb-link">Download ↓</a></td>
+          <td>100% acc @ 30 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">K</span></td>
+          <td><span class="skill-name">Number Writing 11–15</span></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-11-15-a.pdf" class="wb-link">Download ↓</a></td>
+          <td>100% acc @ 30 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">K</span></td>
+          <td><span class="skill-name">Number Writing 16–20</span></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/number-writing-16-20-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 30 DCPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">K</span></td>
           <td><span class="skill-name">Dot Numbers</span></td>
-          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/dot-number-book-a.pdf" class="wb-link">Book A ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/dot-number-book-b.pdf" class="wb-link">Book B ↓</a></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/dot-number-book-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 10 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">K</span></td>
           <td><span class="skill-name">Dot Totals</span></td>
-          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/dot-totals-book-a.pdf" class="wb-link">Book A ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/dot-totals-book-b.pdf" class="wb-link">Book B ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/dot-totals-book-c.pdf" class="wb-link">Book C ↓</a></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/dot-totals-book-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 10 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">K</span></td>
           <td><span class="skill-name">Sums to 6</span></td>
-          <td>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-6-book-a.pdf" class="wb-link">Book A ↓</a>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-6-book-b.pdf" class="wb-link">Book B ↓</a>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-6-book-c.pdf" class="wb-link">Book C ↓</a>
-          </td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-6-book-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 20–30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">K–1</span></td>
           <td><span class="skill-name">Sums to 10</span></td>
-          <td>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-10-book-a.pdf" class="wb-link">Book A ↓</a>
-            <span class="wb-soon">Book B</span>
-            <span class="wb-soon">Book C</span>
-          </td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-10-book-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">1</span></td>
           <td><span class="skill-name">Sums to 18</span></td>
-          <td>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-18-book-a.pdf" class="wb-link">Book A ↓</a>
-            <span class="wb-soon">Book B</span>
-            <span class="wb-soon">Book C</span>
-          </td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/sums-to-18-book-a.pdf" class="wb-link">Download ↓</a></td>
+          <td>100% acc @ 30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">1–2</span></td>
+          <td><span class="skill-name">Sums to 30</span></td>
+          <td><span class="wb-soon">Coming soon</span></td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">1</span></td>
           <td><span class="skill-name">Subtraction from 10</span></td>
-          <td>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/subtract-from-10-book-a.pdf" class="wb-link">Book A ↓</a>
-            <span class="wb-soon">Book B</span>
-            <span class="wb-soon">Book C</span>
-          </td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/subtract-from-10-book-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">1–2</span></td>
           <td><span class="skill-name">Subtraction from 18</span></td>
-          <td>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/subtract-from-18-book-a.pdf" class="wb-link">Book A ↓</a>
-            <a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/subtract-from-18-book-b.pdf" class="wb-link">Book B ↓</a>
-            <span class="wb-soon">Book C</span>
-          </td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/subtract-from-18-book-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">2</span></td>
-          <td><span class="skill-name">Multidigit Addition</span></td>
-          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-add-book-a.pdf" class="wb-link">Add A ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-add-book-b.pdf" class="wb-link">Add B ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-regroup-book-a.pdf" class="wb-link">Regroup A ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-regroup-book-b.pdf" class="wb-link">Regroup B ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-regroup-3digit-book-a.pdf" class="wb-link">3-Digit A ↓</a><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-regroup-3digit-book-b.pdf" class="wb-link">3-Digit B ↓</a></td>
+          <td><span class="skill-name">Subtraction from 30</span></td>
+          <td><span class="wb-soon">Coming soon</span></td>
+          <td>100% acc @ 30 PPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">2</span></td>
+          <td><span class="skill-name">Multidigit Addition — 3-Digit, No Regrouping</span></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-add-book-a.pdf" class="wb-link">Download ↓</a></td>
           <td>100% acc @ 20 DCPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">2</span></td>
-          <td><span class="skill-name">Multidigit Subtraction</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td><span class="skill-name">Multidigit Addition — 2-Digit, With Regrouping</span></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-regroup-book-a.pdf" class="wb-link">Download ↓</a></td>
+          <td>100% acc @ 20 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">2</span></td>
+          <td><span class="skill-name">Multidigit Addition — 3-Digit, With Regrouping</span></td>
+          <td><a href="https://raw.githubusercontent.com/rhofmann-arch/facts-on-fire/main/workbook/multidigit-regroup-3digit-book-a.pdf" class="wb-link">Download ↓</a></td>
+          <td>100% acc @ 20 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">2</span></td>
+          <td><span class="skill-name">Multidigit Subtraction — 3-Digit, No Regrouping</span></td>
+          <td><span class="wb-soon">Coming soon</span></td>
+          <td>100% acc @ 20 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">2</span></td>
+          <td><span class="skill-name">Multidigit Subtraction — 2-Digit, With Regrouping</span></td>
+          <td><span class="wb-soon">Coming soon</span></td>
+          <td>100% acc @ 20 DCPM</td>
+        </tr>
+        <tr>
+          <td><span class="grade-pill">2</span></td>
+          <td><span class="skill-name">Multidigit Subtraction — 3-Digit, With Regrouping</span></td>
+          <td><span class="wb-soon">Coming soon</span></td>
           <td>100% acc @ 20 DCPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">2–3</span></td>
           <td><span class="skill-name">Multiplication to 81</span></td>
-          <td>
-            <span class="wb-soon">Book A</span>
-            <span class="wb-soon">Book B</span>
-            <span class="wb-soon">Book C</span>
-          </td>
+          <td><span class="wb-soon">Coming soon</span></td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">2–3</span></td>
           <td><span class="skill-name">Division from 81</span></td>
-          <td>
-            <span class="wb-soon">Book A</span>
-            <span class="wb-soon">Book B</span>
-            <span class="wb-soon">Book C</span>
-          </td>
+          <td><span class="wb-soon">Coming soon</span></td>
           <td>100% acc @ 30 PPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">4</span></td>
           <td><span class="skill-name">Multidigit Multiplication</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td><span class="wb-soon">Coming soon</span></td>
           <td>100% acc @ 20 DCPM</td>
         </tr>
         <tr>
           <td><span class="grade-pill">4–5</span></td>
           <td><span class="skill-name">Multidigit Division</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
+          <td><span class="wb-soon">Coming soon</span></td>
           <td>100% acc @ 20 DCPM</td>
         </tr>
-        <tr>
-          <td><span class="grade-pill">4–5</span></td>
-          <td><span class="skill-name">Equivalent Fractions</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">4–5</span></td>
-          <td><span class="skill-name">Fraction Addition</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">4–5</span></td>
-          <td><span class="skill-name">Fraction Subtraction</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">4–5</span></td>
-          <td><span class="skill-name">Decimal Addition</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">4–5</span></td>
-          <td><span class="skill-name">Decimal Subtraction</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">5–6</span></td>
-          <td><span class="skill-name">Fraction Multiplication</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">5–6</span></td>
-          <td><span class="skill-name">Fraction Division</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">5–6</span></td>
-          <td><span class="skill-name">Decimal Multiplication</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 20 DCPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">5–6</span></td>
-          <td><span class="skill-name">Decimal Division</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 20 DCPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">6–7</span></td>
-          <td><span class="skill-name">Integer Addition &amp; Subtraction</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">6–7</span></td>
-          <td><span class="skill-name">Integer Multiplication &amp; Division</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">6–7</span></td>
-          <td><span class="skill-name">Perfect Squares</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">6–7</span></td>
-          <td><span class="skill-name">Fraction/Decimal/Percent Equivalents</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 30 PPM</td>
-        </tr>
-        <tr>
-          <td><span class="grade-pill">7–8</span></td>
-          <td><span class="skill-name">Computational Estimation</span></td>
-          <td><span style="color:var(--muted);">Coming soon</span></td>
-          <td>100% acc @ 20 DCPM</td>
-        </tr>
-            </tbody>
+      </tbody>
     </table>
   </section>
 </div>
 
 <!-- ── PANEL: PRACTICE TOOLS ── -->
 <div class="panel" id="panel-practice">
-  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <button class="panel-back" onclick="showHub()">← Back to K–4</button>
   <section>
     <div class="section-header">
       <div class="section-icon si-teal">🖥️</div>
@@ -546,7 +521,7 @@ footer a:hover{text-decoration:underline}
 
 <!-- ── PANEL: TEACHER RESOURCES ── -->
 <div class="panel" id="panel-resources">
-  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <button class="panel-back" onclick="showHub()">← Back to K–4</button>
   <section>
     <div class="section-header">
       <div class="section-icon si-blue">📋</div>
@@ -607,33 +582,6 @@ footer a:hover{text-decoration:underline}
   </section>
 </div>
 
-<!-- ── PANEL: DATA PORTAL ── -->
-<div class="panel" id="panel-data">
-  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
-  <section>
-    <div class="section-header">
-      <div class="section-icon" style="background:var(--lock-lt)">🔒</div>
-      <div>
-        <div class="section-title">Data Portal</div>
-        <div class="section-sub">Track class and student progress across all skill sets.</div>
-      </div>
-      <span class="section-badge" style="background:var(--lock-lt);color:var(--lock)">Coming Soon</span>
-    </div>
-    <div class="locked-section">
-      <div class="lock-icon">🔒</div>
-      <div class="locked-title">Teacher &amp; Coach Data Portal</div>
-      <div class="locked-desc">A protected area where teachers log weekly probe scores, coaches track school-wide mastery, and the system surfaces which students and classes are ready to advance.</div>
-      <div class="locked-features">
-        <div class="locked-feat">📊 Class fluency dashboards</div>
-        <div class="locked-feat">👤 Individual student progress</div>
-        <div class="locked-feat">🏫 School-wide skill mastery view</div>
-        <div class="locked-feat">📥 Export to CSV / PDF</div>
-      </div>
-      <button class="locked-cta" onclick="alert('Data portal coming soon! Check back after the workbook series is complete.')">Notify me when it's ready</button>
-    </div>
-  </section>
-</div>
-
 <footer>
   <p>Facts on Fire is based on the <a href="https://brianponcy.wixsite.com/my-site-2/m-i-n-d-2-0-facts-on-fire" target="_blank">M.I.N.D. 2.0 program</a> by Brian Poncy. All materials free for classroom use.</p>
 </footer>
@@ -652,7 +600,7 @@ function showPanel(id){
 }
 // Support direct hash links
 const hash=location.hash.replace('#','');
-if(['workbooks','practice','resources','data'].includes(hash))showPanel(hash);
+if(['workbooks','practice','resources'].includes(hash))showPanel(hash);
 </script>
 </body>
 </html>
