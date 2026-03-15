@@ -1803,18 +1803,14 @@ const SKILLS = [
   {id:'sub10',     name:'Subtract from 10', op:'−', genType:'sub', maxMin:10, avail:[...ADDSUB_AVAIL]},
   {id:'sub18',     name:'Subtract from 18', op:'−', genType:'sub', maxMin:18, avail:[...ADDSUB_AVAIL], interventions:['ccc','ff'], rightAlign:true},
   {id:'sub30',     name:'Subtract from 30', op:'−', genType:'sub', maxMin:30, avail:[...ADDSUB_AVAIL], interventions:['ccc','ff'], rightAlign:true},
-  // Addition & Subtraction
-  {id:'addsub10',  name:'Add & Subtract to 10', op:'±', genType:'addsub', maxSum:10, maxMin:10, avail:[...ADDSUB_AVAIL]},
-  {id:'addsub18',  name:'Add & Subtract to 18', op:'±', genType:'addsub', maxSum:18, maxMin:18, avail:[...ADDSUB_AVAIL]},
-  {id:'addsub30',  name:'Add & Subtract to 30', op:'±', genType:'addsub', maxSum:30, maxMin:30, avail:[...ADDSUB_AVAIL]},
   // Multidigit Addition
   {id:'md_add_3nr', name:'3-Digit, No Regrouping',   op:'+', genType:'multiadd',    digits:3, interventions:['ccc','ff'],                    avail:[...MULTIDIGIT_AVAIL]},
   {id:'md_add_2wr', name:'2-Digit, With Regrouping', op:'+', genType:'multiadd2wr', digits:2, interventions:['ccc','ff','tablescaffold'],      avail:[...MULTIDIGIT_AVAIL]},
   {id:'md_add_3wr', name:'3-Digit, With Regrouping', op:'+', genType:'multiadd3wr', digits:3, interventions:['ccc','ff','tablescaffold'],      avail:[...MULTIDIGIT_AVAIL]},
   // Multidigit Subtraction
-  {id:'md_sub_3nr', name:'3-Digit, No Regrouping',   op:'−', genType:'multisub',    digits:3, avail:[...MULTIDIGIT_AVAIL]},
-  {id:'md_sub_2wr', name:'2-Digit, With Regrouping', op:'−', genType:'multisub2wr', digits:2, avail:[...MULTIDIGIT_AVAIL]},
-  {id:'md_sub_3wr', name:'3-Digit, With Regrouping', op:'−', genType:'multisub3wr', digits:3, avail:[...MULTIDIGIT_AVAIL]},
+  {id:'md_sub_3nr', name:'3-Digit, No Regrouping',   op:'−', genType:'multisub',    digits:3, interventions:['ccc','ff'],                   avail:[...MULTIDIGIT_AVAIL]},
+  {id:'md_sub_2wr', name:'2-Digit, With Regrouping', op:'−', genType:'multisub2wr', digits:2, interventions:['ccc','ff','tablescaffold'],     avail:[...MULTIDIGIT_AVAIL]},
+  {id:'md_sub_3wr', name:'3-Digit, With Regrouping', op:'−', genType:'multisub3wr', digits:3, interventions:['ccc','ff','tablescaffold'],     avail:[...MULTIDIGIT_AVAIL]},
   // Multiplication Facts
   {id:'mult18',  name:'Facts to 18',  op:'×', genType:'mult', maxProd:18,  avail:[...MULTDIV_AVAIL]},
   {id:'mult36',  name:'Facts to 36',  op:'×', genType:'mult', maxProd:36,  avail:[...MULTDIV_AVAIL]},
@@ -1853,12 +1849,6 @@ const CATEGORIES = [
     desc: 'Single-digit subtraction fact fluency',
     icon: '➖',
     skills: ['sub10','sub18','sub30'],
-  },
-  {
-    id: 'addsub', label: 'Addition & Subtraction',
-    desc: 'Combined addition and subtraction fact fluency',
-    icon: '±',
-    skills: ['addsub10','addsub18','addsub30'],
   },
   {
     id: 'md_add', label: 'Multidigit Addition',
@@ -2143,6 +2133,77 @@ function mdProbPageHTML_2plus1(problems, key, pageNum, cycleNum, dayLabel, title
 // ================================================================
 
 // ================================================================
+// LOCKED FORMAT — MULTIDIGIT 2-DIGIT SUBTRACTION WITH REGROUPING SCAFFOLD (v1)
+// DO NOT MODIFY without explicit sign-off.
+// Layout: 16 problems, 4×4. Both addends are 2-digit.
+// Borrow box (28×22px) sits above the ones digit of the top number.
+// Box row: [spacer][blank-tens][box-centered-in-ones-col]
+// ================================================================
+function mdCellHTML2minus1(p, num, key) {
+  const fz=42, dw=38, ow=30, ansH=110;
+  const ans = p.a - p.b;
+  const tens  = Math.floor(p.a / 10);
+  const onesA = p.a % 10;
+  const tensB = Math.floor(p.b / 10);
+  const onesB = p.b % 10;
+
+  const dS  = `display:inline-block;width:${dw}px;text-align:center;font-size:${fz}px;font-weight:bold;color:#1a1a1a;line-height:1.1;font-family:Helvetica,Arial,sans-serif;`;
+  const dKS = `display:inline-block;width:${dw}px;text-align:center;font-size:${fz}px;font-weight:bold;color:#b83000;line-height:1.1;font-family:Helvetica,Arial,sans-serif;`;
+  const opS = `display:inline-block;width:${ow}px;text-align:center;font-size:${fz}px;font-weight:bold;color:#1a1a1a;line-height:1.1;font-family:Helvetica,Arial,sans-serif;`;
+  const spS = `display:inline-block;width:${ow}px;`;
+  const blS = `display:inline-block;width:${dw}px;`;
+  const barW = ow + dw * 2;
+
+  // Borrow box centered in the ones column of the top number (28×22px)
+  const boxS = `display:inline-block;width:28px;height:22px;border:1.5px solid #aaa;border-radius:2px;background:#fff;`;
+
+  const ansStr = String(ans);
+  const ansHTML = key
+    ? `<div style="display:flex;align-items:baseline;padding-top:5px;">${
+        ansStr.split('').map(d=>`<span style="${dKS}">${d}</span>`).join('')
+      }</div>`
+    : '';
+
+  return `<td><div style="display:inline-block;text-align:left;">
+  <div style="font-size:11px;font-weight:bold;color:#bbb;margin-bottom:1px;line-height:1;">${num}</div>
+  <div style="display:flex;align-items:flex-end;margin-bottom:0px;">
+    <span style="${spS}"></span>
+    <span style="${blS}"></span>
+    <span style="${blS};display:inline-flex;justify-content:center;align-items:center;"><span style="${boxS}"></span></span>
+  </div>
+  <div style="display:flex;align-items:baseline;"><span style="${spS}"></span><span style="${dS}">${tens}</span><span style="${dS}">${onesA}</span></div>
+  <div style="display:flex;align-items:baseline;"><span style="${opS}">−</span><span style="${dS}">${tensB}</span><span style="${dS}">${onesB}</span></div>
+  <div style="height:2.5px;background:#1a1a1a;width:${barW}px;margin:4px 0;border-radius:1px;"></div>
+  <div style="height:${ansH}px;">${ansHTML}</div>
+</div></td>`;
+}
+
+function mdProbPageHTML_2minus1(problems, key, pageNum, cycleNum, dayLabel, title) {
+  const n = Math.min(problems.length, 16);
+  let rows = '';
+  for (let r = 0; r < 4; r++) {
+    let cells = '';
+    for (let c = 0; c < 4; c++) {
+      const idx = r * 4 + c;
+      cells += idx < n ? mdCellHTML2minus1(problems[idx], idx+1, key) : '<td></td>';
+    }
+    rows += `<tr>${cells}</tr>`;
+  }
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span></span>
+    <span class="wb-meta-act">${dayLabel}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+  <table class="md-wb-table"><tbody>${rows}</tbody></table>
+</div>`;
+}
+// ================================================================
+// END LOCKED FORMAT — MULTIDIGIT 2-DIGIT SUBTRACTION SCAFFOLD
+// ================================================================
+
+// ================================================================
 // MULTIDIGIT CCC INTERVENTION (v1)
 // 9 problems, 3×3. Right-aligned digit columns.
 // Model shows answer in gray; copy column is blank space.
@@ -2257,31 +2318,56 @@ function mdFFEqShownBlankSum(a, b) {
 function mdFFEqAllBlank() {
   return `<div style="${MD_FF_EQ_STYLE}">${MD_FF_BLANK} + ${MD_FF_BLANK} = ${MD_FF_BLANK}</div>`;
 }
+function mdFFEqShownSubtract(total, x) {
+  return `<div style="${MD_FF_EQ_STYLE}">${total} − ${x} = ${MD_FF_BLANK}</div>`;
+}
+function mdFFEqAllBlankSub() {
+  return `<div style="${MD_FF_EQ_STYLE}">${MD_FF_BLANK} − ${MD_FF_BLANK} = ${MD_FF_BLANK}</div>`;
+}
 
 function mdFFPageHTML(families, cycleNum, dayLabel, title) {
   // families: 6 items, 2 per row, 3 scaffold rows
+  // Detects op from first family to generate addition or subtraction equations.
+  const isSub = families.length > 0 && (families[0].op === '−' || families[0].op === '-');
   const rowClasses = ['row-1','row-2','row-3'];
   let rows = '', n = 0;
   for (let r = 0; r < 3; r++) {
     let cells = '';
     for (let c = 0; c < 2; c++) {
-      const f = families[n] || {a:10,b:5};
+      const f = families[n] || {a:10,b:5,op:'+'};
       const a = f.a, b = f.b;
-      const total = a + b;
-      let eq1, eq2;
-      if (r === 0) {
-        eq1 = mdFFEqShownBlankSum(a, b);
-        eq2 = mdFFEqShownBlankSum(b, a);
-      } else if (r === 1) {
-        eq1 = mdFFEqShownBlankSum(a, b);
-        eq2 = mdFFEqAllBlank();
+      let eq1, eq2, triHTML;
+      if (isSub) {
+        // Subtraction family: a is the minuend (total), b is subtrahend, (a-b) is difference
+        const total = a, part1 = b, part2 = a - b;
+        triHTML = mdFFTriSVG(total, part1, part2, '−');
+        if (r === 0) {
+          eq1 = mdFFEqShownSubtract(total, part1);
+          eq2 = mdFFEqShownSubtract(total, part2);
+        } else if (r === 1) {
+          eq1 = mdFFEqShownSubtract(total, part1);
+          eq2 = mdFFEqAllBlankSub();
+        } else {
+          eq1 = mdFFEqAllBlankSub();
+          eq2 = mdFFEqAllBlankSub();
+        }
       } else {
-        eq1 = mdFFEqAllBlank();
-        eq2 = mdFFEqAllBlank();
+        const total = a + b;
+        triHTML = mdFFTriSVG(total, a, b, '+');
+        if (r === 0) {
+          eq1 = mdFFEqShownBlankSum(a, b);
+          eq2 = mdFFEqShownBlankSum(b, a);
+        } else if (r === 1) {
+          eq1 = mdFFEqShownBlankSum(a, b);
+          eq2 = mdFFEqAllBlank();
+        } else {
+          eq1 = mdFFEqAllBlank();
+          eq2 = mdFFEqAllBlank();
+        }
       }
       cells += `<td class="md-ff-td ${rowClasses[r]}">
   <span class="md-ff-num">${n+1}</span>
-  ${mdFFTriSVG(total, a, b, '+')}
+  ${triHTML}
   ${eq1}
   ${eq2}
   <div class="md-ff-spacer"></div>
@@ -2290,6 +2376,9 @@ function mdFFPageHTML(families, cycleNum, dayLabel, title) {
     }
     rows += `<tr>${cells}</tr>`;
   }
+  const dirText = isSub
+    ? 'Use the triangle to write the subtraction facts. Fill in the missing numbers.'
+    : 'Use the triangle to write the addition facts. Fill in the missing numbers.';
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
   <div class="wb-meta">
@@ -2297,7 +2386,7 @@ function mdFFPageHTML(families, cycleNum, dayLabel, title) {
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
-  <div class="wb-dir">Use the triangle to write the addition facts. Fill in the missing numbers.</div>
+  <div class="wb-dir">${dirText}</div>
   <table class="md-ff-table"><tbody>${rows}</tbody></table>
 </div>`;
 }
@@ -2381,6 +2470,10 @@ function mdTSCellHTML(p, num, numDigits) {
 
 function mdTSPageHTML(problems, key, pageNum, cycleNum, dayLabel, title, numDigits) {
   const n = Math.min(problems.length, 12);
+  const isSub = problems.length > 0 && (problems[0].op === '−' || problems[0].op === '-');
+  const dirText = isSub
+    ? 'Write each digit in the correct column. Use the top row to show borrowing. Write the answer below the line.'
+    : 'Write each digit in the correct column. Regroup if needed. Write the answer below the line.';
   let rows = '';
   for (let r = 0; r < 4; r++) {
     let cells = '';
@@ -2397,7 +2490,7 @@ function mdTSPageHTML(problems, key, pageNum, cycleNum, dayLabel, title, numDigi
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
-  <div class="wb-dir">Write each digit in the correct column. Regroup if needed. Write the answer below the line.</div>
+  <div class="wb-dir">${dirText}</div>
   <table class="md-ts-grid"><tbody>${rows}</tbody></table>
 </div>`;
 }
@@ -3742,6 +3835,8 @@ async function buildWorkbook(skill, schedule, weeks, key) {
           const probs = genProblems(skill, 16);
           if(skill.genType==='multiadd2wr'){
             pages.push(mdProbPageHTML_2plus1(probs, key, pg, cycNum, dayLabel, skill.name));
+          } else if(skill.genType==='multisub2wr'){
+            pages.push(mdProbPageHTML_2minus1(probs, key, pg, cycNum, dayLabel, skill.name));
           } else {
             pages.push(mdProbPageHTML(probs, key, pg, cycNum, dayLabel, skill.name, skill.digits||3));
           }
