@@ -99,7 +99,7 @@ table.cn{border-collapse:collapse}
 table.cn td{text-align:center;vertical-align:middle;padding:0;height:50px}
 .cn-num{width:68px;font-size:22px;font-weight:800;color:#1a1a1a}
 .cn-op{width:28px;font-size:22px;font-weight:800;color:#1a1a1a}
-.cn-mop{height:12px!important;font-size:14px;font-weight:800;color:#bbb;width:28px}
+.cn-mop{height:24px!important;font-size:22px;font-weight:800;color:#bbb;width:28px}
 .cn-given{width:76px;font-size:22px;font-weight:800;color:#1a1a1a}
 .cn-miss{width:68px}
 .cn-ans{width:76px}
@@ -224,17 +224,20 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
         <button class="tbtn" data-type="maze" onclick="selType(this)">
           <span class="ico">🔢</span><span class="lbl">Multiple Maze</span>
         </button>
-        <button class="tbtn" data-type="factorblob" onclick="selType(this)" style="grid-column:1/-1">
+        <button class="tbtn" data-type="factorblob" onclick="selType(this)">
           <span class="ico">🔵</span><span class="lbl">Factor Blob</span>
         </button>
-        <button class="tbtn" data-type="productpuzzle" onclick="selType(this)" style="grid-column:1/-1">
-          <span class="ico">⊞</span><span class="lbl">Don Steward Product Puzzles</span>
+        <button class="tbtn" data-type="productpuzzle" onclick="selType(this)">
+          <span class="ico">⊞</span><span class="lbl">Product Puzzles</span>
+        </button>
+        <button class="tbtn" data-type="multisearch" onclick="selType(this)">
+          <span class="ico">🔍</span><span class="lbl">Multiplication Search</span>
+        </button>
+        <button class="tbtn" data-type="twostep" onclick="selType(this)">
+          <span class="ico">➡</span><span class="lbl">Two Step Puzzles</span>
         </button>
         <button class="tbtn" data-type="kenken" onclick="selType(this)" style="grid-column:1/-1">
           <span class="ico">🧮</span><span class="lbl">KenKen</span>
-        </button>
-        <button class="tbtn" data-type="twostep" onclick="selType(this)" style="grid-column:1/-1">
-          <span class="ico">➡</span><span class="lbl">Two Step Puzzles</span>
         </button>
       </div>
     </div>
@@ -387,10 +390,15 @@ const DIFFS={
     {l:'Standard', d:'Factors 2–9, unique solution guaranteed'},
   ],
   kenken:[
-    {l:'Starter',   d:'3×3 grid — + and − only'},
-    {l:'Standard',  d:'4×4 grid — + and − only'},
-    {l:'Challenge', d:'5×5 grid — +, −, and ×'},
-    {l:'Expert',    d:'6×6 grid — +, −, and ×'},
+    {l:'Beginner',     d:'3×3 grid — + and − only'},
+    {l:'Intermediate', d:'4×4 grid — + and − only'},
+    {l:'Challenge',    d:'5×5 grid — +, −, and ×'},
+    {l:'Expert',       d:'6×6 grid — +, −, and ×'},
+  ],
+  multisearch:[
+    {l:'Beginner',     d:'Factors 1–5, 8×8 grid'},
+    {l:'Intermediate', d:'Factors 1–10, 10×10 grid'},
+    {l:'Challenge',    d:'Factors 1–12, 10×10 grid'},
   ],
   twostep:[
     {l:'Add / Sub',    d:'+ and − steps only, values ≤ 30'},
@@ -417,8 +425,9 @@ const DIRS={
   productpuzzle:'Fill in the four empty cells with whole numbers so that the products of each row match the numbers on the right, and the products of each column match the numbers on the bottom.',
   kenken:'Fill the grid so every row and column contains each number from 1 to N exactly once. Numbers in each bold-outlined cage must combine using the given operation to hit the target in the corner.',
   twostep:'Find the missing number in the blank box. Using one step from the list, it must produce <b>each</b> output number. Write the step used on each arrow.',
+  multisearch:'Find and circle all of the multiplication facts in the puzzle below. Facts may go across, down, or diagonally. Two facts have already been circled for you.',
 };
-const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',productpuzzle:'Don Steward Product Puzzles',kenken:'KenKen Puzzles',twostep:'Two Step Puzzles'};
+const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',productpuzzle:'Don Steward Product Puzzles',kenken:'KenKen Puzzles',twostep:'Two Step Puzzles',multisearch:'Multiplication Search'};
 
 // ─── Utilities ───────────────────────────────────────────────
 const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
@@ -1835,6 +1844,89 @@ function renderTwoStep(puz,isKey){
   </svg>`;
 }
 
+// ─── MULTIPLICATION SEARCH ───────────────────────────────────
+function genMultSearch(diff){
+  const cfgs=[{gs:8,maxF:5},{gs:10,maxF:10},{gs:10,maxF:12}];
+  const{gs,maxF}=cfgs[diff];
+  const grid=Array.from({length:gs},()=>Array(gs).fill(null));
+  const factsPlaced=[];
+  // Build full fact list (a×b including both orders for variety)
+  const allFacts=[];
+  for(let a=1;a<=maxF;a++) for(let b=1;b<=maxF;b++) allFacts.push([a,b,a*b]);
+  // shuffle
+  for(let i=allFacts.length-1;i>0;i--){const j=ri(0,i);[allFacts[i],allFacts[j]]=[allFacts[j],allFacts[i]];}
+  // Directions: [dr, dc] — horizontal, vertical, diag↘, diag↙
+  const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+  let fi=0, attempts=0;
+  const target=Math.floor(gs*gs*0.40);
+  while(fi<allFacts.length && attempts<1200 && factsPlaced.length<target){
+    attempts++;
+    const[a,b,c]=allFacts[fi];
+    const[dr,dc]=dirs[ri(0,3)];
+    // valid start range so all 3 cells stay in bounds
+    const rMin=dr<0?2:0, rMax=gs-1-Math.max(0,dr)*2;
+    const cMin=dc<0?2:0, cMax=gs-1-Math.max(0,dc)*2;
+    if(rMin>rMax||cMin>cMax){fi++;continue;}
+    const r0=ri(rMin,rMax), c0=ri(cMin,cMax);
+    const cells=[[r0,c0],[r0+dr,c0+dc],[r0+2*dr,c0+2*dc]];
+    if(cells.some(([r,cc])=>r<0||r>=gs||cc<0||cc>=gs)){fi++;continue;}
+    const vals=[a,b,c];
+    let ok=true;
+    for(let i=0;i<3&&ok;i++){const[r,cc]=cells[i];if(grid[r][cc]!==null&&grid[r][cc]!==vals[i])ok=false;}
+    if(!ok){fi++;continue;}
+    for(let i=0;i<3;i++){const[r,cc]=cells[i];grid[r][cc]=vals[i];}
+    factsPlaced.push({cells,fact:[a,b,c],dir:[dr,dc]});
+    fi++;
+  }
+  // Fill remaining cells
+  for(let r=0;r<gs;r++) for(let c=0;c<gs;c++) if(grid[r][c]===null) grid[r][c]=ri(1,Math.min(maxF*maxF,99));
+  // Pick 2 pre-circled facts (first 2 placed)
+  const preCircled=factsPlaced.slice(0,Math.min(2,factsPlaced.length));
+  return{grid,factsPlaced,preCircled,gs,maxF};
+}
+
+function renderMultSearch(p,isKey){
+  const{grid,factsPlaced,preCircled,gs}=p;
+  const csz=gs<=8?52:44;
+  const W=csz*gs, H=csz*gs;
+  let svg=`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="display:block">`;
+  // Border
+  svg+=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fff" stroke="#2a2a2a" stroke-width="2"/>`;
+  // Grid lines
+  for(let i=1;i<gs;i++){
+    svg+=`<line x1="${i*csz}" y1="0" x2="${i*csz}" y2="${H}" stroke="#ccc" stroke-width="0.5"/>`;
+    svg+=`<line x1="0" y1="${i*csz}" x2="${W}" y2="${i*csz}" stroke="#ccc" stroke-width="0.5"/>`;
+  }
+  // Key highlights
+  if(isKey){
+    factsPlaced.forEach(f=>f.cells.forEach(([r,cc])=>{
+      svg+=`<rect x="${cc*csz+1}" y="${r*csz+1}" width="${csz-2}" height="${csz-2}" fill="#EBF0FF"/>`;
+    }));
+  }
+  // Cell values
+  for(let r=0;r<gs;r++) for(let c=0;c<gs;c++){
+    const v=grid[r][c];
+    const cx=c*csz+csz/2, cy=r*csz+csz/2;
+    const fs=v>=100?10:v>=10?15:18;
+    svg+=`<text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-weight="800" font-size="${fs}" fill="#1a1a1a">${v}</text>`;
+  }
+  // Draw ovals: pre-circled always shown; all facts shown in key
+  const toCircle=isKey?factsPlaced:preCircled;
+  toCircle.forEach(f=>{
+    const[r0,c0]=f.cells[0],[r2,c2]=f.cells[2];
+    const x0=c0*csz+csz/2, y0=r0*csz+csz/2;
+    const x2=c2*csz+csz/2, y2=r2*csz+csz/2;
+    const mx=(x0+x2)/2, my=(y0+y2)/2;
+    const dx=x2-x0, dy=y2-y0;
+    const len=Math.sqrt(dx*dx+dy*dy)+csz*0.55;
+    const angle=Math.atan2(dy,dx)*180/Math.PI;
+    const rw=len/2, rh=csz*0.37, rxv=rh;
+    svg+=`<rect x="${mx-rw}" y="${my-rh}" width="${len}" height="${rh*2}" rx="${rxv}" fill="none" stroke="#1a1a1a" stroke-width="2" transform="rotate(${angle},${mx},${my})"/>`;
+  });
+  svg+='</svg>';
+  return svg;
+}
+
 function renderPuz(p,key){
   if(TYPE==='crossnumber')return renderCN(p,key);
   if(TYPE==='twoout')return render2Out(p,key);
@@ -1849,6 +1941,7 @@ function renderPuz(p,key){
   if(TYPE==='productpuzzle')return renderProductPuzzle(p,key);
   if(TYPE==='kenken')return renderKenKen(p,key);
   if(TYPE==='twostep')return renderTwoStep(p,key);
+  if(TYPE==='multisearch')return renderMultSearch(p,key);
   return'';
 }
 
@@ -1874,6 +1967,7 @@ function buildSheet(isKey){
     minH=kkN*kkCsz; gridCols='repeat(2,1fr)'; mazePadding='18px 14px';
   }
   if(TYPE==='twostep'){ gridCols='repeat(2,1fr)'; minH=148; mazePadding='12px 8px'; }
+  if(TYPE==='multisearch'){ gridCols='1fr'; minH=0; mazePadding='14px'; }
   if(TYPE==='maze'&&PUZZLES[0]){
     const cfg=MM_CFG.find(x=>x.R===PUZZLES[0].R)||MM_CFG[0];
     gridCols=cfg.cols===1?'1fr':'repeat(2,1fr)';
@@ -1945,6 +2039,11 @@ async function generate(){
     TS_SET=genTwoStepSet(DIFF);
     PUZZLES=TS_SET?TS_SET.puzzles:[];
     if(btn)btn.disabled=false;
+    refresh();return;
+  }
+  if(TYPE==='multisearch'){
+    const p=genMultSearch(DIFF);
+    PUZZLES=p?[p]:[];
     refresh();return;
   }
   const cnt=(TYPE==='triangle')?4:(TYPE==='productpuzzle')?6:(TYPE==='honeycomb'||TYPE==='mismo'||TYPE==='twoout')?3:COUNT;
