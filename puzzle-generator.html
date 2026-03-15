@@ -162,6 +162,12 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
 .xo-target{margin-top:9px;font-size:13px;font-weight:700;color:#555}
 .xo-target strong{color:#1a1a1a;font-size:15px}
 
+/* Two Step */
+.ts-steps-area{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.ts-steps-label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;white-space:nowrap}
+.ts-steps-box{display:flex;align-items:center;gap:6px;background:#f5f5f2;border:2px solid #2a2a2a;border-radius:8px;padding:7px 13px}
+.ts-step-chip{background:#fff;border:1.5px solid #ccc;border-radius:6px;padding:3px 11px;font-size:14px;font-family:'Archivo Black',sans-serif;color:#1a1a1a}
+
 .mli{display:flex;align-items:center;gap:4px}
 .msw{width:11px;height:11px;border-radius:2px;flex-shrink:0}
 .mm-fact-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
@@ -223,6 +229,12 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
         </button>
         <button class="tbtn" data-type="productpuzzle" onclick="selType(this)" style="grid-column:1/-1">
           <span class="ico">⊞</span><span class="lbl">Don Steward Product Puzzles</span>
+        </button>
+        <button class="tbtn" data-type="kenken" onclick="selType(this)" style="grid-column:1/-1">
+          <span class="ico">🧮</span><span class="lbl">KenKen</span>
+        </button>
+        <button class="tbtn" data-type="twostep" onclick="selType(this)" style="grid-column:1/-1">
+          <span class="ico">➡</span><span class="lbl">Two Step Puzzles</span>
         </button>
       </div>
     </div>
@@ -321,7 +333,7 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
 <script>
 'use strict';
 // ─── State ───────────────────────────────────────────────────
-let TYPE='honeycomb', DIFF=0, HC_SIZE='small', MM_K=5, FB_N=3, COUNT=4, PUZZLES=[], SHOW_KEY=false, cryptoPool=null;
+let TYPE='honeycomb', DIFF=0, HC_SIZE='small', MM_K=5, FB_N=3, COUNT=4, PUZZLES=[], SHOW_KEY=false, cryptoPool=null, TS_SET=null;
 
 // ─── Config ──────────────────────────────────────────────────
 const DIFFS={
@@ -374,6 +386,16 @@ const DIFFS={
   productpuzzle:[
     {l:'Standard', d:'Factors 2–9, unique solution guaranteed'},
   ],
+  kenken:[
+    {l:'Starter',   d:'3×3 grid — + and − only'},
+    {l:'Standard',  d:'4×4 grid — + and − only'},
+    {l:'Challenge', d:'5×5 grid — +, −, and ×'},
+    {l:'Expert',    d:'6×6 grid — +, −, and ×'},
+  ],
+  twostep:[
+    {l:'Add / Sub',    d:'+ and − steps only, values ≤ 30'},
+    {l:'+ × − ÷',     d:'All four operations, values ≤ 99'},
+  ],
   maze:[
     {l:'4×4 Grid',  d:'4 puzzles per page, beginner'},
     {l:'5×5 Grid',  d:'4 puzzles per page, intermediate'},
@@ -393,8 +415,10 @@ const DIRS={
   factorblob:'Circle connected groups of 2 or more numbers whose product equals the target. Every number must belong to exactly one group.',
   maze:'Find the path from GO to END. Move through multiples only — up, down, left, right. There is exactly one correct path!',
   productpuzzle:'Fill in the four empty cells with whole numbers so that the products of each row match the numbers on the right, and the products of each column match the numbers on the bottom.',
+  kenken:'Fill the grid so every row and column contains each number from 1 to N exactly once. Numbers in each bold-outlined cage must combine using the given operation to hit the target in the corner.',
+  twostep:'Find the missing number in the blank box. Using one step from the list, it must produce <b>each</b> output number. Write the step used on each arrow.',
 };
-const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',productpuzzle:'Don Steward Product Puzzles'};
+const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',productpuzzle:'Don Steward Product Puzzles',kenken:'KenKen Puzzles',twostep:'Two Step Puzzles'};
 
 // ─── Utilities ───────────────────────────────────────────────
 const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
@@ -1445,6 +1469,372 @@ function renderProductPuzzle(p,key){
   </table>`;
 }
 
+// ─── KENKEN ──────────────────────────────────────────────────
+const KK_CFG=[{N:3},{N:4},{N:5},{N:6}];
+// Max acceptable × product per grid size (keeps targets classroom-friendly)
+const KK_MAX_PROD=[0,0,0,9,24,60,120];
+
+function kkLatinSquare(N){
+  // Generate base shifted square, then shuffle rows/cols/labels
+  let sq=Array.from({length:N},(_,i)=>Array.from({length:N},(_,j)=>(i+j)%N+1));
+  for(let i=N-1;i>0;i--){const j=ri(0,i);[sq[i],sq[j]]=[sq[j],sq[i]];}
+  const cp=Array.from({length:N},(_,i)=>i);
+  for(let i=N-1;i>0;i--){const j=ri(0,i);[cp[i],cp[j]]=[cp[j],cp[i]];}
+  sq=sq.map(row=>cp.map(c=>row[c]));
+  const lp=Array.from({length:N},(_,i)=>i+1);
+  for(let i=N-1;i>0;i--){const j=ri(0,i);[lp[i],lp[j]]=[lp[j],lp[i]];}
+  return sq.map(row=>row.map(v=>lp[v-1]));
+}
+
+function kkPartition(N){
+  const assigned=Array.from({length:N},()=>new Array(N).fill(-1));
+  const cages=[];
+  const order=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)order.push([r,c]);
+  for(let i=order.length-1;i>0;i--){const j=ri(0,i);[order[i],order[j]]=[order[j],order[i]];}
+  for(const[sr,sc]of order){
+    if(assigned[sr][sc]!==-1)continue;
+    const bid=cages.length;
+    const cage=[[sr,sc]];
+    assigned[sr][sc]=bid;
+    // 3×3: mix of 1- and 2-cell cages for better uniqueness; larger: 2-3 cells
+    const maxSz=N<=3?(Math.random()<0.45?1:2):ri(2,3);
+    for(let g=0;g<maxSz-1;g++){
+      const cands=[];
+      for(const[r,c]of cage)
+        for(const[nr,nc]of[[r-1,c],[r+1,c],[r,c-1],[r,c+1]])
+          if(nr>=0&&nr<N&&nc>=0&&nc<N&&assigned[nr][nc]===-1)cands.push([nr,nc]);
+      if(!cands.length)break;
+      const pick=cands[ri(0,cands.length-1)];
+      cage.push(pick);
+      assigned[pick[0]][pick[1]]=bid;
+    }
+    cages.push(cage);
+  }
+  return cages;
+}
+
+function kkMakeCages(sq,N,diff){
+  const allowMult=diff>=2;
+  const maxProd=KK_MAX_PROD[N]||N*N;
+  const cages=[];
+  for(const cells of kkPartition(N)){
+    cells.sort((a,b)=>a[0]!==b[0]?a[0]-b[0]:a[1]-b[1]);
+    const vals=cells.map(([r,c])=>sq[r][c]);
+    let op,target;
+    if(cells.length===1){
+      op=null; target=vals[0];
+    } else if(cells.length===2){
+      // 2-cell cages: +, −, or × (if allowed and product is reasonable)
+      const sum=vals[0]+vals[1];
+      const dif=Math.abs(vals[0]-vals[1]);
+      const prod=vals[0]*vals[1];
+      const choices=['+','-'];
+      if(allowMult&&prod<=maxProd)choices.push('×');
+      op=choices[ri(0,choices.length-1)];
+      if(op==='+')target=sum;
+      else if(op==='-')target=dif;
+      else{op='×';target=prod;}
+    } else {
+      // 3+ cells: + or × only (no subtraction for multi-cell)
+      const prod=vals.reduce((a,v)=>a*v,1);
+      const sum=vals.reduce((a,v)=>a+v,0);
+      if(allowMult&&prod<=maxProd&&Math.random()<0.4){op='×';target=prod;}
+      else{op='+';target=sum;}
+    }
+    cages.push({cells,op,target});
+  }
+  return cages;
+}
+
+function kkSolve(N,cages,limit=600000){
+  const cageOf=Array.from({length:N},()=>new Array(N).fill(-1));
+  for(let ci=0;ci<cages.length;ci++)
+    for(const[r,c]of cages[ci].cells)cageOf[r][c]=ci;
+  const rowUsed=Array.from({length:N},()=>new Set());
+  const colUsed=Array.from({length:N},()=>new Set());
+  const cageFilled=new Array(cages.length).fill(0);
+  // acc init: 0 for +/−, 1 for ×
+  const cageAcc=cages.map(cg=>cg.op==='×'?1:0);
+  let count=0,steps=0;
+  function bt(idx){
+    if(count>=2||++steps>limit)return;
+    if(idx===N*N){count++;return;}
+    const r=idx/N|0,c=idx%N;
+    const ci=cageOf[r][c],cage=cages[ci];
+    // given cell
+    if(cage.op===null){
+      const v=cage.target;
+      if(!rowUsed[r].has(v)&&!colUsed[c].has(v)){
+        rowUsed[r].add(v);colUsed[c].add(v);
+        bt(idx+1);
+        rowUsed[r].delete(v);colUsed[c].delete(v);
+      }
+      return;
+    }
+    const isLast=cageFilled[ci]+1===cage.cells.length;
+    for(let v=1;v<=N;v++){
+      if(rowUsed[r].has(v)||colUsed[c].has(v))continue;
+      const prev=cageAcc[ci];
+      let acc,ok=true;
+      if(cage.op==='+'){
+        acc=prev+v;
+        if(acc>cage.target)ok=false;
+        else if(isLast&&acc!==cage.target)ok=false;
+      } else if(cage.op==='×'){
+        acc=prev*v;
+        if(acc>cage.target||cage.target%acc!==0)ok=false;
+        else if(isLast&&acc!==cage.target)ok=false;
+      } else {
+        // subtraction: always 2-cell; acc stores first value, check on isLast
+        if(!isLast){
+          acc=v; // store first placed value
+        } else {
+          if(Math.abs(prev-v)!==cage.target)ok=false;
+          acc=v; // value doesn't matter after isLast
+        }
+      }
+      if(!ok)continue;
+      rowUsed[r].add(v);colUsed[c].add(v);
+      cageFilled[ci]++;cageAcc[ci]=acc;
+      bt(idx+1);
+      cageFilled[ci]--;cageAcc[ci]=prev;
+      rowUsed[r].delete(v);colUsed[c].delete(v);
+      if(count>=2)return;
+    }
+  }
+  bt(0);
+  return steps>limit?99:count;
+}
+
+async function genKenKen(diff){
+  const N=KK_CFG[diff].N;
+  const maxAttempts=N<=3?600:400;
+  const deadline=Date.now()+9000;
+  for(let attempt=0;attempt<maxAttempts;attempt++){
+    if(attempt%8===0){
+      await new Promise(r=>setTimeout(r,0));
+      if(Date.now()>deadline)return null;
+    }
+    const sq=kkLatinSquare(N);
+    const cages=kkMakeCages(sq,N,diff);
+    const sols=kkSolve(N,cages);
+    if(sols===1)return{N,sq,cages};
+  }
+  return null;
+}
+
+function renderKenKen(puz,key){
+  const{N,sq,cages}=puz;
+  const csz=N<=3?78:N<=4?70:N<=5?60:52;
+  const totalPx=N*csz;
+  const OUTER=4,THICK=3.5,THIN=0.8;
+
+  // Build cage-membership map
+  const cageOf=Array.from({length:N},()=>new Array(N).fill(-1));
+  for(let ci=0;ci<cages.length;ci++)
+    for(const[r,c]of cages[ci].cells)cageOf[r][c]=ci;
+
+  const vfsz=Math.round(csz*0.44);
+  const lblfsz=Math.round(csz*0.215);
+  const lblPad=Math.round(csz*0.07)+1;
+  const oh=OUTER/2;
+
+  let svg=`<svg width="${totalPx}" height="${totalPx}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:auto">`;
+
+  // Cell backgrounds
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)
+    svg+=`<rect x="${c*csz}" y="${r*csz}" width="${csz}" height="${csz}" fill="#fafafa"/>`;
+
+  // Thin background grid
+  for(let r=1;r<N;r++)
+    svg+=`<line x1="0" y1="${r*csz}" x2="${totalPx}" y2="${r*csz}" stroke="#ddd" stroke-width="${THIN}"/>`;
+  for(let c=1;c<N;c++)
+    svg+=`<line x1="${c*csz}" y1="0" x2="${c*csz}" y2="${totalPx}" stroke="#ddd" stroke-width="${THIN}"/>`;
+
+  // Thick cage boundaries — horizontal edges
+  for(let r=1;r<N;r++){
+    let segStart=-1;
+    for(let c=0;c<=N;c++){
+      const boundary=c<N&&cageOf[r][c]!==cageOf[r-1][c];
+      if(boundary&&segStart<0){segStart=c;}
+      else if(!boundary&&segStart>=0){
+        svg+=`<line x1="${segStart*csz}" y1="${r*csz}" x2="${c*csz}" y2="${r*csz}" stroke="#1a1a1a" stroke-width="${THICK}" stroke-linecap="square"/>`;
+        segStart=-1;
+      }
+    }
+  }
+  // Thick cage boundaries — vertical edges
+  for(let c=1;c<N;c++){
+    let segStart=-1;
+    for(let r=0;r<=N;r++){
+      const boundary=r<N&&cageOf[r][c]!==cageOf[r][c-1];
+      if(boundary&&segStart<0){segStart=r;}
+      else if(!boundary&&segStart>=0){
+        svg+=`<line x1="${c*csz}" y1="${segStart*csz}" x2="${c*csz}" y2="${r*csz}" stroke="#1a1a1a" stroke-width="${THICK}" stroke-linecap="square"/>`;
+        segStart=-1;
+      }
+    }
+  }
+
+  // Outer border (drawn last so it's clean)
+  svg+=`<rect x="${oh}" y="${oh}" width="${totalPx-OUTER}" height="${totalPx-OUTER}" fill="none" stroke="#1a1a1a" stroke-width="${OUTER}" stroke-linejoin="miter"/>`;
+
+  // Cage labels (top-left cell of each cage, cells[0] is reading-order first)
+  for(let ci=0;ci<cages.length;ci++){
+    const cage=cages[ci];
+    const[lr,lc]=cage.cells[0];
+    const x=lc*csz+lblPad, y=lr*csz+lblPad;
+    const txt=cage.op===null?`${cage.target}`:`${cage.target}${cage.op==='×'?'×':cage.op==='-'?'−':'+'}`;
+    svg+=`<text x="${x}" y="${y+lblfsz}" font-family="Archivo,sans-serif" font-weight="800" font-size="${lblfsz}" fill="#555">${txt}</text>`;
+  }
+
+  // Values: in key mode fill all; always show given (1-cell) cells in student mode
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const ci=cageOf[r][c],cage=cages[ci],isGiven=cage.op===null;
+    if(key||isGiven){
+      const fill=isGiven&&!key?'#1B4FCC':'#1a1a1a';
+      svg+=`<text x="${c*csz+csz/2}" y="${r*csz+csz/2+1}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-weight="800" font-size="${vfsz}" fill="${fill}">${sq[r][c]}</text>`;
+    }
+  }
+
+  svg+='</svg>';
+  return svg;
+}
+
+// ─── TWO STEP PUZZLES ─────────────────────────────────────────
+function tsApply(x,s){
+  if(s.op==='+')return x+s.val;
+  if(s.op==='-')return x-s.val;
+  if(s.op==='×')return x*s.val;
+  if(s.op==='÷')return(x%s.val===0)?x/s.val:null;
+  return null;
+}
+function tsLabel(s){return`${s.op==='×'?'×':s.op==='÷'?'÷':s.op}${s.val}`;}
+
+function tsCountSols(out1,out2,steps){
+  let n=0;
+  for(let si=0;si<steps.length;si++){
+    for(let sj=0;sj<steps.length;sj++){
+      if(si===sj)continue;
+      const sA=steps[si],sB=steps[sj];
+      let x=null;
+      if(sA.op==='+')x=out1-sA.val;
+      else if(sA.op==='-')x=out1+sA.val;
+      else if(sA.op==='×'){if(out1%sA.val===0)x=out1/sA.val;}
+      else if(sA.op==='÷')x=out1*sA.val;
+      if(x===null||x<=0||!Number.isInteger(x))continue;
+      if(tsApply(x,sB)===out2)n++;
+    }
+  }
+  return n;
+}
+
+function tsMakeAddSubSteps(){
+  for(let t=0;t<2000;t++){
+    const a1=ri(1,9),a2=ri(2,12),s1=ri(1,9),s2=ri(2,12);
+    if(new Set([a1,a2,s1,s2]).size<4)continue;
+    return[{op:'+',val:a1},{op:'+',val:a2},{op:'-',val:s1},{op:'-',val:s2}];
+  }
+}
+function tsMakeFullSteps(){
+  for(let t=0;t<2000;t++){
+    const add=ri(2,9),mul=ri(2,6),sub=ri(2,9),div=ri(2,5);
+    if(add===sub)continue;
+    return[{op:'+',val:add},{op:'×',val:mul},{op:'-',val:sub},{op:'÷',val:div}];
+  }
+}
+function tsGenOne(steps,usedInputs){
+  const pairs=[];
+  for(let i=0;i<steps.length;i++)for(let j=0;j<steps.length;j++)if(i!==j)pairs.push([i,j]);
+  for(let t=0;t<4000;t++){
+    const x=ri(3,30);
+    if(usedInputs.has(x))continue;
+    const pp=[...pairs];
+    for(let i=pp.length-1;i>0;i--){const j=ri(0,i);[pp[i],pp[j]]=[pp[j],pp[i]];}
+    for(const[si,sj]of pp){
+      const sA=steps[si],sB=steps[sj];
+      const out1=tsApply(x,sA),out2=tsApply(x,sB);
+      if(out1===null||out2===null)continue;
+      if(out1<=0||out2<=0)continue;
+      if(!Number.isInteger(out1)||!Number.isInteger(out2))continue;
+      if(out1>99||out2>99)continue;
+      if(out1===x||out2===x)continue;
+      if(out1===out2)continue;
+      if(tsCountSols(out1,out2,steps)!==1)continue;
+      return{input:x,b1:{step:sA,out:out1},b2:{step:sB,out:out2}};
+    }
+  }
+  return null;
+}
+function genTwoStepSet(diff){
+  for(let attempt=0;attempt<300;attempt++){
+    const steps=diff===0?tsMakeAddSubSteps():tsMakeFullSteps();
+    if(!steps)continue;
+    const puzzles=[],usedInputs=new Set();
+    for(let i=0;i<4;i++){
+      const p=tsGenOne(steps,usedInputs);
+      if(!p)break;
+      puzzles.push(p);
+      usedInputs.add(p.input);
+    }
+    if(puzzles.length===4)return{steps,puzzles};
+  }
+  return null;
+}
+
+function renderTwoStep(puz,isKey){
+  const W=310,H=150;
+  const inX=8,inY=42,inW=68,inH=62,inRx=13;
+  const inCX=inX+inW/2,inCY=inY+inH/2;
+  const outW=70,outH=52,outRx=13;
+  const out1X=228,out1Y=8,out1CY=out1Y+outH/2;
+  const out2X=228,out2Y=88,out2CY=out2Y+outH/2;
+  const ax=inX+inW;
+  const tagW=52,tagH=22,tagRx=6;
+  const a1ex=out1X-6,a1ey=out1CY;
+  const a2ex=out2X-6,a2ey=out2CY;
+  const t1mx=(ax+a1ex)/2,t1my=(inCY+a1ey)/2;
+  const t2mx=(ax+a2ex)/2,t2my=(inCY+a2ey)/2;
+  const tag1x=t1mx-tagW/2,tag1y=t1my-tagH-5;
+  const tag2x=t2mx-tagW/2,tag2y=t2my+5;
+  function pullBack(x1,y1,x2,y2,d){
+    const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy),t=(len-d)/len;
+    return[x1+dx*t,y1+dy*t];
+  }
+  function arrowHead(x1,y1,x2,y2){
+    const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy),ux=dx/len,uy=dy/len;
+    const px=-uy,py=ux,sz=9,hw=4.5;
+    return`<polygon points="${x2},${y2} ${x2-ux*sz+px*hw},${y2-uy*sz+py*hw} ${x2-ux*sz-px*hw},${y2-uy*sz-py*hw}" fill="#1a1a1a"/>`;
+  }
+  const[l1ex,l1ey]=pullBack(ax,inCY,a1ex,a1ey,10);
+  const[l2ex,l2ey]=pullBack(ax,inCY,a2ex,a2ey,10);
+  function tag(tx,ty,step){
+    if(isKey)return`<rect x="${tx}" y="${ty}" width="${tagW}" height="${tagH}" rx="${tagRx}" fill="#FFF0E8" stroke="#FF4F00" stroke-width="2"/>
+      <text x="${tx+tagW/2}" y="${ty+tagH/2+1}" text-anchor="middle" dominant-baseline="middle" font-family="Archivo Black,sans-serif" font-size="12" fill="#FF4F00">${tsLabel(step)}</text>`;
+    return`<rect x="${tx}" y="${ty}" width="${tagW}" height="${tagH}" rx="${tagRx}" fill="#fafafa" stroke="#bbb" stroke-width="1.5" stroke-dasharray="4 2.5"/>`;
+  }
+  function outBox(ox,oy,val){
+    return`<rect x="${ox}" y="${oy}" width="${outW}" height="${outH}" rx="${outRx}" fill="#fff" stroke="#1a1a1a" stroke-width="2.5"/>
+    <text x="${ox+outW/2}" y="${oy+outH/2+1}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-weight="900" font-size="26" fill="#1a1a1a">${val}</text>`;
+  }
+  const inFill=isKey?'#FFF8F5':'#fafafa';
+  const inDash=isKey?'':'stroke-dasharray="6 3"';
+  const inVal=isKey?`<text x="${inCX}" y="${inCY+1}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-weight="900" font-size="28" fill="#1a1a1a">${puz.input}</text>`:'';
+  return`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible">
+    <line x1="${ax}" y1="${inCY}" x2="${l1ex}" y2="${l1ey}" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+    ${arrowHead(ax,inCY,a1ex,a1ey)}
+    <line x1="${ax}" y1="${inCY}" x2="${l2ex}" y2="${l2ey}" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+    ${arrowHead(ax,inCY,a2ex,a2ey)}
+    ${tag(tag1x,tag1y,puz.b1.step)}
+    ${tag(tag2x,tag2y,puz.b2.step)}
+    <rect x="${inX}" y="${inY}" width="${inW}" height="${inH}" rx="${inRx}" fill="${inFill}" stroke="#1a1a1a" stroke-width="2.5" ${inDash}/>
+    ${inVal}
+    ${outBox(out1X,out1Y,puz.b1.out)}
+    ${outBox(out2X,out2Y,puz.b2.out)}
+  </svg>`;
+}
+
 function renderPuz(p,key){
   if(TYPE==='crossnumber')return renderCN(p,key);
   if(TYPE==='twoout')return render2Out(p,key);
@@ -1457,6 +1847,8 @@ function renderPuz(p,key){
   if(TYPE==='maze')return renderMaze(p,key);
   if(TYPE==='factorblob')return renderFactorBlob(p,key);
   if(TYPE==='productpuzzle')return renderProductPuzzle(p,key);
+  if(TYPE==='kenken')return renderKenKen(p,key);
+  if(TYPE==='twostep')return renderTwoStep(p,key);
   return'';
 }
 
@@ -1476,15 +1868,26 @@ function buildSheet(isKey){
   if(TYPE==='triangle'){ gridCols='repeat(2,1fr)'; minH=220; mazePadding='18px 14px'; }
   if(TYPE==='factorblob'){ gridCols=FB_N<=4?'repeat(2,1fr)':'1fr'; mazePadding='16px 12px'; }
   if(TYPE==='productpuzzle'){ gridCols='repeat(2,1fr)'; minH=190; mazePadding='18px 14px'; }
+  if(TYPE==='kenken'){
+    const kkN=KK_CFG[DIFF]?KK_CFG[DIFF].N:4;
+    const kkCsz=kkN<=3?78:kkN<=4?70:kkN<=5?60:52;
+    minH=kkN*kkCsz; gridCols='repeat(2,1fr)'; mazePadding='18px 14px';
+  }
+  if(TYPE==='twostep'){ gridCols='repeat(2,1fr)'; minH=148; mazePadding='12px 8px'; }
   if(TYPE==='maze'&&PUZZLES[0]){
     const cfg=MM_CFG.find(x=>x.R===PUZZLES[0].R)||MM_CFG[0];
     gridCols=cfg.cols===1?'1fr':'repeat(2,1fr)';
     minH=0; mazePadding=cfg.R>=8?'14px 10px':'12px 8px';
   }
   const cells=PUZZLES.map((p,i)=>`<div class="pc" style="min-height:${minH}px;padding:${mazePadding}"><div class="pc-n">${i+1}</div>${renderPuz(p,isKey)}</div>`).join('');
+  // Two Step: steps bank sits between directions and puzzle grid
+  const tsStepsHTML=(TYPE==='twostep'&&TS_SET)
+    ?`<div class="ts-steps-area"><span class="ts-steps-label">Steps:</span><div class="ts-steps-box">${TS_SET.steps.map(s=>`<span class="ts-step-chip">${tsLabel(s)}</span>`).join('')}</div></div>`
+    :'';
   return`<div class="sheet">
     <div class="sh-hdr"><div class="sh-title">${eh(title)}${badge}</div><div class="sh-src">M.I.N.D. — Facts on Fire</div></div>
     <div class="sh-dir">${dir}</div>
+    ${tsStepsHTML}
     <div class="pg" style="grid-template-columns:${gridCols}">${cells}</div>
   </div>`;
 }
@@ -1522,6 +1925,27 @@ async function generate(){
     }
     if(btn) btn.disabled=false;
     refresh(); return;
+  }
+  if(TYPE==='kenken'){
+    if(btn)btn.disabled=true;
+    PUZZLES=[];
+    for(let i=0;i<4;i++){
+      document.getElementById('out').innerHTML=`<div style="padding:60px;text-align:center;color:#888;font-weight:600">Generating puzzle ${i+1} of 4…</div>`;
+      await new Promise(r=>setTimeout(r,20));
+      const p=await genKenKen(DIFF);
+      if(p)PUZZLES.push(p);
+    }
+    if(btn)btn.disabled=false;
+    refresh();return;
+  }
+  if(TYPE==='twostep'){
+    if(btn)btn.disabled=true;
+    document.getElementById('out').innerHTML=`<div style="padding:60px;text-align:center;color:#888;font-weight:600">Generating puzzles…</div>`;
+    await new Promise(r=>setTimeout(r,20));
+    TS_SET=genTwoStepSet(DIFF);
+    PUZZLES=TS_SET?TS_SET.puzzles:[];
+    if(btn)btn.disabled=false;
+    refresh();return;
   }
   const cnt=(TYPE==='triangle')?4:(TYPE==='productpuzzle')?6:(TYPE==='honeycomb'||TYPE==='mismo'||TYPE==='twoout')?3:COUNT;
   const used=new Set();
