@@ -221,6 +221,9 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
         <button class="tbtn" data-type="factorblob" onclick="selType(this)" style="grid-column:1/-1">
           <span class="ico">🔵</span><span class="lbl">Factor Blob</span>
         </button>
+        <button class="tbtn" data-type="productpuzzle" onclick="selType(this)" style="grid-column:1/-1">
+          <span class="ico">⊞</span><span class="lbl">Don Steward Product Puzzles</span>
+        </button>
       </div>
     </div>
 
@@ -368,6 +371,9 @@ const DIFFS={
     {l:'to 49',  d:'Target products up to 49'},
     {l:'to 81',  d:'Target products up to 81'},
   ],
+  productpuzzle:[
+    {l:'Standard', d:'Factors 2–9, unique solution guaranteed'},
+  ],
   maze:[
     {l:'4×4 Grid',  d:'4 puzzles per page, beginner'},
     {l:'5×5 Grid',  d:'4 puzzles per page, intermediate'},
@@ -386,8 +392,9 @@ const DIRS={
   xout:'Cross out one number in each row and column so that the remaining numbers in every row and column add up to the target sum.',
   factorblob:'Circle connected groups of 2 or more numbers whose product equals the target. Every number must belong to exactly one group.',
   maze:'Find the path from GO to END. Move through multiples only — up, down, left, right. There is exactly one correct path!',
+  productpuzzle:'Fill in the four empty cells with whole numbers so that the products of each row match the numbers on the right, and the products of each column match the numbers on the bottom.',
 };
-const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles'};
+const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',productpuzzle:'Don Steward Product Puzzles'};
 
 // ─── Utilities ───────────────────────────────────────────────
 const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
@@ -900,9 +907,9 @@ const MM_CFG=[
   {R:8,C:8,count:1,cols:1,csz:50,fsz:13,gap:2},
 ];
 
-async function genMaze(R,C,k){
+async function genMaze(R,C,k,maxVal=k*24){
   const allMults=[];
-  for(let m=1;m<=24;m++) allMults.push(m*k);
+  for(let m=k;m<=maxVal;m+=k) allMults.push(m);
   const deadMin=R<=4?2:R<=5?3:4;   // minimum dead-ends required
   const deadMax=R<=4?3:R<=5?5:7;   // cap to avoid cluttering grid
   const deadline=Date.now()+9000;
@@ -1397,6 +1404,47 @@ function renderFactorBlob(puz,key){
   return`<div style="text-align:center;line-height:0"><svg width="${totalPx}" height="${totalPx+20}" xmlns="http://www.w3.org/2000/svg">${cells}${blobLines}${outer}${tgt}</svg></div>`;
 }
 
+// ─── DON STEWARD PRODUCT PUZZLES ─────────────────────────────
+function genProductPuzzle(){
+  const MIN=2, MAX=9;
+  const seen=new Set();
+  for(let attempt=0;attempt<2000;attempt++){
+    const a=ri(MIN,MAX), b=ri(MIN,MAX), c=ri(MIN,MAX), d=ri(MIN,MAX);
+    const R1=a*b, R2=c*d, C1=a*c, C2=b*d;
+    const key=[R1,R2,C1,C2].join(',');
+    if(seen.has(key)) continue;
+    seen.add(key);
+    // Count solutions
+    let sols=0;
+    for(let p=MIN;p<=MAX;p++){
+      if(R1%p!==0) continue;
+      const q=R1/p; if(q<MIN||q>MAX) continue;
+      if(C1%p!==0) continue;
+      const r=C1/p; if(r<MIN||r>MAX) continue;
+      if(R2%r!==0) continue;
+      const s=R2/r; if(s<MIN||s>MAX) continue;
+      if(q*s===C2) sols++;
+    }
+    if(sols===1) return{R1,R2,C1,C2,a,b,c,d};
+  }
+  return null;
+}
+
+function renderProductPuzzle(p,key){
+  const cell=(v)=>`<td style="width:54px;height:54px;border:1.5px solid #2a2a2a;text-align:center;vertical-align:middle;font-size:26px;font-weight:800;font-family:'Nunito',sans-serif;color:#1a1a1a">${v}</td>`;
+  const rowLabel=(v)=>`<td style="padding-left:10px;font-size:22px;font-weight:800;font-family:'Nunito',sans-serif;color:#1a1a1a;vertical-align:middle">${v}</td>`;
+  const a=key?p.a:'', b=key?p.b:'', c=key?p.c:'', d=key?p.d:'';
+  return`<table style="border-collapse:collapse;margin:auto">
+    <tr>${cell(a)}${cell(b)}${rowLabel(p.R1)}</tr>
+    <tr>${cell(c)}${cell(d)}${rowLabel(p.R2)}</tr>
+    <tr>
+      <td style="text-align:center;font-size:22px;font-weight:800;font-family:'Nunito',sans-serif;color:#1a1a1a;padding-top:8px">${p.C1}</td>
+      <td style="text-align:center;font-size:22px;font-weight:800;font-family:'Nunito',sans-serif;color:#1a1a1a;padding-top:8px">${p.C2}</td>
+      <td></td>
+    </tr>
+  </table>`;
+}
+
 function renderPuz(p,key){
   if(TYPE==='crossnumber')return renderCN(p,key);
   if(TYPE==='twoout')return render2Out(p,key);
@@ -1408,6 +1456,7 @@ function renderPuz(p,key){
   if(TYPE==='triangle')return renderTriangle(p,key);
   if(TYPE==='maze')return renderMaze(p,key);
   if(TYPE==='factorblob')return renderFactorBlob(p,key);
+  if(TYPE==='productpuzzle')return renderProductPuzzle(p,key);
   return'';
 }
 
@@ -1426,6 +1475,7 @@ function buildSheet(isKey){
   if(TYPE==='honeycomb'||TYPE==='mismo'||TYPE==='twoout'){ gridCols='1fr'; }
   if(TYPE==='triangle'){ gridCols='repeat(2,1fr)'; minH=220; mazePadding='18px 14px'; }
   if(TYPE==='factorblob'){ gridCols=FB_N<=4?'repeat(2,1fr)':'1fr'; mazePadding='16px 12px'; }
+  if(TYPE==='productpuzzle'){ gridCols='repeat(2,1fr)'; minH=190; mazePadding='18px 14px'; }
   if(TYPE==='maze'&&PUZZLES[0]){
     const cfg=MM_CFG.find(x=>x.R===PUZZLES[0].R)||MM_CFG[0];
     gridCols=cfg.cols===1?'1fr':'repeat(2,1fr)';
@@ -1473,7 +1523,7 @@ async function generate(){
     if(btn) btn.disabled=false;
     refresh(); return;
   }
-  const cnt=(TYPE==='triangle')?4:(TYPE==='honeycomb'||TYPE==='mismo'||TYPE==='twoout')?3:COUNT;
+  const cnt=(TYPE==='triangle')?4:(TYPE==='productpuzzle')?6:(TYPE==='honeycomb'||TYPE==='mismo'||TYPE==='twoout')?3:COUNT;
   const used=new Set();
   PUZZLES=[];
   for(let i=0;i<cnt;i++){
@@ -1486,6 +1536,7 @@ async function generate(){
     else if(TYPE==='megamismo')p=genMegaMismo(DIFF);
     else if(TYPE==='honeycomb')p=genHoneycomb(DIFF);
     else if(TYPE==='triangle')p=genTriangle(DIFF);
+    else if(TYPE==='productpuzzle')p=genProductPuzzle();
     if(p)PUZZLES.push(p);
   }
   refresh();
