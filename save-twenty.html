@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save Twenty — Facts on Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Caveat:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #1A2B1A;
+  --board:     #213521;
+  --board2:    #253A25;
+  --chalk:     #F2EDD7;
+  --chalk-dim: rgba(242,237,215,0.45);
+  --chalk-muted: rgba(242,237,215,0.22);
+  --p1:        #4A90D9;
+  --p1-lt:     rgba(74,144,217,0.18);
+  --p1-glow:   rgba(74,144,217,0.55);
+  --p2:        #E05C55;
+  --p2-lt:     rgba(224,92,85,0.18);
+  --p2-glow:   rgba(224,92,85,0.55);
+  --gold:      #F5C842;
+  --gold-glow: rgba(245,200,66,0.6);
+  --bust:      #FF6B6B;
+  --safe:      #5FD97B;
+  --radius:    14px;
+  --die-size:  108px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--chalk);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+header {
+  position: relative; z-index: 10;
+  background: rgba(14,22,14,0.85);
+  border-bottom: 2px solid rgba(242,237,215,0.12);
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 20px;
+  height: 58px;
+}
+.logo-back {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--chalk-dim);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 6px;
+  transition: color 0.15s;
+}
+.logo-back:hover { color: var(--chalk); }
+.header-title {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  color: var(--chalk);
+  margin-left: 8px;
+}
+.header-title span { color: var(--gold); }
+.header-meta {
+  margin-left: auto;
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--chalk-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── SCREENS ─────────────────────────────────────────── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── SETUP SCREEN ────────────────────────────────────── */
+#setup-screen {
+  position: relative; z-index: 1;
+  max-width: 620px; margin: 80px auto;
+  padding: 0 24px;
+  text-align: center;
+}
+.setup-icon {
+  font-size: 4.5rem;
+  line-height: 1;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 0 20px var(--gold-glow));
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.setup-title {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 3.2rem;
+  letter-spacing: 0.04em;
+  color: var(--chalk);
+  margin-bottom: 8px;
+}
+.setup-title span { color: var(--gold); }
+.setup-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  color: var(--chalk-dim);
+  margin-bottom: 48px;
+}
+.setup-card {
+  background: var(--board);
+  border: 1.5px solid rgba(242,237,215,0.12);
+  border-radius: 20px;
+  padding: 36px 40px;
+}
+.setup-row {
+  display: flex; gap: 20px;
+  margin-bottom: 28px;
+}
+.setup-field {
+  flex: 1; text-align: left;
+}
+.setup-label {
+  font-size: 0.78rem; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.setup-label .dot {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+}
+.p1-dot { background: var(--p1); box-shadow: 0 0 8px var(--p1-glow); }
+.p2-dot { background: var(--p2); box-shadow: 0 0 8px var(--p2-glow); }
+.setup-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(242,237,215,0.15);
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--chalk);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.setup-input::placeholder { color: var(--chalk-muted); font-weight: 600; }
+.setup-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,200,66,0.18); }
+
+.setup-divider { height: 1px; background: rgba(242,237,215,0.1); margin: 0 0 24px; }
+
+.turns-label {
+  font-size: 0.78rem; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--chalk-dim); margin-bottom: 12px; text-align: left;
+}
+.turns-options {
+  display: flex; gap: 10px;
+}
+.turns-opt {
+  flex: 1; cursor: pointer;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(242,237,215,0.12);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.turns-opt.selected {
+  border-color: var(--gold);
+  background: rgba(245,200,66,0.1);
+}
+.turns-opt .big { font-family: 'Fredoka One', sans-serif; font-size: 1.9rem; color: var(--gold); line-height: 1; }
+.turns-opt .small { font-size: 0.72rem; font-weight: 700; color: var(--chalk-dim); letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px; }
+
+.btn-start {
+  margin-top: 28px;
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold) 0%, #E5A800 100%);
+  color: #1A2B1A;
+  border: none; border-radius: 12px;
+  padding: 16px 24px;
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 1.45rem; letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s;
+  box-shadow: 0 4px 20px rgba(245,200,66,0.35);
+}
+.btn-start:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-start:active { transform: translateY(0); filter: brightness(0.95); }
+
+/* ── GAME SCREEN ─────────────────────────────────────── */
+#game-screen {
+  position: relative; z-index: 1;
+  display: none;
+  height: calc(100vh - 58px);
+  grid-template-columns: 260px 1fr 260px;
+  grid-template-rows: 1fr;
+}
+#game-screen.active { display: grid; }
+
+/* ── PLAYER PANELS ───────────────────────────────────── */
+.player-panel {
+  background: var(--board);
+  border-right: 1.5px solid rgba(242,237,215,0.09);
+  padding: 24px 18px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.player-panel.p2-panel {
+  border-right: none;
+  border-left: 1.5px solid rgba(242,237,215,0.09);
+}
+.player-panel.active-panel { background: var(--board2); }
+
+.panel-name {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 1.45rem; letter-spacing: 0.04em;
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 10px;
+}
+.panel-name .indicator {
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+}
+.p1-panel .indicator { background: var(--p1); box-shadow: 0 0 8px var(--p1-glow); }
+.p2-panel .indicator { background: var(--p2); box-shadow: 0 0 8px var(--p2-glow); }
+
+.panel-status {
+  font-family: 'Caveat', cursive;
+  font-size: 0.98rem;
+  color: var(--chalk-dim);
+  margin-bottom: 18px;
+  min-height: 22px;
+}
+
+/* Scorecard */
+.scorecard {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 5px;
+  overflow: hidden;
+}
+.score-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(242,237,215,0.06);
+  transition: background 0.2s;
+}
+.score-row.current-turn {
+  border-color: rgba(242,237,215,0.22);
+  background: rgba(255,255,255,0.06);
+}
+.score-turn-label {
+  font-size: 0.7rem; font-weight: 800;
+  color: var(--chalk-muted);
+  letter-spacing: 0.08em;
+  width: 24px; flex-shrink: 0;
+  text-transform: uppercase;
+}
+.score-value {
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem; font-weight: 700;
+  margin-left: auto;
+  min-width: 36px; text-align: right;
+}
+.score-value.bust { color: var(--bust); }
+.score-value.safe { color: var(--safe); }
+.score-value.empty { color: var(--chalk-muted); }
+.score-bar {
+  height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.08);
+  flex: 1;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.p1-panel .score-bar-fill { background: var(--p1); }
+.p2-panel .score-bar-fill { background: var(--p2); }
+
+.panel-total {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1.5px solid rgba(242,237,215,0.1);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.total-label {
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--chalk-dim);
+}
+.total-value {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+}
+.p1-panel .total-value { color: var(--p1); }
+.p2-panel .total-value { color: var(--p2); }
+
+/* ── CENTER BOARD ────────────────────────────────────── */
+.center-board {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 28px 32px;
+  gap: 20px;
+}
+
+.turn-banner {
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  color: var(--chalk-dim);
+  letter-spacing: 0.04em;
+  text-align: center;
+  min-height: 28px;
+}
+.turn-banner strong { color: var(--chalk); }
+
+/* Whose-turn strip */
+.whose-turn {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 8px 32px;
+  border-radius: 50px;
+  transition: color 0.3s, box-shadow 0.3s;
+}
+.whose-turn.p1 { color: var(--p1); box-shadow: 0 0 24px var(--p1-glow); }
+.whose-turn.p2 { color: var(--p2); box-shadow: 0 0 24px var(--p2-glow); }
+
+/* Roll counter pips */
+.roll-pips {
+  display: flex; gap: 7px; align-items: center;
+}
+.roll-pip {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(242,237,215,0.18);
+  transition: background 0.2s;
+}
+.roll-pip.done { background: var(--chalk-dim); }
+.roll-pip.current { background: var(--gold); box-shadow: 0 0 6px var(--gold-glow); }
+
+/* ── DICE AREA ───────────────────────────────────────── */
+.dice-area {
+  display: flex; gap: 14px; align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.die-wrap {
+  position: relative; cursor: pointer;
+  transition: transform 0.15s;
+}
+.die-wrap:hover:not(.locked) { transform: scale(1.06) translateY(-3px); }
+.die-wrap.locked { cursor: default; opacity: 0.6; }
+
+.die {
+  width: var(--die-size); height: var(--die-size);
+  background: #F5EDD8;
+  border-radius: 18px;
+  border: 3px solid rgba(0,0,0,0.15);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.die.saved-p1 {
+  border-color: var(--p1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35), 0 0 18px var(--p1-glow), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.die.saved-p2 {
+  border-color: var(--p2);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35), 0 0 18px var(--p2-glow), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.die.rolling {
+  animation: dieRoll 0.35s ease;
+}
+@keyframes dieRoll {
+  0%   { transform: rotate(-10deg) scale(0.9); }
+  30%  { transform: rotate(8deg) scale(1.08); }
+  60%  { transform: rotate(-5deg) scale(0.97); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+/* Saved badge */
+.saved-badge {
+  position: absolute; top: -9px; right: -9px;
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 0.7rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--bg);
+  opacity: 0; transition: opacity 0.15s;
+  letter-spacing: 0;
+}
+.die-wrap.saved-p1 .saved-badge { opacity: 1; background: var(--p1); color: white; }
+.die-wrap.saved-p2 .saved-badge { opacity: 1; background: var(--p2); color: white; }
+.die-wrap.locked .saved-badge { display: none; }
+
+/* ── SUM DISPLAY ─────────────────────────────────────── */
+.sum-display {
+  text-align: center;
+  min-height: 90px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.sum-equation {
+  font-family: 'Caveat', cursive;
+  font-size: 1.45rem;
+  color: var(--chalk-dim);
+  min-height: 32px;
+  transition: color 0.3s;
+}
+.sum-total {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 4.2rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  transition: color 0.3s, text-shadow 0.3s;
+  color: var(--chalk);
+}
+.sum-total.safe-sum  { color: var(--safe);  text-shadow: 0 0 24px rgba(95,217,123,0.5); }
+.sum-total.bust-sum  { color: var(--bust);  text-shadow: 0 0 24px rgba(255,107,107,0.5); }
+.sum-total.exact-sum { color: var(--gold);  text-shadow: 0 0 30px var(--gold-glow); }
+.sum-label {
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--chalk-muted);
+  margin-top: 4px;
+}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn-row {
+  display: flex; gap: 12px;
+}
+.btn {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 1.2rem; letter-spacing: 0.06em;
+  border: none; border-radius: 12px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s, opacity 0.2s;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-2px); }
+.btn:active:not(:disabled) { transform: translateY(0); filter: brightness(0.95); }
+.btn:disabled { opacity: 0.32; cursor: not-allowed; transform: none !important; }
+
+.btn-roll {
+  background: linear-gradient(135deg, var(--gold), #E5A800);
+  color: #1A2B1A;
+  box-shadow: 0 4px 18px rgba(245,200,66,0.35);
+  min-width: 160px;
+}
+.btn-keep {
+  background: rgba(95,217,123,0.15);
+  border: 2px solid var(--safe);
+  color: var(--safe);
+}
+.btn-keep:hover:not(:disabled) { background: rgba(95,217,123,0.25); }
+
+.btn-next {
+  background: rgba(242,237,215,0.1);
+  border: 2px solid rgba(242,237,215,0.25);
+  color: var(--chalk);
+  min-width: 200px;
+}
+
+/* ── SCORING HINT ────────────────────────────────────── */
+.score-hint {
+  font-family: 'Caveat', cursive;
+  font-size: 1.05rem;
+  color: var(--chalk-dim);
+  text-align: center;
+  min-height: 24px;
+}
+.score-hint.warn { color: var(--bust); }
+.score-hint.good { color: var(--safe); }
+.score-hint.exact { color: var(--gold); }
+
+/* ── OVERLAY ─────────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(14,22,14,0.82);
+  backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+}
+.overlay.show { display: flex; }
+
+.overlay-card {
+  background: var(--board);
+  border: 2px solid rgba(242,237,215,0.15);
+  border-radius: 24px;
+  padding: 52px 60px;
+  text-align: center;
+  max-width: 520px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+}
+.overlay-icon { font-size: 5rem; margin-bottom: 16px; line-height: 1; }
+.overlay-title {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 2.8rem; letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.overlay-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem; color: var(--chalk-dim);
+  margin-bottom: 32px; line-height: 1.5;
+}
+.overlay-scores {
+  display: flex; gap: 20px; justify-content: center; margin-bottom: 32px;
+}
+.overlay-score-block {
+  padding: 18px 28px; border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(242,237,215,0.1);
+  min-width: 130px;
+}
+.overlay-score-block .name {
+  font-size: 0.75rem; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.overlay-score-block.winner { border-width: 2px; }
+.overlay-score-block.p1-win { border-color: var(--p1); }
+.overlay-score-block.p2-win { border-color: var(--p2); }
+.overlay-score-block .score-big {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 3rem; line-height: 1;
+}
+.overlay-score-block.p1-win .score-big { color: var(--p1); }
+.overlay-score-block.p2-win .score-big { color: var(--p2); }
+
+.btn-play-again {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold), #E5A800);
+  color: #1A2B1A;
+  border: none; border-radius: 12px;
+  padding: 16px 24px;
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 1.35rem; letter-spacing: 0.06em;
+  cursor: pointer; transition: filter 0.15s;
+  box-shadow: 0 4px 20px rgba(245,200,66,0.35);
+}
+.btn-play-again:hover { filter: brightness(1.1); }
+
+/* Score-entry overlay (bank confirmation) */
+.score-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(14,22,14,0.75);
+  backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.score-overlay.show { display: flex; }
+.score-overlay-card {
+  background: var(--board2);
+  border: 2px solid rgba(242,237,215,0.15);
+  border-radius: 20px;
+  padding: 44px 52px;
+  text-align: center;
+  max-width: 420px;
+}
+.score-overlay-title {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 2rem; margin-bottom: 8px;
+}
+.score-overlay-sum {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 5rem; line-height: 1;
+  margin: 12px 0;
+  transition: color 0.3s;
+}
+.score-overlay-sum.bust { color: var(--bust); }
+.score-overlay-sum.safe { color: var(--safe); }
+.score-overlay-sum.exact { color: var(--gold); }
+.score-overlay-msg {
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem; color: var(--chalk-dim);
+  margin-bottom: 28px; line-height: 1.5;
+}
+.score-overlay-btns { display: flex; gap: 10px; }
+.score-overlay-btns .btn { flex: 1; }
+
+/* Equation log (small, bottom of center) */
+.eq-log {
+  width: 100%; max-width: 400px;
+  min-height: 28px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.05rem;
+  color: var(--chalk-dim);
+  text-align: center;
+}
+
+/* Confetti canvas */
+#confetti-canvas {
+  position: fixed; inset: 0; pointer-events: none; z-index: 300;
+}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ── HEADER ──────────────────────────────────── -->
+<header>
+  <a class="logo-back" href="index.html">← Facts on Fire</a>
+  <span class="header-title">Save <span>Twenty</span></span>
+  <span class="header-meta" id="header-meta">Grades 1–3 · Dan Finkel / Math for Love</span>
+</header>
+
+<!-- ── SETUP SCREEN ────────────────────────────── -->
+<div class="screen active" id="setup-screen">
+  <div class="setup-icon">🎲</div>
+  <div class="setup-title">Save <span>Twenty</span></div>
+  <div class="setup-sub">Roll 5 dice · Save the best · Don't go over 20</div>
+
+  <div class="setup-card">
+    <div class="setup-row">
+      <div class="setup-field">
+        <div class="setup-label"><span class="dot p1-dot"></span>Player 1</div>
+        <input class="setup-input" id="p1-name" type="text" maxlength="16" placeholder="Player 1" value="Player 1">
+      </div>
+      <div class="setup-field">
+        <div class="setup-label"><span class="dot p2-dot"></span>Player 2</div>
+        <input class="setup-input" id="p2-name" type="text" maxlength="16" placeholder="Player 2" value="Player 2">
+      </div>
+    </div>
+
+    <div class="setup-divider"></div>
+
+    <div class="turns-label">Turns per player</div>
+    <div class="turns-options" id="turns-options">
+      <div class="turns-opt" data-turns="5">
+        <div class="big">5</div>
+        <div class="small">Quick · ~10 min</div>
+      </div>
+      <div class="turns-opt selected" data-turns="9">
+        <div class="big">9</div>
+        <div class="small">Full Game</div>
+      </div>
+    </div>
+
+    <button class="btn-start" id="btn-start">Let's Play! 🎲</button>
+  </div>
+</div>
+
+<!-- ── GAME SCREEN ─────────────────────────────── -->
+<div class="screen" id="game-screen">
+
+  <!-- Player 1 Panel -->
+  <div class="player-panel p1-panel" id="p1-panel">
+    <div class="panel-name">
+      <span class="indicator"></span>
+      <span id="p1-display-name">Player 1</span>
+    </div>
+    <div class="panel-status" id="p1-status">Waiting…</div>
+    <div class="scorecard" id="p1-scorecard"></div>
+    <div class="panel-total">
+      <span class="total-label">Total</span>
+      <span class="total-value" id="p1-total">0</span>
+    </div>
+  </div>
+
+  <!-- Center Board -->
+  <div class="center-board">
+
+    <div class="whose-turn p1" id="whose-turn-label">Player 1's Turn</div>
+
+    <div class="turn-banner" id="turn-banner">Turn 1 of 9 &nbsp;·&nbsp; Roll 1 of 4</div>
+
+    <div class="roll-pips" id="roll-pips">
+      <span class="roll-pip current"></span>
+      <span class="roll-pip"></span>
+      <span class="roll-pip"></span>
+      <span class="roll-pip"></span>
+    </div>
+
+    <div class="dice-area" id="dice-area">
+      <!-- Dice rendered by JS -->
+    </div>
+
+    <div class="sum-display">
+      <div class="sum-equation" id="sum-equation"></div>
+      <div class="sum-total" id="sum-total">—</div>
+      <div class="sum-label" id="sum-label">CLICK DICE TO SAVE · THEN ROLL AGAIN</div>
+    </div>
+
+    <div class="score-hint" id="score-hint"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-roll" id="btn-roll">Roll! 🎲</button>
+      <button class="btn btn-keep" id="btn-keep" disabled>Keep Score</button>
+    </div>
+
+    <div class="eq-log" id="eq-log"></div>
+
+  </div>
+
+  <!-- Player 2 Panel -->
+  <div class="player-panel p2-panel" id="p2-panel">
+    <div class="panel-name">
+      <span class="indicator"></span>
+      <span id="p2-display-name">Player 2</span>
+    </div>
+    <div class="panel-status" id="p2-status">Waiting…</div>
+    <div class="scorecard" id="p2-scorecard"></div>
+    <div class="panel-total">
+      <span class="total-label">Total</span>
+      <span class="total-value" id="p2-total">0</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SCORE CONFIRMATION OVERLAY ─────────────── -->
+<div class="score-overlay" id="score-overlay">
+  <div class="score-overlay-card">
+    <div class="score-overlay-title" id="sco-title">Lock in your score?</div>
+    <div class="score-overlay-sum" id="sco-sum">16</div>
+    <div class="score-overlay-msg" id="sco-msg">You scored 16 points this turn!</div>
+    <div class="score-overlay-btns">
+      <button class="btn btn-next" id="sco-cancel">Cancel</button>
+      <button class="btn btn-roll" id="sco-confirm" style="flex:1.5">Confirm ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME OVER OVERLAY ───────────────────────── -->
+<div class="overlay" id="gameover-overlay">
+  <div class="overlay-card">
+    <div class="overlay-icon" id="go-icon">🏆</div>
+    <div class="overlay-title" id="go-title">Game Over!</div>
+    <div class="overlay-sub" id="go-sub">What a game!</div>
+    <div class="overlay-scores" id="go-scores"></div>
+    <button class="btn-play-again" id="btn-play-again">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ───────────────────────────────────────────
+const MAX_ROLLS = 4;
+const MAX_VALUE = 20;
+
+// Dot positions for each die face (normalized 0-90 grid)
+// Positions: [TL,TC,TR,ML,MC,MR,BL,BC,BR] = indices 0-8
+const DOT_COORDS = [
+  [22,22],[45,22],[68,22],
+  [22,45],[45,45],[68,45],
+  [22,68],[45,68],[68,68]
+];
+const DOT_PATTERNS = {
+  1: [4],
+  2: [2, 6],
+  3: [2, 4, 6],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8],
+};
+
+// ── STATE ────────────────────────────────────────────────
+let state = {
+  names: ['Player 1', 'Player 2'],
+  totalTurns: 9,
+  // scores[player][turn] = number or null
+  scores: [[], []],
+  // current game position
+  currentPlayer: 0,   // 0 or 1
+  // turn index for each player (0-based)
+  playerTurnIndex: [0, 0],
+  // dice state
+  dice: [1,1,1,1,1],
+  saved: [false,false,false,false,false],
+  rollCount: 0,       // 0 = not rolled yet this turn
+  turnPhase: 'roll',  // 'roll' | 'score'
+  gameOver: false,
+};
+
+// ── HELPERS ──────────────────────────────────────────────
+function randDie() { return Math.floor(Math.random() * 6) + 1; }
+
+function diceSum(onlyIndices) {
+  if (onlyIndices) return onlyIndices.reduce((s,i) => s + state.dice[i], 0);
+  return state.dice.reduce((a,b) => a+b, 0);
+}
+
+function dieSVG(value, savedClass) {
+  const dots = DOT_PATTERNS[value];
+  const dotColor = '#2C1A0E';
+  const dotSVGs = dots.map(idx => {
+    const [x,y] = DOT_COORDS[idx];
+    return `<circle cx="${x}" cy="${y}" r="7.5" fill="${dotColor}" opacity="0.85"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 90 90" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
+    <rect width="90" height="90" rx="16" fill="none"/>
+    ${dotSVGs}
+  </svg>`;
+}
+
+// ── RENDER ───────────────────────────────────────────────
+function renderDice(rolling = []) {
+  const area = document.getElementById('dice-area');
+  area.innerHTML = '';
+  const pClass = `saved-p${state.currentPlayer + 1}`;
+
+  state.dice.forEach((val, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'die-wrap';
+    wrap.dataset.i = i;
+
+    const die = document.createElement('div');
+    die.className = 'die';
+    if (state.saved[i]) die.classList.add(pClass);
+    if (rolling.includes(i)) die.classList.add('rolling');
+
+    die.innerHTML = dieSVG(val);
+
+    const badge = document.createElement('div');
+    badge.className = 'saved-badge';
+    badge.textContent = '✓';
+
+    if (state.saved[i]) wrap.classList.add(pClass);
+
+    // Final roll: all locked
+    if (state.rollCount >= MAX_ROLLS) {
+      wrap.classList.add('locked');
+    }
+
+    wrap.appendChild(die);
+    wrap.appendChild(badge);
+    area.appendChild(wrap);
+
+    // Click to toggle save (only if rolled at least once and not final roll)
+    wrap.addEventListener('click', () => {
+      if (state.rollCount === 0 || state.rollCount >= MAX_ROLLS || state.turnPhase === 'score') return;
+      state.saved[i] = !state.saved[i];
+      renderDice();
+      updateSumDisplay();
+      updateButtons();
+    });
+  });
+}
+
+function updateSumDisplay() {
+  const sum = diceSum();
+  const eqEl = document.getElementById('sum-equation');
+  const totalEl = document.getElementById('sum-total');
+  const labelEl = document.getElementById('sum-label');
+  const hintEl = document.getElementById('score-hint');
+
+  if (state.rollCount === 0) {
+    totalEl.textContent = '—';
+    totalEl.className = 'sum-total';
+    eqEl.textContent = '';
+    labelEl.textContent = 'Roll to begin your turn';
+    hintEl.textContent = '';
+    hintEl.className = 'score-hint';
+    return;
+  }
+
+  // Equation string
+  eqEl.textContent = state.dice.join(' + ') + ' =';
+
+  totalEl.textContent = sum;
+  totalEl.className = 'sum-total';
+
+  if (sum === MAX_VALUE) {
+    totalEl.classList.add('exact-sum');
+    hintEl.textContent = '🌟 Perfect 20! Bank it!';
+    hintEl.className = 'score-hint exact';
+    labelEl.textContent = 'EXACTLY 20 — KEEP IT!';
+  } else if (sum > MAX_VALUE) {
+    totalEl.classList.add('bust-sum');
+    hintEl.textContent = `Over 20 — you'll score 0 if you bank now`;
+    hintEl.className = 'score-hint warn';
+    labelEl.textContent = 'OVER 20 — REROLL TO SAVE IT';
+  } else {
+    totalEl.classList.add('safe-sum');
+    const margin = MAX_VALUE - sum;
+    hintEl.textContent = `${margin} under 20 — keep rolling or bank ${sum}`;
+    hintEl.className = 'score-hint good';
+    labelEl.textContent = 'CLICK DICE TO SAVE · ROLL OR BANK';
+  }
+
+  if (state.rollCount >= MAX_ROLLS) {
+    labelEl.textContent = sum > MAX_VALUE ? 'OVER 20 — Score: 0' : `Score: ${sum} points`;
+  }
+}
+
+function updateButtons() {
+  const rollBtn = document.getElementById('btn-roll');
+  const keepBtn = document.getElementById('btn-keep');
+  const sum = diceSum();
+  const allSaved = state.saved.every(Boolean);
+
+  // Roll button: available if rollCount < 4 and not all saved
+  const canRoll = state.rollCount < MAX_ROLLS && !allSaved && state.rollCount > 0;
+  const firstRoll = state.rollCount === 0;
+  rollBtn.disabled = state.turnPhase === 'score';
+
+  if (firstRoll) {
+    rollBtn.textContent = 'Roll! 🎲';
+    rollBtn.disabled = false;
+  } else if (state.rollCount >= MAX_ROLLS) {
+    rollBtn.textContent = 'Final Roll Done';
+    rollBtn.disabled = true;
+  } else if (allSaved) {
+    rollBtn.textContent = 'All Saved!';
+    rollBtn.disabled = true;
+  } else {
+    rollBtn.textContent = `Roll Again (${MAX_ROLLS - state.rollCount} left)`;
+    rollBtn.disabled = false;
+  }
+
+  // Keep button: available after first roll
+  keepBtn.disabled = state.rollCount === 0 || state.turnPhase === 'score';
+  if (state.rollCount >= MAX_ROLLS) {
+    keepBtn.textContent = sum > MAX_VALUE ? 'Score: 0 😬' : `Score: ${sum} ✓`;
+    keepBtn.disabled = false;
+  } else {
+    keepBtn.textContent = sum > MAX_VALUE ? `Bank 0` : `Keep Score (${sum})`;
+  }
+}
+
+function updateRollPips() {
+  const pips = document.getElementById('roll-pips');
+  pips.innerHTML = '';
+  for (let i = 0; i < MAX_ROLLS; i++) {
+    const pip = document.createElement('span');
+    pip.className = 'roll-pip';
+    if (i < state.rollCount) pip.classList.add('done');
+    else if (i === state.rollCount) pip.classList.add('current');
+    pips.appendChild(pip);
+  }
+}
+
+function updateTurnBanner() {
+  const p = state.currentPlayer;
+  const t = state.playerTurnIndex[p] + 1;
+  const r = Math.min(state.rollCount + 1, MAX_ROLLS);
+  document.getElementById('turn-banner').innerHTML =
+    `Turn ${t} of ${state.totalTurns} &nbsp;·&nbsp; Roll ${state.rollCount >= MAX_ROLLS ? MAX_ROLLS : r} of ${MAX_ROLLS}`;
+
+  const nameEl = document.getElementById('whose-turn-label');
+  nameEl.textContent = `${state.names[p]}'s Turn`;
+  nameEl.className = `whose-turn p${p+1}`;
+}
+
+function updatePanels() {
+  [0,1].forEach(p => {
+    const panel = document.getElementById(`p${p+1}-panel`);
+    panel.classList.toggle('active-panel', p === state.currentPlayer);
+
+    const statusEl = document.getElementById(`p${p+1}-status`);
+    if (p === state.currentPlayer && !state.gameOver) {
+      statusEl.textContent = state.rollCount === 0 ? 'Rolling…' : `Roll ${state.rollCount} of ${MAX_ROLLS}`;
+    } else {
+      statusEl.textContent = state.gameOver ? 'Game over!' : 'Waiting…';
+    }
+
+    // Scorecard
+    buildScorecard(p);
+
+    // Total
+    const total = state.scores[p].reduce((s,v) => s + (v||0), 0);
+    document.getElementById(`p${p+1}-total`).textContent = total;
+  });
+}
+
+function buildScorecard(p) {
+  const card = document.getElementById(`p${p+1}-scorecard`);
+  card.innerHTML = '';
+  const currentTI = state.playerTurnIndex[p];
+
+  for (let t = 0; t < state.totalTurns; t++) {
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    const isCurrent = (p === state.currentPlayer) && (t === currentTI) && !state.gameOver;
+    if (isCurrent) row.classList.add('current-turn');
+
+    const lbl = document.createElement('div');
+    lbl.className = 'score-turn-label';
+    lbl.textContent = `T${t+1}`;
+
+    const bar = document.createElement('div');
+    bar.className = 'score-bar';
+    const fill = document.createElement('div');
+    fill.className = 'score-bar-fill';
+
+    const val = document.createElement('div');
+    val.className = 'score-value';
+
+    if (t < state.scores[p].length) {
+      const sc = state.scores[p][t];
+      val.textContent = sc;
+      fill.style.width = `${Math.min(100, (sc / MAX_VALUE) * 100)}%`;
+      if (sc === 0) val.classList.add('bust');
+      else if (sc === MAX_VALUE) val.classList.add('exact');
+      else val.classList.add('safe');
+    } else if (isCurrent) {
+      val.textContent = '…';
+      val.classList.add('empty');
+      fill.style.width = '0%';
+    } else {
+      val.textContent = '—';
+      val.classList.add('empty');
+      fill.style.width = '0%';
+    }
+
+    bar.appendChild(fill);
+    row.appendChild(lbl);
+    row.appendChild(bar);
+    row.appendChild(val);
+    card.appendChild(row);
+  }
+}
+
+// ── ACTIONS ─────────────────────────────────────────────
+function doRoll() {
+  if (state.turnPhase === 'score') return;
+
+  const toRoll = [];
+  state.dice.forEach((_, i) => {
+    if (!state.saved[i]) toRoll.push(i);
+  });
+
+  if (state.rollCount === 0) {
+    // First roll: roll all
+    state.dice = state.dice.map(() => randDie());
+    state.saved = [false,false,false,false,false];
+    state.rollCount = 1;
+    renderDice([0,1,2,3,4]);
+  } else {
+    // Reroll unsaved
+    if (toRoll.length === 0) return;
+    toRoll.forEach(i => { state.dice[i] = randDie(); });
+    state.rollCount++;
+    renderDice(toRoll);
+  }
+
+  updateSumDisplay();
+  updateRollPips();
+  updateTurnBanner();
+  updateButtons();
+
+  // If final roll, auto-move to score phase (but keep the button)
+  if (state.rollCount >= MAX_ROLLS) {
+    // Lock in: save all remaining
+    state.saved = [true,true,true,true,true];
+    renderDice();
+    updateSumDisplay();
+    updateButtons();
+    // small delay then nudge
+    setTimeout(() => {
+      const sum = diceSum();
+      const hintEl = document.getElementById('score-hint');
+      if (sum > MAX_VALUE) {
+        hintEl.textContent = '😬 Over 20 — Bank 0 points';
+        hintEl.className = 'score-hint warn';
+      } else {
+        hintEl.textContent = `✅ Final roll done — bank ${sum} points!`;
+        hintEl.className = 'score-hint good';
+      }
+    }, 400);
+  }
+
+  updateEqLog();
+}
+
+function updateEqLog() {
+  const log = document.getElementById('eq-log');
+  if (state.rollCount === 0) { log.textContent = ''; return; }
+  const saved = state.dice.filter((_,i) => state.saved[i]);
+  const unsaved = state.dice.filter((_,i) => !state.saved[i]);
+  if (saved.length > 0 && unsaved.length > 0) {
+    log.textContent = `Saved: ${saved.join(', ')} · Unsaved: ${unsaved.join(', ')}`;
+  } else if (saved.length > 0) {
+    log.textContent = `All saved: ${saved.join(', ')}`;
+  } else {
+    log.textContent = `All dice unsaved`;
+  }
+}
+
+function doKeepScore() {
+  if (state.rollCount === 0) return;
+  const sum = diceSum();
+  const score = sum > MAX_VALUE ? 0 : sum;
+
+  const sco = document.getElementById('score-overlay');
+  const title = document.getElementById('sco-title');
+  const sumEl = document.getElementById('sco-sum');
+  const msg = document.getElementById('sco-msg');
+
+  sumEl.textContent = sum;
+  sumEl.className = 'score-overlay-sum';
+
+  if (sum > MAX_VALUE) {
+    title.textContent = `Over 20 — Score 0`;
+    sumEl.textContent = `${sum} → 0`;
+    sumEl.classList.add('bust');
+    msg.textContent = `Dice sum ${sum} is over 20. You'll score 0 points this turn.`;
+  } else if (sum === MAX_VALUE) {
+    title.textContent = `🌟 Perfect 20!`;
+    sumEl.classList.add('exact');
+    msg.textContent = `Exactly 20! That's the best score! Banking ${score} points.`;
+  } else {
+    title.textContent = `Bank ${score} points?`;
+    sumEl.classList.add('safe');
+    msg.textContent = `Your dice sum to ${sum}. Banking ${score} points this turn.`;
+  }
+
+  sco.classList.add('show');
+
+  document.getElementById('sco-confirm').onclick = () => {
+    sco.classList.remove('show');
+    commitScore(score);
+  };
+  document.getElementById('sco-cancel').onclick = () => {
+    sco.classList.remove('show');
+  };
+}
+
+function commitScore(score) {
+  const p = state.currentPlayer;
+  state.scores[p].push(score);
+
+  // check if player finished their turns
+  state.playerTurnIndex[p]++;
+
+  // Determine next player
+  // Each player alternates. Switch to other player if they haven't finished.
+  const other = 1 - p;
+  const p0done = state.scores[0].length >= state.totalTurns;
+  const p1done = state.scores[1].length >= state.totalTurns;
+
+  if (p0done && p1done) {
+    // Game over
+    state.gameOver = true;
+    updatePanels();
+    showGameOver();
+    return;
+  }
+
+  // Switch player (or stay if other is done)
+  if (!p1done || !p0done) {
+    // Move to other player if they're not done
+    if (state.scores[other].length < state.totalTurns) {
+      state.currentPlayer = other;
+    }
+    // else stay with current (shouldn't happen if above check passes)
+  }
+
+  // Reset for new turn
+  resetTurn();
+  updatePanels();
+}
+
+function resetTurn() {
+  state.dice = [1,1,1,1,1];
+  state.saved = [false,false,false,false,false];
+  state.rollCount = 0;
+  state.turnPhase = 'roll';
+
+  renderDice();
+  updateSumDisplay();
+  updateRollPips();
+  updateTurnBanner();
+  updateButtons();
+  document.getElementById('eq-log').textContent = '';
+}
+
+function showGameOver() {
+  const s0 = state.scores[0].reduce((a,b)=>a+b,0);
+  const s1 = state.scores[1].reduce((a,b)=>a+b,0);
+  const isTie = s0 === s1;
+
+  const icon = document.getElementById('go-icon');
+  const title = document.getElementById('go-title');
+  const sub = document.getElementById('go-sub');
+  const scoresEl = document.getElementById('go-scores');
+
+  icon.textContent = isTie ? '🤝' : '🏆';
+
+  if (isTie) {
+    title.textContent = "It's a Tie!";
+    sub.textContent = `Both players scored ${s0} points. Amazing!`;
+  } else {
+    const winner = s0 > s1 ? 0 : 1;
+    title.textContent = `${state.names[winner]} Wins!`;
+    sub.innerHTML = `${state.names[winner]} scored <strong>${Math.max(s0,s1)}</strong> to <strong>${Math.min(s0,s1)}</strong>. Well played!`;
+  }
+
+  scoresEl.innerHTML = '';
+  [0,1].forEach(p => {
+    const sc = state.scores[p].reduce((a,b)=>a+b,0);
+    const isWinner = !isTie && ((p===0 && s0>s1) || (p===1 && s1>s0));
+    const block = document.createElement('div');
+    block.className = `overlay-score-block${isWinner ? ` winner p${p+1}-win` : ''}`;
+    block.innerHTML = `<div class="name" style="color:var(--p${p+1})">${state.names[p]}</div>
+      <div class="score-big">${sc}</div>
+      <div style="font-size:0.75rem;color:var(--chalk-dim);margin-top:4px">${state.totalTurns} turns</div>`;
+    scoresEl.appendChild(block);
+  });
+
+  document.getElementById('gameover-overlay').classList.add('show');
+  if (!isTie) launchConfetti(s0 > s1 ? 'p1' : 'p2');
+}
+
+// ── CONFETTI ─────────────────────────────────────────────
+function launchConfetti(winner) {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const color = winner === 'p1' ? ['#4A90D9','#7BB5E8','#C8E0F7'] : ['#E05C55','#EC8B87','#F5C4C2'];
+  const particles = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: -20,
+    r: Math.random() * 8 + 4,
+    d: Math.random() * 2 + 1,
+    c: color[Math.floor(Math.random()*color.length)],
+    tilt: Math.random() * 10 - 5,
+    tiltAngle: 0,
+    tiltSpeed: Math.random() * 0.07 + 0.02,
+  }));
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.ellipse(p.x + p.tilt, p.y, p.r/2, p.r, Math.PI/4, 0, Math.PI*2);
+      ctx.fillStyle = p.c;
+      ctx.fill();
+      p.y += p.d + Math.sin(frame * 0.02) * 0.5;
+      p.tilt = Math.sin(p.tiltAngle) * 12;
+      p.tiltAngle += p.tiltSpeed;
+      if (p.y > canvas.height + 20) p.y = -20;
+    });
+    frame++;
+    if (frame < 300) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+// ── INIT ─────────────────────────────────────────────────
+function startGame() {
+  const p1 = document.getElementById('p1-name').value.trim() || 'Player 1';
+  const p2 = document.getElementById('p2-name').value.trim() || 'Player 2';
+  const turnsEl = document.querySelector('.turns-opt.selected');
+  const turns = turnsEl ? parseInt(turnsEl.dataset.turns) : 9;
+
+  state = {
+    names: [p1, p2],
+    totalTurns: turns,
+    scores: [[], []],
+    currentPlayer: 0,
+    playerTurnIndex: [0, 0],
+    dice: [1,1,1,1,1],
+    saved: [false,false,false,false,false],
+    rollCount: 0,
+    turnPhase: 'roll',
+    gameOver: false,
+  };
+
+  document.getElementById('p1-display-name').textContent = p1;
+  document.getElementById('p2-display-name').textContent = p2;
+
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  document.getElementById('header-meta').textContent = `${turns} turns per player`;
+
+  resetTurn();
+  updatePanels();
+}
+
+// ── EVENT LISTENERS ──────────────────────────────────────
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-roll').addEventListener('click', doRoll);
+document.getElementById('btn-keep').addEventListener('click', doKeepScore);
+
+document.getElementById('btn-play-again').addEventListener('click', () => {
+  document.getElementById('gameover-overlay').classList.remove('show');
+  document.getElementById('game-screen').classList.remove('active');
+  document.getElementById('setup-screen').classList.add('active');
+  // Pre-fill names
+  document.getElementById('p1-name').value = state.names[0];
+  document.getElementById('p2-name').value = state.names[1];
+});
+
+// Turns option picker
+document.getElementById('turns-options').addEventListener('click', e => {
+  const opt = e.target.closest('.turns-opt');
+  if (!opt) return;
+  document.querySelectorAll('.turns-opt').forEach(o => o.classList.remove('selected'));
+  opt.classList.add('selected');
+});
+
+// Setup: Enter key starts game
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('setup-screen').classList.contains('active')) {
+      startGame();
+    } else if (document.getElementById('game-screen').classList.contains('active')) {
+      // Space or Enter rolls
+      const rollBtn = document.getElementById('btn-roll');
+      if (!rollBtn.disabled) doRoll();
+    }
+  }
+  if (e.key === ' ' && document.getElementById('game-screen').classList.contains('active')) {
+    e.preventDefault();
+    const rollBtn = document.getElementById('btn-roll');
+    if (!rollBtn.disabled) doRoll();
+  }
+});
+</script>
+</body>
+</html>
