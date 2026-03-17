@@ -194,8 +194,8 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
         <button class="tbtn on" data-type="honeycomb" onclick="selType(this)" style="grid-column:1/-1">
           <span class="ico">⬡</span><span class="lbl">Honeycomb Path</span>
         </button>
-        <button class="tbtn" onclick="location.href='skip-counting-crosswords.html'" style="grid-column:1/-1;border-color:#40916c;background:#d8f3dc">
-          <span class="ico">🔢</span><span class="lbl" style="color:#1b4332">Skip-Counting Crosswords</span>
+        <button class="tbtn" data-type="skipcross" onclick="selType(this)" style="grid-column:1/-1">
+          <span class="ico">📐</span><span class="lbl">Skip-Counting Crosswords</span>
         </button>
         <button class="tbtn" data-type="crossnumber" onclick="selType(this)">
           <span class="ico">➕</span><span class="lbl">Cross-Number</span>
@@ -377,6 +377,11 @@ const DIFFS={
     {l:'6×6 Grid',  d:'2 puzzles per page, challenge'},
     {l:'8×8 Grid',  d:'1 puzzle per page, advanced'},
   ],
+  skipcross:[
+    {l:'Beginner',     d:'Simple cross/L shapes, skip by 2–5'},
+    {l:'Intermediate', d:'Multi-run shapes, skip by 3–8'},
+    {l:'Challenge',    d:'Full grid, each row/col has own skip'},
+  ],
 };
 const DIRS={
   crossnumber:'Complete each Cross-Number Puzzle. Find the missing addend, then fill in all remaining sums.',
@@ -389,8 +394,9 @@ const DIRS={
   xout:'Cross out one number in each row and column so that the remaining numbers in every row and column add up to the target sum.',
   factorblob:'Circle connected groups of 2 or more numbers whose product equals the target. Every number must belong to exactly one group.',
   maze:'Find the path from GO to END. Move through multiples only — up, down, left, right. There is exactly one correct path!',
+  skipcross:'Fill in the empty squares so that each row and column of touching squares makes a skip-counting pattern.',
 };
-const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles'};
+const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',skipcross:'Skip-Counting Crosswords'};
 
 // ─── Utilities ───────────────────────────────────────────────
 const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
@@ -1411,6 +1417,7 @@ function renderPuz(p,key){
   if(TYPE==='triangle')return renderTriangle(p,key);
   if(TYPE==='maze')return renderMaze(p,key);
   if(TYPE==='factorblob')return renderFactorBlob(p,key);
+  if(TYPE==='skipcross')return renderSkipCross(p,key);
   return'';
 }
 
@@ -1424,7 +1431,7 @@ function buildSheet(isKey){
       :`Find the path from <b style="color:#1A7A3A">GO</b> to <b style="color:#FF4F00">END</b>. Move through multiples of <b>${MM_K}</b> only — up, down, left, right. Exactly one correct path!`)
     :DIRS[TYPE];
   let gridCols='repeat(2,1fr)', mazePadding='18px 14px';
-  let minH={crossnumber:165,twoout:165,xout:185,crypto:165,mismo:210,megamismo:250,factorblob:0}[TYPE]||
+  let minH={crossnumber:165,twoout:165,xout:185,crypto:165,mismo:210,megamismo:250,factorblob:0,skipcross:260}[TYPE]||
     (TYPE==='honeycomb'&&PUZZLES[0]?{small:168,medium:168,large:215}[PUZZLES[0].gkey]||168:180);
   if(TYPE==='triangle'){ gridCols='repeat(2,1fr)'; minH=220; mazePadding='18px 14px'; }
   if(TYPE==='factorblob'){ gridCols=FB_N<=4?'repeat(2,1fr)':'1fr'; mazePadding='16px 12px'; }
@@ -1439,6 +1446,173 @@ function buildSheet(isKey){
     <div class="sh-dir">${dir}</div>
     <div class="pg" style="grid-template-columns:${gridCols}">${cells}</div>
   </div>`;
+}
+
+// ─── SKIP-COUNTING CROSSWORDS ────────────────────────────────
+// Each puzzle: {cells, rows, cols}
+// cells map: 'r,c' -> {v:number, given:bool}  (missing keys = void/spacer)
+
+function sc_ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function sc_pick(arr){return arr[sc_ri(0,arr.length-1)];}
+
+// PLUS: horizontal row at row=2, vertical col at col=2, 5×5
+function scGenPlus(diff){
+  const SKIP=[[2,5],[3,8],[4,12]][diff];
+  for(let t=0;t<60;t++){
+    const rs=sc_ri(SKIP[0],SKIP[1]),cs=sc_ri(SKIP[0],SKIP[1]);
+    const rStart=sc_ri(1,4)*rs, inter=rStart+2*rs, cStart=inter-2*cs;
+    if(cStart<=0)continue;
+    const cells={};
+    for(let j=0;j<5;j++)cells[`2,${j}`]={v:rStart+j*rs,given:false};
+    for(let i=0;i<5;i++)if(i!==2)cells[`${i},2`]={v:cStart+i*cs,given:false};
+    if(diff===0)[[2,0],[2,1],[0,2],[1,2]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    else if(diff===1)[[2,0],[2,4],[0,2],[4,2]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    else [[2,0],[2,2],[0,2],[3,2]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:5,cols:5};
+  }
+  return null;
+}
+
+// T-DOWN: row at row=0 (len 5), col hanging from (0,2) down to (3,2)
+function scGenTDown(diff){
+  const SKIP=[[2,5],[3,8],[4,12]][diff];
+  for(let t=0;t<60;t++){
+    const rs=sc_ri(SKIP[0],SKIP[1]),cs=sc_ri(SKIP[0],SKIP[1]);
+    const rStart=sc_ri(1,4)*rs, inter=rStart+2*rs, cStart=inter;
+    const cells={};
+    for(let j=0;j<5;j++)cells[`0,${j}`]={v:rStart+j*rs,given:false};
+    for(let i=1;i<4;i++)cells[`${i},2`]={v:cStart+i*cs,given:false};
+    if(diff===0)[[0,0],[0,1],[1,2],[2,2]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    else[[0,0],[0,4],[1,2],[3,2]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:4,cols:5};
+  }
+  return null;
+}
+
+// L-RIGHT: row at row=0 (len 5), col at col=4 rows 0..3
+function scGenLRight(diff){
+  const SKIP=[[2,5],[3,8]][Math.min(diff,1)];
+  for(let t=0;t<60;t++){
+    const rs=sc_ri(SKIP[0],SKIP[1]),cs=sc_ri(SKIP[0],SKIP[1]);
+    const rStart=sc_ri(1,3)*rs, inter=rStart+4*rs, cStart=inter;
+    const cells={};
+    for(let j=0;j<5;j++)cells[`0,${j}`]={v:rStart+j*rs,given:false};
+    for(let i=1;i<4;i++)cells[`${i},4`]={v:cStart+i*cs,given:false};
+    if(diff===0)[[0,0],[0,1],[1,4],[2,4]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    else[[0,0],[0,2],[2,4],[3,4]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:4,cols:5};
+  }
+  return null;
+}
+
+// L-BOTTOM: col at col=0 rows 0..3, row at row=3 len 5
+function scGenLBottom(diff){
+  const SKIP=[[2,5],[3,8]][Math.min(diff,1)];
+  for(let t=0;t<60;t++){
+    const rs=sc_ri(SKIP[0],SKIP[1]),cs=sc_ri(SKIP[0],SKIP[1]);
+    const cStart=sc_ri(2,5)*cs, inter=cStart+3*cs, rStart=inter;
+    const cells={};
+    for(let i=0;i<4;i++)cells[`${i},0`]={v:cStart+i*cs,given:false};
+    for(let j=1;j<5;j++)cells[`3,${j}`]={v:rStart+j*rs,given:false};
+    if(diff===0)[[0,0],[1,0],[3,2],[3,3]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    else[[0,0],[2,0],[3,1],[3,4]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:4,cols:5};
+  }
+  return null;
+}
+
+// DOUBLE-T: row0 (len 5) + col at col=2 rows 1-3 + row4 (len 5), two intersections
+function scGenDoubleT(diff){
+  const SKIP=diff===1?[3,8]:[4,11];
+  for(let t=0;t<100;t++){
+    const r0s=sc_ri(SKIP[0],SKIP[1]),r4s=sc_ri(SKIP[0],SKIP[1]),cs=sc_ri(SKIP[0],SKIP[1]);
+    const r0Start=sc_ri(1,3)*r0s, inter0=r0Start+2*r0s, cStart=inter0;
+    const inter4=cStart+4*cs, r4Start=inter4-2*r4s;
+    if(r4Start<=0)continue;
+    const cells={};
+    for(let j=0;j<5;j++)cells[`0,${j}`]={v:r0Start+j*r0s,given:false};
+    for(let i=1;i<4;i++)cells[`${i},2`]={v:cStart+i*cs,given:false};
+    for(let j=0;j<5;j++)cells[`4,${j}`]={v:(j===2?inter4:r4Start+j*r4s),given:false};
+    if(diff===1)[[0,0],[0,1],[2,2],[3,2],[4,3],[4,4]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    else[[0,0],[0,4],[1,2],[3,2],[4,0],[4,4]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:5,cols:5};
+  }
+  return null;
+}
+
+// STEP-3: 3-row staircase, v(i,j)=A+i*dr+j*dc+i*j*k
+function scGenStep3(diff){
+  const SKIP=diff===1?[2,5]:[3,8];
+  for(let t=0;t<80;t++){
+    const k=sc_ri(1,2),dr=sc_ri(SKIP[0],SKIP[1]),dc=sc_ri(SKIP[0],SKIP[1]),A=sc_ri(1,8);
+    const active=[[0,0],[0,1],[0,2],[1,1],[1,2],[1,3],[2,2],[2,3],[2,4]];
+    const cells={};let ok=true;
+    for(const[i,j]of active){const v=A+i*dr+j*dc+i*j*k;if(v<=0||v>150){ok=false;break;}cells[`${i},${j}`]={v,given:false};}
+    if(!ok)continue;
+    [[0,0],[0,2],[1,1],[1,3],[2,2],[2,4]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:3,cols:5};
+  }
+  return null;
+}
+
+// RECT 3×4: full rectangle, v(i,j)=A+i*dr+j*dc+i*j*k
+function scGenRect3x4(diff){
+  for(let t=0;t<80;t++){
+    const k=sc_ri(1,3),dr=sc_ri(2,6),dc=sc_ri(2,6),A=sc_ri(2,12);
+    const cells={};let ok=true;
+    for(let i=0;i<3;i++){for(let j=0;j<4;j++){const v=A+i*dr+j*dc+i*j*k;if(v<=0||v>200){ok=false;break;}cells[`${i},${j}`]={v,given:false};}if(!ok)break;}
+    if(!ok)continue;
+    [[0,0],[0,1],[1,0],[1,1],[2,0]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:3,cols:4};
+  }
+  return null;
+}
+
+// RECT 4×4: full rectangle, v(i,j)=A+i*dr+j*dc+i*j*k
+function scGenRect4x4(diff){
+  for(let t=0;t<80;t++){
+    const k=sc_ri(1,2),dr=sc_ri(2,5),dc=sc_ri(2,5),A=sc_ri(2,10);
+    const cells={};let ok=true;
+    for(let i=0;i<4;i++){for(let j=0;j<4;j++){const v=A+i*dr+j*dc+i*j*k;if(v<=0||v>200){ok=false;break;}cells[`${i},${j}`]={v,given:false};}if(!ok)break;}
+    if(!ok)continue;
+    [[0,0],[0,1],[1,0],[1,1],[2,0],[3,0]].forEach(([r,c])=>cells[`${r},${c}`].given=true);
+    return{cells,rows:4,cols:4};
+  }
+  return null;
+}
+
+function genSkipCross(diff){
+  const pools=[
+    [scGenPlus,scGenTDown,scGenLRight,scGenLBottom],
+    [scGenPlus,scGenTDown,scGenDoubleT,scGenStep3],
+    [scGenRect3x4,scGenRect4x4,scGenDoubleT,scGenStep3],
+  ];
+  for(let t=0;t<60;t++){const p=sc_pick(pools[diff])(diff);if(p)return p;}
+  return null;
+}
+
+function renderSkipCross(puzzle,isKey){
+  const{cells,rows,cols}=puzzle;
+  const csz=48,W=cols*csz,H=rows*csz;
+  let svg=`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const cell=cells[`${r},${c}`];if(!cell)continue;
+      const x=c*csz,y=r*csz,p=1.5;
+      const fs=cell.v>=100?13:cell.v>=10?15:17;
+      if(cell.given){
+        svg+=`<rect x="${x+p}" y="${y+p}" width="${csz-2*p}" height="${csz-2*p}" rx="5" fill="#d8f3dc" stroke="#40916c" stroke-width="2.5"/>`;
+        svg+=`<text x="${x+csz/2}" y="${y+csz/2}" text-anchor="middle" dominant-baseline="central" font-family="Nunito,Arial,sans-serif" font-weight="800" font-size="${fs}" fill="#1b4332">${cell.v}</text>`;
+      }else if(isKey){
+        svg+=`<rect x="${x+p}" y="${y+p}" width="${csz-2*p}" height="${csz-2*p}" rx="5" fill="#fff8f5" stroke="#FF4F00" stroke-width="2"/>`;
+        svg+=`<text x="${x+csz/2}" y="${y+csz/2}" text-anchor="middle" dominant-baseline="central" font-family="Nunito,Arial,sans-serif" font-weight="800" font-size="${fs}" fill="#b83000">${cell.v}</text>`;
+      }else{
+        svg+=`<rect x="${x+p}" y="${y+p}" width="${csz-2*p}" height="${csz-2*p}" rx="5" fill="#ffffff" stroke="#bbbbbb" stroke-width="2"/>`;
+      }
+    }
+  }
+  svg+='</svg>';
+  return`<div style="line-height:0">${svg}</div>`;
 }
 
 // ─── Generate ────────────────────────────────────────────────
@@ -1488,6 +1662,7 @@ async function generate(){
     else if(TYPE==='megamismo')p=genMegaMismo(DIFF);
     else if(TYPE==='honeycomb')p=genHoneycomb(DIFF);
     else if(TYPE==='triangle')p=genTriangle(DIFF);
+    else if(TYPE==='skipcross')p=genSkipCross(DIFF);
     if(p)PUZZLES.push(p);
   }
   refresh();
