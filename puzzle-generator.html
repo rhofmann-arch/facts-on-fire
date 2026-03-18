@@ -200,11 +200,12 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
     <div>
       <span class="sb-label">Puzzle Type</span>
       <div class="type-grid">
-        <button class="tbtn on" data-type="honeycomb" onclick="selType(this)" style="grid-column:1/-1">
+      <div class="type-grid">
+        <button class="tbtn on" data-type="honeycomb" onclick="selType(this)">
           <span class="ico">⬡</span><span class="lbl">Honeycomb Path</span>
         </button>
-        <button class="tbtn" data-type="skipcross" onclick="selType(this)" style="grid-column:1/-1">
-          <span class="ico">📐</span><span class="lbl">Skip-Counting Crosswords</span>
+        <button class="tbtn" data-type="skipcross" onclick="selType(this)">
+          <span class="ico">📐</span><span class="lbl">Skip-Count Crosswords</span>
         </button>
         <button class="tbtn" data-type="crossnumber" onclick="selType(this)">
           <span class="ico">➕</span><span class="lbl">Cross-Number</span>
@@ -227,6 +228,9 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
         <button class="tbtn" data-type="triangle" onclick="selType(this)">
           <span class="ico">🔺</span><span class="lbl">100 Triangles</span>
         </button>
+        <button class="tbtn" data-type="diffpyramid" onclick="selType(this)">
+          <span class="ico">🏔️</span><span class="lbl">Diff. Pyramids</span>
+        </button>
         <button class="tbtn" data-type="maze" onclick="selType(this)">
           <span class="ico">🔢</span><span class="lbl">Multiple Maze</span>
         </button>
@@ -237,12 +241,12 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
           <span class="ico">⊞</span><span class="lbl">Product Puzzles</span>
         </button>
         <button class="tbtn" data-type="multisearch" onclick="selType(this)">
-          <span class="ico">🔍</span><span class="lbl">Multiplication Search</span>
+          <span class="ico">🔍</span><span class="lbl">Mult. Search</span>
         </button>
         <button class="tbtn" data-type="twostep" onclick="selType(this)">
-          <span class="ico">➡</span><span class="lbl">Two Step Puzzles</span>
+          <span class="ico">➡</span><span class="lbl">Two Step</span>
         </button>
-        <button class="tbtn" data-type="kenken" onclick="selType(this)" style="grid-column:1/-1">
+        <button class="tbtn" data-type="kenken" onclick="selType(this)">
           <span class="ico">🧮</span><span class="lbl">KenKen</span>
         </button>
       </div>
@@ -421,6 +425,11 @@ const DIFFS={
     {l:'Intermediate', d:'Multi-run shapes, skip by 3–8'},
     {l:'Challenge',    d:'Full grid, each row/col has own skip'},
   ],
+  diffpyramid:[
+    {l:'Beginner',     d:'3-row pyramid, 3 missing values'},
+    {l:'Intermediate', d:'4-row pyramid, 5 missing values'},
+    {l:'Challenge',    d:'5-row pyramid, 7 missing values'},
+  ],
 };
 const DIRS={
   crossnumber:'Complete each Cross-Number Puzzle. Find the missing addend, then fill in all remaining sums.',
@@ -438,8 +447,9 @@ const DIRS={
   twostep:'Find the missing number in the blank box. Using one step from the list, it must produce <b>each</b> output number. Write the step used on each arrow.',
   multisearch:'Find and circle all of the multiplication facts in the puzzle below. Facts may go across, down, or diagonally. Two facts have already been circled for you.',
   skipcross:'Fill in the empty squares so that each row and column of touching squares makes a skip-counting pattern.',
+  diffpyramid:'Each block equals the <b>absolute difference</b> of the two blocks directly below it (larger minus smaller). Use the numbers in the <b>Use</b> list to fill every empty block.',
 };
-const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',productpuzzle:'Don Steward Product Puzzles',kenken:'KenKen Puzzles',twostep:'Two Step Puzzles',multisearch:'Multiplication Search',skipcross:'Skip-Counting Crosswords'};
+const PTITLES={crossnumber:'Cross-Number Puzzles',mismo:'Mismo Puzzles',megamismo:'Mega Mismo Puzzles',twoout:'Two-Out Puzzles',crypto:'Cryptarithms',honeycomb:'Honeycomb Path Puzzles',triangle:'100 Triangles',xout:'X-Out Puzzles',maze:'Multiple Maze',factorblob:'Factor Blob Puzzles',productpuzzle:'Don Steward Product Puzzles',kenken:'KenKen Puzzles',twostep:'Two Step Puzzles',multisearch:'Multiplication Search',skipcross:'Skip-Counting Crosswords',diffpyramid:'Difference Pyramids'};
 
 // ─── Utilities ───────────────────────────────────────────────
 const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
@@ -1955,6 +1965,7 @@ function renderPuz(p,key){
   if(TYPE==='twostep')return renderTwoStep(p,key);
   if(TYPE==='multisearch')return renderMultSearch(p,key);
   if(TYPE==='skipcross')return renderSkipCross(p,key);
+  if(TYPE==='diffpyramid')return renderDiffPyramid(p,key);
   return'';
 }
 
@@ -1981,6 +1992,13 @@ function buildSheet(isKey){
   }
   if(TYPE==='twostep'){ gridCols='repeat(2,1fr)'; minH=148; mazePadding='12px 8px'; }
   if(TYPE==='multisearch'){ gridCols='1fr'; minH=0; mazePadding='14px'; }
+  if(TYPE==='diffpyramid'){
+    // Beginner/Intermediate: 2×2 grid; Challenge: 1×2 (2 big pyramids side by side)
+    gridCols='repeat(2,1fr)';
+    mazePadding='20px 16px';
+    // minH accounts for pyramid SVG height + use-list row
+    minH=DIFF===0?220:DIFF===1?290:370;
+  }
   if(TYPE==='maze'&&PUZZLES[0]){
     const cfg=MM_CFG.find(x=>x.R===PUZZLES[0].R)||MM_CFG[0];
     gridCols=cfg.cols===1?'1fr':'repeat(2,1fr)';
@@ -2147,6 +2165,209 @@ function renderSkipCross(puzzle,isKey){
   return`<div style="line-height:0">${svg}</div>`;
 }
 
+// ─── DIFFERENCE PYRAMIDS ─────────────────────────────────────
+// pyramid[0]=bottom row (longest), pyramid[rows-1]=top (single cell)
+// given[r][c]: true = pre-filled for student
+// Rule: pyramid[r][c] = |pyramid[r-1][c] − pyramid[r-1][c+1]|
+
+// Multiple clue templates per difficulty — picked randomly so every puzzle looks different.
+// Each entry is an array of [row,col] pairs to mark as given (row 0 = bottom).
+const DP_TEMPLATES=[
+  // ── Beginner (3 rows, 6 cells total) — 3 given, 3 blank ──
+  [
+    [[2,0],[0,0],[0,2]],       // top + both bottom corners
+    [[2,0],[1,0],[0,1]],       // top + mid-left + bottom-center
+    [[2,0],[1,1],[0,1]],       // top + mid-right + bottom-center
+    [[2,0],[0,0],[1,1]],       // top + bottom-left + mid-right
+    [[2,0],[0,2],[1,0]],       // top + bottom-right + mid-left
+  ],
+  // ── Intermediate (4 rows, 10 cells total) — 5 given, 5 blank ──
+  [
+    [[3,0],[2,0],[2,1],[0,0],[0,3]],   // top + row2-left-pair + bottom corners
+    [[3,0],[2,1],[2,0],[0,1],[0,2]],   // top + row2-left-pair + bottom inner pair
+    [[3,0],[1,0],[1,1],[1,2],[0,0]],   // top + full row1 + bottom-left
+    [[3,0],[2,0],[2,1],[0,2],[0,3]],   // top + row2-left-pair + bottom right-pair
+    [[3,0],[1,0],[1,2],[0,0],[0,3]],   // top + row1 outer + bottom corners
+  ],
+  // ── Challenge (5 rows, 15 cells total) — 8 given, 7 blank ──
+  [
+    [[4,0],[3,0],[3,1],[2,0],[2,1],[2,2],[0,0],[0,4]],  // top + row3 left + row2 left-3 + bottom corners
+    [[4,0],[3,0],[3,1],[1,0],[1,1],[1,2],[1,3],[0,0]],  // top + row3 left + full row1 + bottom-left
+    [[4,0],[3,0],[2,0],[2,1],[2,2],[1,0],[1,1],[0,4]],  // top + left-spine + row2 left + row1 left + bottom-right
+    [[4,0],[3,1],[2,1],[2,2],[1,1],[1,2],[1,3],[0,2]],  // top + right-leaning spine
+    [[4,0],[3,0],[3,1],[2,0],[2,2],[1,0],[1,3],[0,2]],  // top + row3 + outer row2 + outer row1 + bottom-center
+  ],
+];
+
+function dpBuild(bottom){
+  const rows=bottom.length;
+  const pyramid=[bottom.slice()];
+  for(let r=1;r<rows;r++){
+    const prev=pyramid[r-1],row=[];
+    for(let c=0;c<prev.length-1;c++){
+      const d=Math.abs(prev[c]-prev[c+1]);
+      if(d===0)return null;
+      row.push(d);
+    }
+    pyramid.push(row);
+  }
+  return pyramid;
+}
+
+function dpSolve(pyramid,given,rows){
+  // Returns solution count, capped at 2 for speed.
+  const grid=pyramid.map(r=>r.slice());
+  // Order blanks top-first for tightest constraint propagation.
+  const blanks=[];
+  for(let r=rows-1;r>=0;r--)
+    for(let c=0;c<pyramid[r].length;c++)
+      if(!given[r][c])blanks.push([r,c]);
+  const useVals=blanks.map(([r,c])=>pyramid[r][c]).sort((a,b)=>a-b);
+  for(const[r,c]of blanks)grid[r][c]=0;
+
+  function ok(r,c,v){
+    // Parent above: grid[r+1][c] = |grid[r][c] − grid[r][c+1]|
+    if(r+1<rows){
+      const par=grid[r+1][c];
+      if(par){const sib=grid[r][c+1];if(sib&&Math.abs(v-sib)!==par)return false;}
+    }
+    // Left-parent above: grid[r+1][c-1] = |grid[r][c-1] − grid[r][c]|
+    if(r+1<rows&&c>0){
+      const par=grid[r+1][c-1];
+      if(par){const sib=grid[r][c-1];if(sib&&Math.abs(sib-v)!==par)return false;}
+    }
+    // Child below: grid[r-1][c] = |grid[r][c] − grid[r][c+1]| (only if both children known)
+    if(r>0){
+      const L=grid[r-1][c],R=grid[r-1][c+1];
+      if(L&&R&&Math.abs(L-R)!==v)return false;
+    }
+    return true;
+  }
+
+  let solCount=0;
+  function bt(idx,rem){
+    if(solCount>1)return;
+    if(idx===blanks.length){solCount++;return;}
+    const[r,c]=blanks[idx];
+    for(let i=0;i<rem.length;i++){
+      const v=rem[i];
+      if(!ok(r,c,v))continue;
+      grid[r][c]=v;
+      const next=[...rem.slice(0,i),...rem.slice(i+1)];
+      bt(idx+1,next);
+      grid[r][c]=0;
+      if(solCount>1)return;
+    }
+  }
+  bt(0,useVals);
+  return solCount;
+}
+
+function genDiffPyramid(diff){
+  const rows=diff+3;                    // 3, 4, 5
+  const maxV=[20,40,60][diff];
+  const templates=DP_TEMPLATES[diff];
+
+  for(let att=0;att<30000;att++){
+    const bottom=Array.from({length:rows},()=>ri(1,maxV));
+    const pyramid=dpBuild(bottom);
+    if(!pyramid)continue;
+    const allV=pyramid.flat();
+    if(new Set(allV).size!==allV.length)continue; // require all-distinct values
+
+    // Pick a random template for this attempt
+    const tmpl=templates[att%templates.length];
+    const given=pyramid.map(row=>row.map(()=>false));
+    for(const[r,c]of tmpl)given[r][c]=true;
+
+    if(dpSolve(pyramid,given,rows)===1)return{pyramid,given,rows,diff};
+  }
+  return null;
+}
+
+function renderDiffPyramid(p,isKey){
+  const{pyramid,given,rows,diff}=p;
+
+  // Scale cell size to pyramid height so each level fills the card nicely
+  const CW=[68,60,52][diff];
+  const CH=[54,46,40][diff];
+  const GAP=[10,8,7][diff];
+
+  const bottomLen=rows; // bottom row has `rows` cells
+  const svgW=bottomLen*CW+(bottomLen-1)*GAP;
+  const svgH=rows*CH+(rows-1)*GAP;
+
+  // Helper: get the pixel-center of cell (ri2, ci)
+  function cellCenter(ri2,ci){
+    const visualRow=(rows-1)-ri2;
+    const rowLen=pyramid[ri2].length;
+    const rowW=rowLen*CW+(rowLen-1)*GAP;
+    const xOff=(svgW-rowW)/2;
+    return{
+      x:xOff+ci*(CW+GAP)+CW/2,
+      y:visualRow*(CH+GAP)+CH/2
+    };
+  }
+
+  let svg=`<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // ── Draw connector lines first (so they sit under the cells) ──
+  for(let ri2=1;ri2<rows;ri2++){
+    const parRow=pyramid[ri2];
+    for(let ci=0;ci<parRow.length;ci++){
+      const par=cellCenter(ri2,ci);
+      const parBottom={x:par.x, y:par.y+CH/2};
+      const childL=cellCenter(ri2-1,ci);
+      const childR=cellCenter(ri2-1,ci+1);
+      const childLTop={x:childL.x, y:childL.y-CH/2};
+      const childRTop={x:childR.x, y:childR.y-CH/2};
+      svg+=`<line x1="${parBottom.x}" y1="${parBottom.y}" x2="${childLTop.x}" y2="${childLTop.y}" stroke="#C8CDD8" stroke-width="1.5"/>`;
+      svg+=`<line x1="${parBottom.x}" y1="${parBottom.y}" x2="${childRTop.x}" y2="${childRTop.y}" stroke="#C8CDD8" stroke-width="1.5"/>`;
+    }
+  }
+
+  // ── Draw cells ──
+  for(let ri2=rows-1;ri2>=0;ri2--){
+    const row=pyramid[ri2];
+    for(let ci=0;ci<row.length;ci++){
+      const ctr=cellCenter(ri2,ci);
+      const x=ctr.x-CW/2, y=ctr.y-CH/2;
+      const isGiv=given[ri2][ci];
+      const val=row[ci];
+      const rx=7;
+      const fs=val>=100?Math.round(CW*0.22):val>=10?Math.round(CW*0.28):Math.round(CW*0.34);
+
+      if(isGiv){
+        svg+=`<rect x="${x}" y="${y}" width="${CW}" height="${CH}" rx="${rx}" fill="#ECEEF2" stroke="#9BA3B2" stroke-width="2"/>`;
+        svg+=`<text x="${ctr.x}" y="${ctr.y+1}" text-anchor="middle" dominant-baseline="central" font-family="Nunito,Arial,sans-serif" font-weight="800" font-size="${fs}" fill="#1a1a1a">${val}</text>`;
+      }else if(isKey){
+        svg+=`<rect x="${x}" y="${y}" width="${CW}" height="${CH}" rx="${rx}" fill="#fff8f5" stroke="#FF4F00" stroke-width="2"/>`;
+        svg+=`<text x="${ctr.x}" y="${ctr.y+1}" text-anchor="middle" dominant-baseline="central" font-family="Nunito,Arial,sans-serif" font-weight="800" font-size="${fs}" fill="#b83000">${val}</text>`;
+      }else{
+        svg+=`<rect x="${x}" y="${y}" width="${CW}" height="${CH}" rx="${rx}" fill="#ffffff" stroke="#BDC2CC" stroke-width="2"/>`;
+      }
+    }
+  }
+  svg+='</svg>';
+
+  // ── Use list ──
+  const useNums=[];
+  for(let r=0;r<rows;r++)
+    for(let c=0;c<pyramid[r].length;c++)
+      if(!given[r][c])useNums.push(pyramid[r][c]);
+  useNums.sort((a,b)=>a-b);
+
+  const chipFs=[13,12,11][diff];
+  const chips=useNums.map(n=>`<span style="display:inline-flex;align-items:center;justify-content:center;background:#EBF0FF;border:1.5px solid #C5D3F7;border-radius:5px;font-family:Nunito,Arial,sans-serif;font-weight:800;font-size:${chipFs}px;color:#1B4FCC;padding:2px 8px;margin:2px">${n}</span>`).join('');
+
+  return`<div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+    <div style="line-height:0">${svg}</div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px">
+      <span style="font-family:Archivo,sans-serif;font-size:9px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#8A94A0;margin-right:2px;white-space:nowrap">Use:</span>${chips}
+    </div>
+  </div>`;
+}
+
 // ─── Generate ────────────────────────────────────────────────
 async function generate(){
   const btn=document.querySelector('.btn-gen');
@@ -2188,6 +2409,19 @@ async function generate(){
       document.getElementById('out').innerHTML=`<div style="padding:60px;text-align:center;color:#888;font-weight:600">Generating puzzle ${i+1} of 4…</div>`;
       await new Promise(r=>setTimeout(r,20));
       const p=await genKenKen(DIFF);
+      if(p)PUZZLES.push(p);
+    }
+    if(btn)btn.disabled=false;
+    refresh();return;
+  }
+  if(TYPE==='diffpyramid'){
+    const dpCount=DIFF===2?2:4; // Challenge pyramids are large — 2 per page; others 4
+    if(btn)btn.disabled=true;
+    PUZZLES=[];
+    for(let i=0;i<dpCount;i++){
+      document.getElementById('out').innerHTML=`<div style="padding:60px;text-align:center;color:#888;font-weight:600">Generating puzzle ${i+1} of ${dpCount}…</div>`;
+      await new Promise(r=>setTimeout(r,10));
+      const p=genDiffPyramid(DIFF);
       if(p)PUZZLES.push(p);
     }
     if(btn)btn.disabled=false;
