@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS Puzzle Generator — Facts on Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF7;--surf:#FFF;--ink:#0E1117;--ink2:#3A4150;
+  --muted:#8A94A0;--border:#E4E6EA;
+  --fire:#FF4F00;--fire2:#FF9000;--ember:#FFF0E8;
+  --teal:#007A6E;--teal-lt:#E6F4F2;
+  --blue:#1B4FCC;--blue-lt:#EBF0FF;
+  --purple:#7C3FA0;--purple-lt:#F2EAF9;
+  --r:12px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ── Header ── */
+header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);position:sticky;top:0;z-index:100}
+.hdr{max-width:1300px;margin:0 auto;display:flex;align-items:center;gap:12px;height:54px}
+.logo{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;display:flex;align-items:center;gap:7px;text-decoration:none}
+.logo em{color:var(--fire);font-style:normal}
+.sep{color:#444;font-size:18px}
+.hdr-sub{font-size:14px;color:#aaa;font-weight:500}
+.back{margin-left:auto;color:#aaa;font-size:12px;font-weight:600;text-decoration:none;padding:5px 12px;border:1px solid #333;border-radius:6px;transition:.15s}
+.back:hover{color:#fff;border-color:#666}
+
+/* ── Layout ── */
+.wrap{max-width:1300px;margin:0 auto;padding:20px;display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
+
+/* ── Sidebar ── */
+.sb{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px;display:flex;flex-direction:column;gap:16px;position:sticky;top:74px}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block}
+.sb-div{border:none;border-top:1px solid var(--border);margin:0 -4px}
+
+/* Type buttons */
+.type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.tbtn{background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:10px 6px;cursor:pointer;text-align:center;transition:.15s;font-family:'Archivo',sans-serif}
+.tbtn:hover{border-color:var(--fire);background:var(--ember)}
+.tbtn.on{background:var(--ember);border-color:var(--fire)}
+.tbtn .ico{font-size:22px;display:block;margin-bottom:4px}
+.tbtn .lbl{font-size:10.5px;font-weight:700;color:var(--ink2);line-height:1.2}
+.tbtn.on .lbl{color:var(--fire)}
+
+/* Difficulty radios */
+.diffs{display:flex;flex-direction:column;gap:4px}
+.diffs label{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12.5px;padding:6px 8px;border-radius:7px;transition:.1s;line-height:1.35}
+.diffs label:hover{background:var(--bg)}
+.diffs input[type=radio]{accent-color:var(--fire);margin-top:2px;flex-shrink:0}
+.dl{font-weight:700}.dd{color:var(--muted)}
+
+/* Inputs & buttons */
+.title-inp{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-family:'Archivo',sans-serif;font-size:13px;background:var(--bg);color:var(--ink)}
+.title-inp:focus{outline:none;border-color:var(--fire)}
+.hint{font-size:10.5px;color:var(--muted);margin-top:4px}
+.btn-gen{background:var(--fire);color:#fff;border:none;border-radius:9px;padding:12px 16px;font-family:'Archivo Black',sans-serif;font-size:14px;cursor:pointer;width:100%;transition:.15s;letter-spacing:.3px}
+.btn-gen:hover{background:#e03900}
+.btn-gen:active{transform:scale(.98)}
+.pdf-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.pbtn{padding:9px 4px;border-radius:7px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;cursor:pointer;border:2px solid;background:var(--surf);transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.pbtn span{font-size:16px}
+.pbtn.ps{border-color:var(--teal);color:var(--teal)}.pbtn.ps:hover{background:var(--teal-lt)}
+.pbtn.pk{border-color:var(--blue);color:var(--blue)}.pbtn.pk:hover{background:var(--blue-lt)}
+.pbtn.pb{border-color:var(--purple);color:var(--purple)}.pbtn.pb:hover{background:var(--purple-lt)}
+
+/* ── Preview ── */
+.preview{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.pv-top{padding:11px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg)}
+.pv-top h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink2)}
+.view-tog{display:flex;gap:4px}
+.vtbtn{padding:4px 12px;border-radius:5px;font-size:11.5px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:#fff;font-family:'Archivo',sans-serif;transition:.1s}
+.vtbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pv-body{padding:24px 20px;background:#E8E8E2;min-height:540px;display:flex;justify-content:center;align-items:flex-start}
+
+/* ── Puzzle Sheet ── */
+.sheet{background:#fff;border:1px solid #ccc;border-radius:3px;padding:22px 28px 28px;box-shadow:0 2px 16px rgba(0,0,0,.12);width:100%;font-family:'Nunito',sans-serif}
+.sheet.wide{max-width:860px}
+.sheet.narrow{max-width:680px}
+.sh-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.sh-title{font-size:12px;font-weight:800;color:#1a1a1a;font-family:'Archivo Black',sans-serif}
+.sh-src{font-size:9px;font-weight:700;color:#aaa;letter-spacing:.4px;text-transform:uppercase}
+.key-badge{display:inline-block;background:#1B4FCC;color:#fff;font-size:8px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle}
+.sh-meta{font-size:9.5px;font-weight:600;color:#444;margin-bottom:3px}
+.sh-dir{font-size:9.5px;font-weight:700;color:#333;padding-bottom:7px;border-bottom:2px solid #e0e0e0;margin-bottom:10px}
+.sh-svg svg{width:100%;height:auto;display:block}
+
+/* ── Generating state ── */
+.gen-msg{text-align:center;padding:80px 20px;color:var(--muted);font-size:14px;font-weight:600}
+.gen-msg .spin{display:inline-block;animation:spin .8s linear infinite;font-size:28px;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Print ── */
+@media print{
+  header,.sb,.pv-top,.pv-body{display:none!important}
+  .wrap{display:block;padding:0}
+  .preview{border:none;border-radius:0}
+  .sheet{border:none;box-shadow:none;padding:18px 28px 24px;max-width:100%!important}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <a class="logo" href="index.html">🔥 Facts on <em>Fire</em></a>
+    <span class="sep">›</span>
+    <span class="hdr-sub">Middle School</span>
+    <span class="sep">›</span>
+    <span class="hdr-sub" id="hdr-type-label">Puzzle Generator</span>
+    <a class="back" href="index.html">← Back to Hub</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <aside class="sb">
+
+    <!-- ── Puzzle Type ── -->
+    <div>
+      <span class="sb-label">Puzzle Type</span>
+      <div class="type-grid">
+        <button class="tbtn on" id="tbtn-sixlegs" onclick="selType('sixlegs',this)">
+          <span class="ico">⬡</span><span class="lbl">Six Legs</span>
+        </button>
+        <button class="tbtn" id="tbtn-sankaku" onclick="selType('sankaku',this)">
+          <span class="ico">△</span><span class="lbl">Sankaku</span>
+        </button>
+        <button class="tbtn" id="tbtn-zukei" onclick="selType('zukei',this)">
+          <span class="ico">◇</span><span class="lbl">Zukei</span>
+        </button>
+      </div>
+    </div>
+
+    <hr class="sb-div">
+
+    <!-- ── Difficulty ── -->
+    <div>
+      <span class="sb-label">Difficulty</span>
+      <div class="diffs" id="diff-opts"></div>
+    </div>
+
+    <hr class="sb-div">
+
+    <!-- ── Custom Title ── -->
+    <div>
+      <span class="sb-label">Custom Title <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(optional)</span></span>
+      <input class="title-inp" id="pg-title" type="text" placeholder="e.g. Warm-Up #3">
+      <div class="hint">Leave blank for the default name.</div>
+    </div>
+
+    <hr class="sb-div">
+
+    <button class="btn-gen" id="btn-gen" onclick="generate()">↻&ensp;Generate</button>
+
+    <hr class="sb-div">
+
+    <div>
+      <span class="sb-label">Download PDF</span>
+      <div class="pdf-grid">
+        <button class="pbtn ps" onclick="downloadPDF('student')"><span>📄</span>Student</button>
+        <button class="pbtn pk" onclick="downloadPDF('key')"><span>🗝</span>Key</button>
+        <button class="pbtn pb" onclick="downloadPDF('both')"><span>⬇</span>Both</button>
+      </div>
+      <div class="hint" style="margin-top:6px">Opens a print dialog for PDF saving.</div>
+    </div>
+
+  </aside>
+
+  <!-- ── Preview ── -->
+  <div class="preview">
+    <div class="pv-top">
+      <h3>Preview</h3>
+      <div class="view-tog">
+        <button class="vtbtn on" id="vt-s" onclick="setView('student')">Student</button>
+        <button class="vtbtn"    id="vt-k" onclick="setView('key')">Answer Key</button>
+      </div>
+    </div>
+    <div class="pv-body">
+      <div id="out" style="width:100%">
+        <div class="gen-msg"><div class="spin">⬡</div><br>Select a puzzle type and click Generate.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .wrap -->
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SHARED STATE & UTILITIES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let TYPE = 'sixlegs';   // 'sixlegs' | 'sankaku' | 'zukei'
+let DIFF = 0;
+let VIEW = 'student';
+
+// Six Legs state
+let SL_PUZZLE = null;
+
+// Sankaku state
+let SK_PUZZLES = [];
+
+// Zukei state
+let ZK_PUZZLES = [];
+
+const ri       = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const f        = n => n.toFixed(1);
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = ri(0, i); [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── Difficulty configs per type ───────────────────────────────────────────────
+const DIFF_OPTS = {
+  sixlegs: [
+    { l:'Beginner',     d:'Find the missing operations' },
+    { l:'Intermediate', d:'Find the missing expressions' },
+    { l:'Challenge',    d:'Multi-step — fill in all blanks' },
+  ],
+  sankaku: [
+    { l:'Beginner',     d:'3×3 grid · areas 1–3 · 6 dots' },
+    { l:'Intermediate', d:'4×4 grid · areas 1–8 · 7 dots' },
+    { l:'Challenge',    d:'4×4 grid · larger areas · 8 dots' },
+  ],
+  zukei: [
+    { l:'Beginner',     d:'Squares & rectangles · 4×4 grid' },
+    { l:'Intermediate', d:'Triangles & trapezoids · 4×4 grid' },
+    { l:'Advanced',     d:'Mixed shapes · 5×5 grid' },
+  ],
+};
+
+// ── UI wiring ─────────────────────────────────────────────────────────────────
+function selType(type, btn) {
+  TYPE = type;
+  DIFF = 0;
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator' };
+  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1' };
+  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles' };
+  document.getElementById('hdr-type-label').textContent    = labels[type];
+  document.getElementById('pg-title').placeholder          = placeholders[type];
+  document.getElementById('btn-gen').textContent           = genLabels[type];
+  renderDiffOpts();
+  generate();
+}
+
+function renderDiffOpts() {
+  const opts = DIFF_OPTS[TYPE];
+  const el   = document.getElementById('diff-opts');
+  el.innerHTML = opts.map((o, i) => `
+    <label>
+      <input type="radio" name="diff" value="${i}" ${i === DIFF ? 'checked' : ''} onchange="onDiffChange()">
+      <span><span class="dl">${o.l}</span><br><span class="dd">${o.d}</span></span>
+    </label>`).join('');
+}
+
+function onDiffChange() {
+  DIFF = parseInt(document.querySelector('input[name="diff"]:checked').value);
+  generate();
+}
+
+function setView(v) {
+  VIEW = v;
+  document.getElementById('vt-s').classList.toggle('on', v === 'student');
+  document.getElementById('vt-k').classList.toggle('on', v === 'key');
+  refresh();
+}
+
+function refresh() {
+  const out = document.getElementById('out');
+  if (TYPE === 'sixlegs') {
+    if (!SL_PUZZLE) return;
+    out.innerHTML = sl_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'sankaku') {
+    if (!SK_PUZZLES.length) return;
+    out.innerHTML = sk_buildSheet(VIEW === 'key');
+  } else {
+    if (!ZK_PUZZLES.length) return;
+    out.innerHTML = zk_buildSheet(VIEW === 'key');
+  }
+}
+
+function generate() {
+  DIFF = parseInt(document.querySelector('input[name="diff"]:checked')?.value ?? '0');
+  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : '◇';
+  document.getElementById('out').innerHTML =
+    `<div class="gen-msg"><div class="spin">${ico}</div><br>Generating…</div>`;
+  requestAnimationFrame(() => setTimeout(() => {
+    if (TYPE === 'sixlegs') {
+      const gen = [sl_genBeginner, sl_genIntermediate, sl_genChallenge][DIFF];
+      SL_PUZZLE = gen();
+      if (!SL_PUZZLE) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzle. Try again.</div>`;
+        return;
+      }
+    } else if (TYPE === 'sankaku') {
+      const cfg   = SK_CONFIGS[DIFF];
+      const areas = cfg.getAreas();
+      SK_PUZZLES  = areas.map(area => sk_genPuzzle(cfg.gridSize, area, cfg.numDots) || {
+        dots:[], solution:null, targetArea:area, gridSize:cfg.gridSize
+      });
+    } else {
+      const cfg = ZK_CONFIGS[DIFF];
+      const pool = []; while (pool.length < 6) pool.push(...cfg.shapes);
+      const picked = shuffle(pool.slice(0, 6));
+      ZK_PUZZLES = picked.map(shape =>
+        zk_genPuzzle(cfg.gridSize, shape, cfg.numDots) ||
+        { dots:[], solution:null, shapeType:shape, gridSize:cfg.gridSize }
+      );
+    }
+    refresh();
+  }, 20));
+}
+
+// ── Print CSS (shared across both types) ─────────────────────────────────────
+const PRINT_CSS_BASE = `
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Nunito',sans-serif;background:#fff}
+  .sh-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+  .sh-title{font-family:'Archivo Black',sans-serif;font-size:12px;font-weight:800;color:#1a1a1a}
+  .sh-src{font-size:9px;font-weight:700;color:#aaa;letter-spacing:.4px;text-transform:uppercase}
+  .key-badge{display:inline-block;background:#1B4FCC;color:#fff;font-size:8px;font-weight:800;
+    letter-spacing:.5px;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;font-family:'Archivo',sans-serif}
+  .sh-meta{font-size:9.5px;font-weight:600;color:#444;margin-bottom:3px}
+  .sh-dir{font-size:9.5px;font-weight:700;color:#333;padding-bottom:7px;border-bottom:2px solid #e0e0e0;margin-bottom:10px}
+  .sh-svg svg{width:100%;height:auto;display:block}
+  @page{size:letter;margin:.55in .7in}
+  @media print{.page-break{page-break-after:always}}`;
+
+function downloadPDF(mode) {
+  const ready = TYPE === 'sixlegs' ? !!SL_PUZZLE :
+                TYPE === 'sankaku' ? SK_PUZZLES.length > 0 :
+                ZK_PUZZLES.length > 0;
+  if (!ready) { alert('Generate a puzzle first.'); return; }
+
+  const title  = document.getElementById('pg-title').value.trim() ||
+    (TYPE === 'sixlegs' ? SL_TITLES[DIFF] : TYPE === 'sankaku' ? SK_TITLES[DIFF] : ZK_TITLES[DIFF]);
+  const sheets = TYPE === 'sixlegs'
+    ? { s: sl_printSheet(false, title), k: sl_printSheet(true, title) }
+    : TYPE === 'sankaku'
+    ? { s: sk_printSheet(false, title), k: sk_printSheet(true, title) }
+    : { s: zk_printSheet(false, title), k: zk_printSheet(true, title) };
+  const typeCSS = TYPE === 'sixlegs'
+    ? `.sheet{padding:18px 32px 28px;max-width:860px;margin:0 auto}`
+    : `.sheet{padding:18px 28px 22px;max-width:680px;margin:0 auto}`;
+
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>${PRINT_CSS_BASE}${typeCSS}</style></head><body>`;
+
+  if (mode === 'student' || mode === 'both') html += sheets.s;
+  if (mode === 'both')                       html += `<div class="page-break"></div>`;
+  if (mode === 'key'     || mode === 'both') html += sheets.k;
+
+  html += `<script>window.onload=function(){window.print();}<\/script></body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if (!win) { const a = document.createElement('a'); a.href=url; a.download='puzzle.html'; a.click(); }
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SIX LEGS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SL_TITLES = [
+  'Six Legs — Missing Operations',
+  'Six Legs — Missing Expressions',
+  'Six Legs — Multi-Step Challenge',
+];
+const SL_DIRS = [
+  'Start in the middle. Apply operations along each arm outward. Find the <strong>missing operations</strong> in the blank circles.',
+  'Start in the middle. Apply operations along each arm outward. Find the <strong>missing expression</strong> at the end of each arm.',
+  'Start in the middle. Apply operations along each arm outward. Fill in <strong>all missing expressions</strong> along each arm.',
+];
+
+// ── Expression helpers ────────────────────────────────────────────────────────
+function sl_exprStr(a, b) {
+  const coef = a === 1 ? 't' : `${a}t`;
+  if (b === 0) return coef;
+  if (b > 0)   return `${coef} + ${b}`;
+  return `${coef} \u2212 ${Math.abs(b)}`;
+}
+function sl_opLabel(type, n) {
+  const sym = {'+':'+','-':'\u2212','\u00d7':'\u00d7','\u00f7':'\u00f7'}[type] ?? type;
+  return `${sym} ${n}`;
+}
+function sl_applyOp(a, b, type, n) {
+  if (type === '+')      return { a, b: b + n };
+  if (type === '-')      return b - n >= 0 ? { a, b: b - n } : null;
+  if (type === '\u00d7') return { a: a*n, b: b*n };
+  if (type === '\u00f7') return (a%n===0 && b%n===0) ? { a:a/n, b:b/n } : null;
+  return null;
+}
+function sl_validOps(a, b, level) {
+  const pool = [];
+  const addNs = level < 2 ? [5,10,15,20] : [1,2,3,4,5,6];
+  const mulNs = level < 2 ? [2,3,4,5]    : [2,3,4,5,6];
+  const divNs = [2,3,4,5,6,10];
+  for (const n of addNs) { pool.push({type:'+',n}); if(b-n>=0) pool.push({type:'-',n}); }
+  for (const n of mulNs) pool.push({type:'\u00d7',n});
+  for (const n of divNs) if(a%n===0 && b%n===0 && a/n>=1) pool.push({type:'\u00f7',n});
+  return pool;
+}
+function sl_pickOpPair(a, b, level, usedKeys) {
+  for (const op1 of shuffle(sl_validOps(a, b, level))) {
+    const mid = sl_applyOp(a, b, op1.type, op1.n);
+    if (!mid) continue;
+    for (const op2 of shuffle(sl_validOps(mid.a, mid.b, level))) {
+      const end = sl_applyOp(mid.a, mid.b, op2.type, op2.n);
+      if (!end) continue;
+      if (end.a===a && end.b===b) continue;
+      if (mid.a===a && mid.b===b) continue;
+      const key = `${op1.type}${op1.n}|${op2.type}${op2.n}`;
+      if (usedKeys.has(key)) continue;
+      usedKeys.add(key);
+      return { op1, op2, mid, end };
+    }
+  }
+  return null;
+}
+
+// ── Generators ────────────────────────────────────────────────────────────────
+function sl_genBeginner() {
+  const centers = shuffle([
+    {a:10,b:30},{a:12,b:24},{a:6,b:18},{a:8,b:24},
+    {a:10,b:20},{a:12,b:36},{a:6,b:12},{a:8,b:16},
+    {a:4,b:20},{a:10,b:40},{a:15,b:30},{a:6,b:30},
+  ]);
+  for (const {a,b} of centers) {
+    const usedKeys = new Set(), arms = [];
+    let ok = true;
+    for (let i = 0; i < 6; i++) {
+      const r = sl_pickOpPair(a, b, 0, usedKeys);
+      if (!r) { ok=false; break; }
+      const bf = (i%2===0);
+      arms.push([
+        {t: bf?'blank-op':'op', v:sl_opLabel(r.op1.type,r.op1.n), a:sl_opLabel(r.op1.type,r.op1.n)},
+        {t: bf?'op':'blank-op', v:sl_opLabel(r.op2.type,r.op2.n), a:sl_opLabel(r.op2.type,r.op2.n)},
+        {t:'expr', v:sl_exprStr(r.end.a,r.end.b)},
+      ]);
+    }
+    if (ok) return { center:sl_exprStr(a,b), arms };
+  }
+  return null;
+}
+function sl_genIntermediate() {
+  const centers = shuffle([
+    {a:6,b:12},{a:4,b:8},{a:8,b:16},{a:3,b:9},
+    {a:5,b:15},{a:6,b:24},{a:4,b:12},{a:10,b:20},
+    {a:6,b:18},{a:8,b:24},{a:4,b:16},{a:5,b:20},
+  ]);
+  for (const {a,b} of centers) {
+    const usedKeys = new Set(), arms = [];
+    let ok = true;
+    for (let i = 0; i < 6; i++) {
+      const r = sl_pickOpPair(a, b, 1, usedKeys);
+      if (!r) { ok=false; break; }
+      arms.push([
+        {t:'op',        v:sl_opLabel(r.op1.type,r.op1.n)},
+        {t:'op',        v:sl_opLabel(r.op2.type,r.op2.n)},
+        {t:'blank-expr',a:sl_exprStr(r.end.a,r.end.b)},
+      ]);
+    }
+    if (ok) return { center:sl_exprStr(a,b), arms };
+  }
+  return null;
+}
+function sl_genChallenge() {
+  const centers = shuffle([
+    {a:1,b:3},{a:2,b:4},{a:1,b:2},{a:2,b:6},
+    {a:1,b:4},{a:3,b:6},{a:2,b:2},{a:1,b:5},
+    {a:2,b:8},{a:3,b:3},{a:1,b:6},{a:2,b:10},
+  ]);
+  for (const {a,b} of centers) {
+    const usedKeys = new Set(), arms = [];
+    let ok = true;
+    for (let i = 0; i < 6; i++) {
+      let found = false;
+      for (const op1 of shuffle(sl_validOps(a, b, 2))) {
+        const mid = sl_applyOp(a, b, op1.type, op1.n);
+        if (!mid || (mid.a===a && mid.b===b)) continue;
+        for (const op2 of shuffle(sl_validOps(mid.a, mid.b, 2))) {
+          const end = sl_applyOp(mid.a, mid.b, op2.type, op2.n);
+          if (!end || (end.a===mid.a && end.b===mid.b) || (end.a===a && end.b===b)) continue;
+          const key = `${op1.type}${op1.n}|${op2.type}${op2.n}`;
+          if (usedKeys.has(key)) continue;
+          usedKeys.add(key);
+          arms.push([
+            {t:'op',         v:sl_opLabel(op1.type,op1.n)},
+            {t:'blank-expr', a:sl_exprStr(mid.a,mid.b)},
+            {t:'op',         v:sl_opLabel(op2.type,op2.n)},
+            {t:'blank-expr', a:sl_exprStr(end.a,end.b)},
+          ]);
+          found = true; break;
+        }
+        if (found) break;
+      }
+      if (!found) { ok=false; break; }
+    }
+    if (ok) return { center:sl_exprStr(a,b), arms };
+  }
+  return null;
+}
+
+// ── SVG Renderer ──────────────────────────────────────────────────────────────
+const SL_DIRS_VEC = [
+  { dx:1,    dy:0   }, { dx:Math.SQRT1_2, dy:-Math.SQRT1_2 },
+  { dx:-Math.SQRT1_2, dy:-Math.SQRT1_2 }, { dx:-1, dy:0 },
+  { dx:-Math.SQRT1_2, dy:Math.SQRT1_2  }, { dx:Math.SQRT1_2, dy:Math.SQRT1_2 },
+];
+function sl_ellipseEdge(rx, ry, dx, dy) {
+  const a=dx/rx, b=dy/ry; return (a===0&&b===0)?rx:1/Math.sqrt(a*a+b*b);
+}
+function sl_shapeEdge(node, dx, dy, OR, ER) {
+  return (node.t==='op'||node.t==='blank-op') ? OR : sl_ellipseEdge(ER.rx,ER.ry,dx,dy);
+}
+function sl_svgText(x,y,text,size,fill,weight) {
+  return `<text x="${f(x)}" y="${f(y)}" text-anchor="middle" dominant-baseline="central" font-family="Archivo,sans-serif" font-size="${size}" fill="${fill}" font-weight="${weight}">${text}</text>`;
+}
+function sl_svgArrow(x1,y1,x2,y2) {
+  return `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="#444" stroke-width="1.6" marker-end="url(#sl-ah)"/>`;
+}
+function sl_renderSVG(puzzle, showAnswers) {
+  const armLen = puzzle.arms[0].length;
+  const isCh   = armLen === 4;
+  const W = isCh ? 980 : 760, H = isCh ? 780 : 620;
+  const CX = W/2, CY = H/2;
+  const CR = {rx:60,ry:32}, OR = 22, ER = {rx:50,ry:26}, GAP = 26, APAD = 4;
+
+  const armNodes = puzzle.arms.map((arm, ai) => {
+    const {dx,dy} = SL_DIRS_VEC[ai];
+    let dist = sl_ellipseEdge(CR.rx,CR.ry,dx,dy);
+    return arm.map(node => {
+      const edge = sl_shapeEdge(node,dx,dy,OR,ER);
+      dist += GAP + edge;
+      const pos = {...node, x:CX+dist*dx, y:CY+dist*dy, edge};
+      dist += edge; return pos;
+    });
+  });
+
+  let lines='', shapes='';
+  puzzle.arms.forEach((_,ai) => {
+    const {dx,dy} = SL_DIRS_VEC[ai], an = armNodes[ai];
+    const ce = sl_ellipseEdge(CR.rx,CR.ry,dx,dy);
+    lines += sl_svgArrow(CX+(ce+APAD)*dx, CY+(ce+APAD)*dy,
+      an[0].x-(an[0].edge+APAD)*dx, an[0].y-(an[0].edge+APAD)*dy);
+    for (let j=0;j<an.length-1;j++) {
+      const from=an[j], to=an[j+1];
+      lines += sl_svgArrow(from.x+(from.edge+APAD)*dx, from.y+(from.edge+APAD)*dy,
+        to.x-(to.edge+APAD)*dx, to.y-(to.edge+APAD)*dy);
+    }
+  });
+
+  shapes += `<ellipse cx="${f(CX)}" cy="${f(CY)}" rx="${CR.rx}" ry="${CR.ry}" fill="white" stroke="#111" stroke-width="3.5"/>`;
+  shapes += sl_svgText(CX,CY,puzzle.center,15,'#111','800');
+
+  puzzle.arms.forEach((_,ai) => {
+    armNodes[ai].forEach(node => {
+      const isCircle = node.t==='op'||node.t==='blank-op';
+      const isBlank  = node.t==='blank-op'||node.t==='blank-expr';
+      const showAns  = isBlank && showAnswers;
+      const fill   = showAns ? '#E0F5F2' : 'white';
+      const stroke = isBlank&&!showAns ? '#BBBBBB' : '#333';
+      const dash   = isBlank&&!showAns ? 'stroke-dasharray="5,3"' : '';
+      if (isCircle) {
+        shapes += `<circle cx="${f(node.x)}" cy="${f(node.y)}" r="${OR}" fill="${fill}" stroke="${stroke}" stroke-width="1.5" ${dash}/>`;
+        const lbl = isBlank?(showAns?node.a:''):node.v;
+        if (lbl) shapes += sl_svgText(node.x,node.y,lbl,12,showAns?'#005A52':'#111','700');
+      } else {
+        shapes += `<ellipse cx="${f(node.x)}" cy="${f(node.y)}" rx="${ER.rx}" ry="${ER.ry}" fill="${fill}" stroke="${stroke}" stroke-width="1.5" ${dash}/>`;
+        const lbl = isBlank?(showAns?node.a:''):node.v;
+        if (lbl) shapes += sl_svgText(node.x,node.y,lbl,13,showAns?'#005A52':'#111',showAns?'700':'600');
+      }
+    });
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+    <defs><marker id="sl-ah" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto">
+      <polygon points="0,0 9,3.5 0,7" fill="#444"/></marker></defs>
+    ${lines}${shapes}</svg>`;
+}
+
+// ── Sheet builders ────────────────────────────────────────────────────────────
+function sl_sheetHTML(isKey, title) {
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  return `<div class="sheet wide">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${SL_DIRS[DIFF]}</div>
+    <div class="sh-svg">${sl_renderSVG(SL_PUZZLE, isKey)}</div>
+  </div>`;
+}
+function sl_buildSheet(isKey) {
+  const title = document.getElementById('pg-title').value.trim() || SL_TITLES[DIFF];
+  return sl_sheetHTML(isKey, title);
+}
+function sl_printSheet(isKey, title) { return sl_sheetHTML(isKey, title); }
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SANKAKU
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SK_TITLES = [
+  'Sankaku — 3×3 Grid',
+  'Sankaku — 4×4 Grid',
+  'Sankaku — 4×4 Challenge',
+];
+const SK_DIRS = [
+  'Connect three dots to form a triangle with the given area. Each grid square = 1 square unit.',
+  'Connect three dots to form a triangle with the given area. Each grid square = 1 square unit.',
+  'Connect three dots to form a triangle with the given area. Each grid square = 1 square unit.',
+];
+
+const SK_CONFIGS = [
+  { gridSize:3, cellPx:52, numDots:6,  getAreas:()=>shuffle([1,1,2,2,3,3]) },
+  { gridSize:4, cellPx:40, numDots:7,  getAreas:()=>shuffle([1,2,3,4,6,8]) },
+  { gridSize:4, cellPx:40, numDots:8,  getAreas:()=>shuffle([3,4,5,6,7,8]).slice(0,6) },
+];
+
+// ── Triangle helpers ──────────────────────────────────────────────────────────
+const sk_triArea = ([x1,y1],[x2,y2],[x3,y3]) =>
+  Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;
+
+function sk_genPuzzle(gridSize, targetArea, numDots, maxTries=1000) {
+  const all=[];
+  for (let r=0;r<=gridSize;r++) for (let c=0;c<=gridSize;c++) all.push([c,r]);
+  const valid=[];
+  for (let i=0;i<all.length;i++)
+    for (let j=i+1;j<all.length;j++)
+      for (let k=j+1;k<all.length;k++)
+        if (sk_triArea(all[i],all[j],all[k])===targetArea) valid.push([i,j,k]);
+  if (!valid.length) return null;
+
+  for (let t=0;t<maxTries;t++) {
+    const trip = valid[ri(0,valid.length-1)];
+    const solSet = new Set(trip);
+    const solPts = trip.map(i=>all[i]);
+    const remain = shuffle(all.filter((_,i)=>!solSet.has(i)));
+    const dots = [...solPts];
+    for (const d of remain) {
+      if (dots.length>=numDots) break;
+      let conflict=false;
+      for (let a=0;a<dots.length&&!conflict;a++)
+        for (let b=a+1;b<dots.length&&!conflict;b++)
+          if (sk_triArea(dots[a],dots[b],d)===targetArea) conflict=true;
+      if (!conflict) dots.push(d);
+    }
+    if (dots.length>=Math.min(numDots,5)) {
+      shuffle(dots);
+      return {dots, solution:solPts, targetArea, gridSize};
+    }
+  }
+  return null;
+}
+
+// ── SVG Renderer ──────────────────────────────────────────────────────────────
+const SK_PAGE_COLS=3, SK_PAGE_ROWS=2;
+const SK_PUZ_W=190, SK_PUZ_H=230;
+const SK_COL_GAP=10, SK_ROW_GAP=14, SK_MX=8, SK_MY=8;
+const SK_SVG_W = SK_PAGE_COLS*SK_PUZ_W + (SK_PAGE_COLS-1)*SK_COL_GAP + 2*SK_MX;
+const SK_SVG_H = SK_PAGE_ROWS*SK_PUZ_H + (SK_PAGE_ROWS-1)*SK_ROW_GAP + 2*SK_MY;
+
+function sk_renderPage(puzzles, cellPx, isKey) {
+  let s=`<svg viewBox="0 0 ${SK_SVG_W} ${SK_SVG_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">`;
+  for (let i=0;i<SK_PAGE_COLS*SK_PAGE_ROWS;i++) {
+    const col=i%SK_PAGE_COLS, row=Math.floor(i/SK_PAGE_COLS);
+    const px=SK_MX+col*(SK_PUZ_W+SK_COL_GAP), py=SK_MY+row*(SK_PUZ_H+SK_ROW_GAP);
+    s += sk_renderOne(puzzles[i]||null, px, py, cellPx, isKey, i+1);
+  }
+  return s+'</svg>';
+}
+
+function sk_renderOne(puz, px, py, cellPx, isKey, num) {
+  if (!puz||!puz.dots||!puz.dots.length)
+    return `<text x="${px+SK_PUZ_W/2}" y="${py+SK_PUZ_H/2}" text-anchor="middle"
+      font-family="Archivo,sans-serif" font-size="11" fill="#ccc">—</text>`;
+  const N=puz.gridSize, GRID_PX=N*cellPx, DASH_PAD=8;
+  const gx=px+(SK_PUZ_W-GRID_PX)/2, gy=py+22;
+  let s='';
+  s+=`<text x="${px+6}" y="${py+15}" font-family="Archivo,sans-serif" font-size="11" fill="#888" font-weight="600">(${num})</text>`;
+  const fx=gx-DASH_PAD, fy=gy-DASH_PAD, fw=GRID_PX+2*DASH_PAD, fh=GRID_PX+2*DASH_PAD;
+  s+=`<rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" fill="none" stroke="#bbb" stroke-width="1.1" stroke-dasharray="5,3.5" rx="3"/>`;
+  s+=`<rect x="${gx}" y="${gy}" width="${GRID_PX}" height="${GRID_PX}" fill="white" stroke="#2a2a2a" stroke-width="1.6"/>`;
+  for (let r=1;r<N;r++) { const y=gy+r*cellPx; s+=`<line x1="${gx}" y1="${y}" x2="${gx+GRID_PX}" y2="${y}" stroke="#aaa" stroke-width="0.75" stroke-dasharray="4,3"/>`; }
+  for (let c=1;c<N;c++) { const x=gx+c*cellPx; s+=`<line x1="${x}" y1="${gy}" x2="${x}" y2="${gy+GRID_PX}" stroke="#aaa" stroke-width="0.75" stroke-dasharray="4,3"/>`; }
+  if (isKey && puz.solution) {
+    const pts=puz.solution.map(([c,r])=>`${gx+c*cellPx},${gy+r*cellPx}`).join(' ');
+    s+=`<polygon points="${pts}" fill="rgba(27,79,204,0.14)" stroke="#1B4FCC" stroke-width="2.2" stroke-linejoin="round"/>`;
+  }
+  for (const [c,r] of puz.dots) s+=`<circle cx="${gx+c*cellPx}" cy="${gy+r*cellPx}" r="5" fill="#111"/>`;
+  s+=`<text x="${gx+GRID_PX/2}" y="${gy+GRID_PX+22}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="15" font-weight="700" fill="#111">Area = ${puz.targetArea}</text>`;
+  return s;
+}
+
+// ── Sheet builders ────────────────────────────────────────────────────────────
+function sk_sheetHTML(isKey, title) {
+  const cfg   = SK_CONFIGS[DIFF];
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  return `<div class="sheet narrow">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${SK_DIRS[DIFF]}</div>
+    <div class="sh-svg">${sk_renderPage(SK_PUZZLES, cfg.cellPx, isKey)}</div>
+  </div>`;
+}
+function sk_buildSheet(isKey) {
+  const title = document.getElementById('pg-title').value.trim() || SK_TITLES[DIFF];
+  return sk_sheetHTML(isKey, title);
+}
+function sk_printSheet(isKey, title) { return sk_sheetHTML(isKey, title); }
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ZUKEI
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ZK_TITLES = [
+  'Zukei — Squares & Rectangles',
+  'Zukei — Triangles & Trapezoids',
+  'Zukei — Mixed Shapes',
+];
+const ZK_DIRS = [
+  'Find and circle the dots that form the named shape. Each puzzle has exactly one correct answer.',
+  'Find and circle the dots that form the named shape. Each puzzle has exactly one correct answer.',
+  'Find and circle the dots that form the named shape. Each puzzle has exactly one correct answer.',
+];
+
+const ZK_CONFIGS = [
+  { gridSize:4, cellPx:44, numDots:6,  shapes:['square','rectangle'] },
+  { gridSize:4, cellPx:44, numDots:7,  shapes:['rightTriangle','isoscelesTriangle','isoscelesRightTriangle','trapezoid'] },
+  { gridSize:5, cellPx:36, numDots:9,  shapes:['rightTriangle','isoscelesTriangle','isoscelesRightTriangle','trapezoid','rhombus','parallelogram'] },
+];
+
+const ZK_SHAPE_K = {
+  square:4, rectangle:4, rhombus:4, parallelogram:4, trapezoid:4,
+  rightTriangle:3, isoscelesTriangle:3, isoscelesRightTriangle:3,
+};
+
+const ZK_LABEL_LINES = {
+  square:               ['Square'],
+  rectangle:            ['Rectangle'],
+  rightTriangle:        ['Right Triangle'],
+  isoscelesTriangle:    ['Isosceles Triangle'],
+  isoscelesRightTriangle:['Isosceles Right', 'Triangle'],
+  trapezoid:            ['Trapezoid'],
+  rhombus:              ['Rhombus'],
+  parallelogram:        ['Parallelogram'],
+};
+
+// ── Math helpers ──────────────────────────────────────────────────────────────
+const zk_d2    = (a,b) => (b[0]-a[0])**2 + (b[1]-a[1])**2;
+const zk_sub   = (b,a) => [b[0]-a[0], b[1]-a[1]];
+const zk_dot   = (u,v) => u[0]*v[0] + u[1]*v[1];
+const zk_cr2   = (u,v) => u[0]*v[1] - u[1]*v[0];
+const zk_col3  = (a,b,c) => zk_cr2(zk_sub(b,a), zk_sub(c,a)) === 0;
+
+// Return 4 points in convex (CCW or CW) order, or null if not convex.
+function zk_convex4(p) {
+  const orderings = [
+    [p[0],p[1],p[2],p[3]],
+    [p[0],p[1],p[3],p[2]],
+    [p[0],p[2],p[1],p[3]],
+  ];
+  for (const o of orderings) {
+    const [A,B,C,D] = o;
+    const crosses = [
+      zk_cr2(zk_sub(B,A), zk_sub(C,B)),
+      zk_cr2(zk_sub(C,B), zk_sub(D,C)),
+      zk_cr2(zk_sub(D,C), zk_sub(A,D)),
+      zk_cr2(zk_sub(A,D), zk_sub(B,A)),
+    ];
+    if (crosses.every(c=>c>0) || crosses.every(c=>c<0)) return o;
+  }
+  return null;
+}
+
+// ── Shape classifiers ─────────────────────────────────────────────────────────
+// Returns shape kind string for 3 non-collinear points.
+function zk_triKind(pts) {
+  const [A,B,C] = pts;
+  if (zk_col3(A,B,C)) return null;
+  const rightA = zk_dot(zk_sub(B,A), zk_sub(C,A)) === 0;
+  const rightB = zk_dot(zk_sub(A,B), zk_sub(C,B)) === 0;
+  const rightC = zk_dot(zk_sub(A,C), zk_sub(B,C)) === 0;
+  const isRight = rightA || rightB || rightC;
+  const ab=zk_d2(A,B), bc=zk_d2(B,C), ca=zk_d2(C,A);
+  const isIso = ab===bc || bc===ca || ca===ab;
+  if (isRight && isIso) return 'isoscelesRightTriangle';
+  if (isRight)          return 'rightTriangle';
+  if (isIso)            return 'isoscelesTriangle';
+  return 'scalene';
+}
+
+// Returns shape kind string for 4 points (requires convex, no 3 collinear).
+function zk_quadKind(pts) {
+  for (let i=0;i<4;i++) for (let j=i+1;j<4;j++) for (let k=j+1;k<4;k++)
+    if (zk_col3(pts[i],pts[j],pts[k])) return null;
+  const ord = zk_convex4(pts);
+  if (!ord) return null;
+  const [A,B,C,D] = ord;
+  // Parallelogram: diagonals (AC and BD) bisect each other
+  const isPara = (A[0]+C[0]===B[0]+D[0]) && (A[1]+C[1]===B[1]+D[1]);
+  if (isPara) {
+    const sidesEq = zk_d2(A,B) === zk_d2(B,C);
+    const diagEq  = zk_d2(A,C) === zk_d2(B,D);
+    if (sidesEq && diagEq) return 'square';
+    if (diagEq)            return 'rectangle';
+    if (sidesEq)           return 'rhombus';
+    return 'parallelogram';
+  }
+  // Trapezoid: exactly one pair of parallel opposite sides
+  const AB=zk_sub(B,A), BC=zk_sub(C,B), CD=zk_sub(D,C), DA=zk_sub(A,D);
+  const p1 = zk_cr2(AB,CD) === 0;  // AB ∥ CD
+  const p2 = zk_cr2(BC,DA) === 0;  // BC ∥ DA
+  if (p1 !== p2) return 'trapezoid';
+  return 'irregular';
+}
+
+// ── Shape predicates (mutually exclusive) ────────────────────────────────────
+const ZK_CHECKERS = {
+  square:                pts => zk_quadKind(pts) === 'square',
+  rectangle:             pts => zk_quadKind(pts) === 'rectangle',
+  rhombus:               pts => zk_quadKind(pts) === 'rhombus',
+  parallelogram:         pts => zk_quadKind(pts) === 'parallelogram',
+  trapezoid:             pts => zk_quadKind(pts) === 'trapezoid',
+  rightTriangle:         pts => zk_triKind(pts)  === 'rightTriangle',
+  isoscelesTriangle:     pts => zk_triKind(pts)  === 'isoscelesTriangle',
+  isoscelesRightTriangle:pts => zk_triKind(pts)  === 'isoscelesRightTriangle',
+};
+
+// ── Combo helper ──────────────────────────────────────────────────────────────
+function zk_kCombos(arr, k) {
+  const result = [];
+  (function go(start, combo) {
+    if (combo.length === k) { result.push([...combo]); return; }
+    for (let i=start; i<=arr.length-(k-combo.length); i++) {
+      combo.push(arr[i]); go(i+1, combo); combo.pop();
+    }
+  })(0, []);
+  return result;
+}
+
+const zk_ptKey = p => p[0]*100 + p[1];
+
+// ── Puzzle generator ──────────────────────────────────────────────────────────
+function zk_genPuzzle(gridSize, shapeType, numDots, maxTries=600) {
+  const all = [];
+  for (let r=0; r<=gridSize; r++)
+    for (let c=0; c<=gridSize; c++) all.push([c,r]);
+
+  const k     = ZK_SHAPE_K[shapeType];
+  const check = ZK_CHECKERS[shapeType];
+
+  // Pre-compute all valid solution instances on this grid
+  const valid = zk_kCombos(all, k).filter(check);
+  if (!valid.length) return null;
+
+  for (let t=0; t<maxTries; t++) {
+    const sol     = valid[ri(0, valid.length-1)];
+    const solKeys = new Set(sol.map(zk_ptKey));
+    const remain  = shuffle(all.filter(p => !solKeys.has(zk_ptKey(p))));
+
+    const dots = [...sol];
+
+    for (const d of remain) {
+      if (dots.length >= numDots) break;
+      // Check all (k-1)-subsets of current dots + d for shape conflict
+      let conflict = false;
+      for (const sub of zk_kCombos(dots, k-1)) {
+        if (check([...sub, d])) { conflict = true; break; }
+      }
+      if (!conflict) dots.push(d);
+    }
+
+    if (dots.length >= numDots - 1) {
+      shuffle(dots);
+      return { dots, solution:sol, shapeType, gridSize };
+    }
+  }
+  return null;
+}
+
+// ── SVG constants ─────────────────────────────────────────────────────────────
+const ZK_PAGE_COLS=3, ZK_PAGE_ROWS=2;
+const ZK_PUZ_W=208, ZK_PUZ_H=248;
+const ZK_COL_GAP=8, ZK_ROW_GAP=12, ZK_MX=8, ZK_MY=8;
+const ZK_SVG_W = ZK_PAGE_COLS*ZK_PUZ_W + (ZK_PAGE_COLS-1)*ZK_COL_GAP + 2*ZK_MX;
+const ZK_SVG_H = ZK_PAGE_ROWS*ZK_PUZ_H + (ZK_PAGE_ROWS-1)*ZK_ROW_GAP + 2*ZK_MY;
+
+function zk_renderPage(puzzles, cellPx, isKey) {
+  let s = `<svg viewBox="0 0 ${ZK_SVG_W} ${ZK_SVG_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">`;
+  for (let i=0; i<ZK_PAGE_COLS*ZK_PAGE_ROWS; i++) {
+    const col = i%ZK_PAGE_COLS, row = Math.floor(i/ZK_PAGE_COLS);
+    const px = ZK_MX + col*(ZK_PUZ_W+ZK_COL_GAP);
+    const py = ZK_MY + row*(ZK_PUZ_H+ZK_ROW_GAP);
+    s += zk_renderOne(puzzles[i]||null, px, py, cellPx, isKey, i+1);
+  }
+  return s+'</svg>';
+}
+
+function zk_renderOne(puz, px, py, cellPx, isKey, num) {
+  if (!puz || !puz.dots || !puz.dots.length)
+    return `<text x="${px+ZK_PUZ_W/2}" y="${py+ZK_PUZ_H/2}" text-anchor="middle"
+      font-family="Archivo,sans-serif" font-size="11" fill="#ccc">—</text>`;
+
+  const N       = puz.gridSize;
+  const GRID_PX = N * cellPx;
+  const DASH_PAD = 8;
+  const gx = px + Math.round((ZK_PUZ_W - GRID_PX) / 2);
+  const gy = py + 22;
+  let s = '';
+
+  // Puzzle number
+  s += `<text x="${px+6}" y="${py+15}" font-family="Archivo,sans-serif" font-size="11" fill="#888" font-weight="600">(${num})</text>`;
+
+  // Dashed outer frame
+  s += `<rect x="${gx-DASH_PAD}" y="${gy-DASH_PAD}" width="${GRID_PX+2*DASH_PAD}" height="${GRID_PX+2*DASH_PAD}"
+    fill="none" stroke="#bbb" stroke-width="1.1" stroke-dasharray="5,3.5" rx="2"/>`;
+
+  // Solid grid border
+  s += `<rect x="${gx}" y="${gy}" width="${GRID_PX}" height="${GRID_PX}"
+    fill="white" stroke="#2a2a2a" stroke-width="1.6"/>`;
+
+  // Dashed interior grid lines
+  for (let r=1; r<N; r++) {
+    const y = gy + r*cellPx;
+    s += `<line x1="${gx}" y1="${y}" x2="${gx+GRID_PX}" y2="${y}" stroke="#aaa" stroke-width="0.75" stroke-dasharray="4,3"/>`;
+  }
+  for (let c=1; c<N; c++) {
+    const x = gx + c*cellPx;
+    s += `<line x1="${x}" y1="${gy}" x2="${x}" y2="${gy+GRID_PX}" stroke="#aaa" stroke-width="0.75" stroke-dasharray="4,3"/>`;
+  }
+
+  // Answer key: filled solution polygon
+  if (isKey && puz.solution && puz.solution.length) {
+    let solPts = puz.solution.length === 3
+      ? puz.solution
+      : (zk_convex4(puz.solution) || puz.solution);
+    const pts = solPts.map(([c,r]) => `${gx+c*cellPx},${gy+r*cellPx}`).join(' ');
+    s += `<polygon points="${pts}" fill="rgba(27,79,204,0.14)" stroke="#1B4FCC" stroke-width="2.2" stroke-linejoin="round"/>`;
+  }
+
+  // Dots
+  for (const [c,r] of puz.dots)
+    s += `<circle cx="${gx+c*cellPx}" cy="${gy+r*cellPx}" r="4.5" fill="#111"/>`;
+
+  // Shape label (supports 1 or 2 lines)
+  const lines   = ZK_LABEL_LINES[puz.shapeType] || [puz.shapeType];
+  const labelY  = gy + GRID_PX + 20;
+  const fontSize = lines.length === 1 ? 14 : 13;
+  s += `<text x="${gx+GRID_PX/2}" y="${labelY}" text-anchor="middle"
+    font-family="Archivo,sans-serif" font-size="${fontSize}" font-weight="700" fill="#111">${lines[0]}</text>`;
+  if (lines.length > 1)
+    s += `<text x="${gx+GRID_PX/2}" y="${labelY+16}" text-anchor="middle"
+      font-family="Archivo,sans-serif" font-size="${fontSize}" font-weight="700" fill="#111">${lines[1]}</text>`;
+
+  return s;
+}
+
+// ── Sheet builders ────────────────────────────────────────────────────────────
+function zk_sheetHTML(isKey, title) {
+  const cfg   = ZK_CONFIGS[DIFF];
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  return `<div class="sheet narrow">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${ZK_DIRS[DIFF]}</div>
+    <div class="sh-svg">${zk_renderPage(ZK_PUZZLES, cfg.cellPx, isKey)}</div>
+  </div>`;
+}
+function zk_buildSheet(isKey) {
+  const title = document.getElementById('pg-title').value.trim() || ZK_TITLES[DIFF];
+  return zk_sheetHTML(isKey, title);
+}
+function zk_printSheet(isKey, title) { return zk_sheetHTML(isKey, title); }
+
+
+
+renderDiffOpts();
+generate();
+</script>
+</body>
+</html>

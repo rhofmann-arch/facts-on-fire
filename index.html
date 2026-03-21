@@ -220,17 +220,27 @@ footer a:hover{text-decoration:underline}
   <!-- Grade Band: 5–8 -->
   <div style="max-width:960px;margin:0 auto;">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-      <div style="font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--muted);letter-spacing:-0.01em;">Grades 5–8</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--ink);letter-spacing:-0.01em;">Grades 5–8</div>
       <div style="flex:1;height:2px;background:var(--border);"></div>
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:20px;background:var(--lock-lt);color:var(--lock);">Coming Soon</div>
     </div>
-    <div class="hub-card hc-lock" style="cursor:default;pointer-events:none;opacity:0.6;max-width:100%;">
-      <div style="display:flex;align-items:center;gap:20px;width:100%;">
-        <div style="font-size:2.2rem;">🔒</div>
-        <div>
-          <div style="font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--ink);margin-bottom:4px;">Grades 5–8 Materials</div>
-          <div style="font-size:0.88rem;color:var(--ink2);line-height:1.6;">Fractions, decimals, integers, estimation, and more. Workbooks and tools will appear here as they are built out.</div>
-        </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+      <div class="hub-card hc-lock" style="cursor:default;pointer-events:none;opacity:0.55;">
+        <div class="hub-ico">📓</div>
+        <div class="hub-label">Student Workbooks</div>
+        <div class="hub-desc">Decimals, fractions, ratios, and more. Workbooks and generators coming as they are built out.</div>
+        <span class="hub-count" style="background:var(--lock-lt);color:var(--lock);">🔒 Coming Soon</span>
+      </div>
+      <div class="hub-card hc-teal" onclick="showPanel('ms-practice')">
+        <div class="hub-ico">🖥️</div>
+        <div class="hub-label">Whole-Class Practice</div>
+        <div class="hub-desc">Browser-based tools for smartboard practice — choral grids, multiplicative sequences, and puzzle generators for grades 5–8.</div>
+        <span class="hub-count">3 Tools · Free · No Login</span>
+      </div>
+      <div class="hub-card hc-lock" style="cursor:default;pointer-events:none;opacity:0.55;">
+        <div class="hub-ico">📋</div>
+        <div class="hub-label">Teacher Resources</div>
+        <div class="hub-desc">Tracking sheets and implementation guides for middle school will appear here as they are developed.</div>
+        <span class="hub-count" style="background:var(--lock-lt);color:var(--lock);">🔒 Coming Soon</span>
       </div>
     </div>
   </div>
@@ -658,6 +668,89 @@ footer a:hover{text-decoration:underline}
   </section>
 </div>
 
+<!-- ── PANEL: 5–8 WHOLE-CLASS PRACTICE ── -->
+<div class="panel" id="panel-ms-practice">
+  <button class="panel-back" onclick="showHub()">← Back to Hub</button>
+  <section>
+    <div class="section-header">
+      <div class="section-icon si-teal">🖥️</div>
+      <div>
+        <div class="section-title">Whole-Class Practice — Grades 5–8</div>
+        <div class="section-sub">Run directly in any browser — no login, no install. Project on your smartboard and go.</div>
+      </div>
+      <span class="section-badge sb-teal">Web Apps · Free</span>
+    </div>
+
+    <!-- Puzzles sub-section -->
+    <div style="margin-bottom:40px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:1rem;color:var(--ink);letter-spacing:-0.01em;">🧩 Puzzles</div>
+        <div style="flex:1;height:2px;background:var(--border);"></div>
+      </div>
+      <div class="card-grid wide">
+
+        <a class="res-card" href="ms_puzzle_generator.html">
+          <div class="res-card-top">
+            <div class="res-card-icon ic-purple">🧩</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Middle School Puzzle Generator</div>
+              <div class="res-card-type tp-purple">Web App · Print to PDF</div>
+            </div>
+          </div>
+          <div class="res-card-desc">Generate and print puzzles across three types designed for 5–8 classrooms — Six Legs (multiplicative structure), Sankaku (triangle completion), and Zukei (dot-lattice shape identification based on Naoki Inaba's work). Three difficulty levels each; preview and download as PDF.</div>
+          <div class="res-card-footer">
+            <span class="res-card-tag">Multiplication · Geometry<br>Reasoning · Problem Solving</span>
+            <span class="res-card-cta">Launch</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Practice sub-section -->
+    <div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:1rem;color:var(--ink);letter-spacing:-0.01em;">📣 Choral Practice</div>
+        <div style="flex:1;height:2px;background:var(--border);"></div>
+      </div>
+      <div class="card-grid wide">
+
+        <a class="res-card" href="tapping.html">
+          <div class="res-card-top">
+            <div class="res-card-icon ic-fire">🥁</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Tapping</div>
+              <div class="res-card-type tp-fire">Web App · Smartboard</div>
+            </div>
+          </div>
+          <div class="res-card-desc">Teacher-led choral counting on a multiplicative grid — based on Dave Hewitt's Grid Algebra. Set the value of n, choose rows and columns, then chant through the grid with the class. Three density modes (all cells, some blanks, challenge) and adjustable speed, pause, and audio cues. Variable expression mode toggles between numeric and algebraic display.</div>
+          <div class="res-card-footer">
+            <span class="res-card-tag">Multiplicative Structure · Algebra Readiness<br>Decimals · Variables</span>
+            <span class="res-card-cta">Launch</span>
+          </div>
+        </a>
+
+        <a class="res-card" href="cwfp.html">
+          <div class="res-card-top">
+            <div class="res-card-icon ic-teal">🧮</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Cake, Waffle, Fry, Pea</div>
+              <div class="res-card-type tp-teal">Web App · Smartboard</div>
+            </div>
+          </div>
+          <div class="res-card-desc">Choral counting with base-10 Dienes blocks as the anchor — Cake (1000), Waffle (100), Fry (10), Pea (1). Set any anchor value and multiplier row list, then chant through the full proportional grid. Click cells to reveal values one at a time, or use Show All. Adjustable speed, highlight pause, and audio prompts.</div>
+          <div class="res-card-footer">
+            <span class="res-card-tag">Decimals · Place Value<br>Proportional Reasoning · Percentages</span>
+            <span class="res-card-cta">Launch</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </section>
+</div>
+
 <footer>
   <p>Facts on Fire is based on the <a href="https://brianponcy.wixsite.com/my-site-2/m-i-n-d-2-0-facts-on-fire" target="_blank">M.I.N.D. 2.0 program</a> by Brian Poncy. All materials free for classroom use.</p>
 </footer>
@@ -676,7 +769,7 @@ function showPanel(id){
 }
 // Support direct hash links
 const hash=location.hash.replace('#','');
-if(['workbooks','practice','resources'].includes(hash))showPanel(hash);
+if(['workbooks','practice','resources','ms-practice'].includes(hash))showPanel(hash);
 </script>
 </body>
 </html>

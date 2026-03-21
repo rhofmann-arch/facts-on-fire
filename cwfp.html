@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cake, Waffle, Fry, Pea — Facts on Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FAFAF7; --surf:#FFF; --ink:#0E1117; --ink2:#3A4150;
+  --muted:#8A94A0; --border:#E4E6EA;
+  --fire:#FF4F00; --ember:#FFF0E8;
+  --teal:#007A6E; --teal-lt:#E6F4F2;
+  --blue:#1B4FCC; --blue-lt:#EBF0FF;
+  --r:12px;
+  --cake-bg:#FFF4F0; --cake-fg:#C73A00; --cake-bd:#FFB899;
+  --waffle-bg:#EEF3FF; --waffle-fg:#1040B8; --waffle-bd:#A8BFFA;
+  --fry-bg:#E8F7F5;   --fry-fg:#005C53;   --fry-bd:#8DD4CA;
+  --pea-bg:#F5EEFF;   --pea-fg:#5C2E7A;   --pea-bd:#C9A4E8;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);position:sticky;top:0;z-index:100}
+.hdr{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:12px;height:54px}
+.logo{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;display:flex;align-items:center;gap:7px;text-decoration:none}
+.logo em{color:var(--fire);font-style:normal}
+.sep{color:#444;font-size:18px}
+.hdr-sub{font-size:14px;color:#aaa;font-weight:500}
+.back{margin-left:auto;color:#aaa;font-size:12px;font-weight:600;text-decoration:none;padding:5px 12px;border:1px solid #333;border-radius:6px;transition:.15s}
+.back:hover{color:#fff;border-color:#666}
+
+.outer{max-width:1440px;margin:0 auto;padding:0 20px 32px}
+
+.config-bar{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 20px;display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;margin:16px 0}
+.cfg-col{display:flex;flex-direction:column;gap:8px}
+.cfg-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.cfg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cfg-div{width:1px;background:var(--border);align-self:stretch;margin:0 2px}
+.cfg-eq{font-size:20px;font-weight:800;color:var(--ink2)}
+
+.stepper{display:flex;align-items:center;gap:5px}
+.stp-btn{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s;line-height:1;color:var(--ink)}
+.stp-btn:hover{border-color:var(--fire);background:var(--ember);color:var(--fire)}
+.stp-val{font-size:20px;font-weight:800;font-family:'Archivo Black',sans-serif;min-width:26px;text-align:center}
+
+.piece-btn{padding:7px 13px;border-radius:8px;border:2px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;cursor:pointer;transition:.12s;font-family:'Archivo',sans-serif;color:var(--ink2)}
+.piece-btn:hover:not(.on){border-color:var(--fire);background:var(--ember)}
+.piece-btn.cake.on{background:var(--cake-bg);border-color:var(--cake-bd);color:var(--cake-fg)}
+.piece-btn.waffle.on{background:var(--waffle-bg);border-color:var(--waffle-bd);color:var(--waffle-fg)}
+.piece-btn.fry.on{background:var(--fry-bg);border-color:var(--fry-bd);color:var(--fry-fg)}
+.piece-btn.pea.on{background:var(--pea-bg);border-color:var(--pea-bd);color:var(--pea-fg)}
+
+.val-input{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Archivo Black',sans-serif;font-size:17px;width:90px;text-align:center;background:var(--bg);color:var(--ink);transition:.12s}
+.val-input:focus{outline:none;border-color:var(--fire)}
+.rows-input{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Archivo',sans-serif;font-size:13px;width:240px;background:var(--bg);color:var(--ink);transition:.12s}
+.rows-input:focus{outline:none;border-color:var(--blue)}
+
+.btn-build{background:var(--fire);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-family:'Archivo Black',sans-serif;font-size:13px;cursor:pointer;transition:.15s;white-space:nowrap;align-self:flex-end;height:42px}
+.btn-build:hover{background:#e03900}
+.btn-build:active{transform:scale(.98)}
+
+.wrap{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start}
+
+.sb{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;position:sticky;top:74px}
+.sb-head{background:var(--ink);color:#fff;padding:10px 14px;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+.sb-body{padding:14px;display:flex;flex-direction:column;gap:12px}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block}
+.sb-div{border:none;border-top:1px solid var(--border);margin:2px 0}
+.speed-row{display:flex;gap:4px}
+.spd{flex:1;padding:6px 2px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:.12s;font-family:'Archivo',sans-serif;color:var(--ink2)}
+.spd:hover:not(.on){border-color:var(--blue)}
+.spd.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.pb-row{display:flex;gap:5px}
+.pbbtn{flex:1;padding:8px 2px;border-radius:7px;border:2px solid var(--border);background:var(--surf);font-family:'Archivo',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:.13s;color:var(--ink2)}
+.pbbtn:hover:not(:disabled){border-color:var(--ink);background:var(--bg)}
+.pbbtn:disabled{opacity:.3;cursor:not-allowed}
+.pbbtn .ico{font-size:18px;line-height:1}
+.pbbtn .lbl{font-size:8px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+.pbbtn.fire{background:var(--fire);border-color:var(--fire);color:#fff}
+.pbbtn.fire:hover:not(:disabled){background:#e03900;border-color:#e03900}
+
+.main{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.main-top{padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.main-top h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink2)}
+
+.btn-showall{background:var(--teal);color:#fff;border:none;border-radius:7px;padding:5px 16px;font-family:'Archivo Black',sans-serif;font-size:11px;cursor:pointer;transition:.15s;display:none;letter-spacing:.3px}
+.btn-showall:hover{background:#006058}
+.btn-showall:active{transform:scale(.97)}
+
+.prog-bar{height:3px;background:var(--border)}
+.prog-fill{height:100%;background:var(--fire);transition:width .3s;width:0}
+
+.speech-strip{min-height:38px;display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 16px;border-bottom:1px solid var(--border);background:#FCFCFA}
+.speech-now{font-size:16px;font-weight:800;color:var(--fire);font-family:'Archivo Black',sans-serif}
+.speech-hint{font-size:11px;font-weight:600;color:var(--muted)}
+
+.dienes-header{padding:14px 20px 10px;border-bottom:1px solid var(--border);background:#FAFAF7}
+.dienes-row{display:flex;align-items:flex-end;gap:4px}
+.dienes-mult-col{flex:0 0 72px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:24px}
+.dienes-mult-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.dienes-piece-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.dienes-val-badge{font-family:'Archivo Black',sans-serif;font-size:13px;padding:3px 8px;border-radius:6px;min-width:54px;text-align:center;white-space:nowrap}
+.dvb-cake{color:var(--cake-fg);background:var(--cake-bg);border:1.5px solid var(--cake-bd)}
+.dvb-waffle{color:var(--waffle-fg);background:var(--waffle-bg);border:1.5px solid var(--waffle-bd)}
+.dvb-fry{color:var(--fry-fg);background:var(--fry-bg);border:1.5px solid var(--fry-bd)}
+.dvb-pea{color:var(--pea-fg);background:var(--pea-bg);border:1.5px solid var(--pea-bd)}
+.dienes-piece-label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+
+.grid-area{padding:14px 16px 18px;min-height:280px}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;gap:12px;color:var(--muted)}
+.empty-ico{font-size:48px}
+.empty-msg{font-size:14px;font-weight:600;text-align:center;max-width:280px;line-height:1.6}
+
+/* ── CWFP grid ── */
+.cwfp-grid{display:grid;grid-template-columns:72px repeat(4,1fr);gap:4px}
+
+.ch{border-radius:7px;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:11px;text-align:center;min-height:36px;display:flex;align-items:center;justify-content:center;letter-spacing:.3px;border:1.5px solid transparent}
+.ch-mult{background:var(--bg);color:var(--muted);border-color:var(--border);font-size:9px;text-transform:uppercase;letter-spacing:.6px}
+.ch-cake{background:var(--cake-bg);color:var(--cake-fg);border-color:var(--cake-bd)}
+.ch-waffle{background:var(--waffle-bg);color:var(--waffle-fg);border-color:var(--waffle-bd)}
+.ch-fry{background:var(--fry-bg);color:var(--fry-fg);border-color:var(--fry-bd)}
+.ch-pea{background:var(--pea-bg);color:var(--pea-fg);border-color:var(--pea-bd)}
+
+.rh{background:var(--bg);color:var(--ink2);border:1.5px solid var(--border);border-radius:7px;padding:4px 3px;text-align:center;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:14px;min-height:54px}
+
+.cwfp-cell{
+  border-radius:8px;border:2px solid transparent;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:16px;
+  text-align:center;min-height:54px;line-height:1.15;padding:4px 2px;
+  position:relative;user-select:none;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s,background .15s;
+}
+.cc-cake{background:var(--cake-bg);color:var(--cake-fg);border-color:var(--cake-bd)}
+.cc-waffle{background:var(--waffle-bg);color:var(--waffle-fg);border-color:var(--waffle-bd)}
+.cc-fry{background:var(--fry-bg);color:var(--fry-fg);border-color:var(--fry-bd)}
+.cc-pea{background:var(--pea-bg);color:var(--pea-fg);border-color:var(--pea-bd)}
+
+/* Anchor cell ring */
+.cwfp-cell.anchor-cell{box-shadow:0 0 0 3px var(--fire)}
+
+/* Hidden / clickable */
+.cwfp-cell.hidden{
+  background:#F5F5F3!important;
+  border-style:dashed!important;
+  border-color:#CCC!important;
+  cursor:pointer;
+}
+.cwfp-cell.hidden::after{
+  content:'?';
+  position:absolute;
+  font-size:16px;color:#CCC;
+  font-family:'Archivo Black',sans-serif;
+}
+.cwfp-cell.hidden:hover{
+  background:#EFEFED!important;
+  border-color:#999!important;
+  transform:scale(1.05);
+}
+.cwfp-cell.hidden:hover::after{color:#777}
+
+/* Active cell (choral highlight) */
+@keyframes cellPulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(255,79,0,.25),0 6px 24px rgba(255,79,0,.3)}
+  50%{box-shadow:0 0 0 5px rgba(255,79,0,.12),0 8px 32px rgba(255,79,0,.45)}
+}
+.cwfp-cell.active{
+  background:#FF4F00!important;color:#FFF!important;
+  border-color:#FF4F00!important;border-style:solid!important;
+  transform:scale(1.07);z-index:10;cursor:default;
+  animation:cellPulse 1.4s ease-in-out infinite;
+}
+.cwfp-cell.active::after{display:none}
+
+/* Visited dim */
+.cwfp-cell.visited:not(.active){opacity:.52}
+
+/* Reveal pop */
+@keyframes revealPop{
+  0%{transform:scale(.8);opacity:.3}
+  65%{transform:scale(1.07)}
+  100%{transform:scale(1);opacity:1}
+}
+.cwfp-cell.pop{animation:revealPop .22s ease forwards}
+
+@media(max-width:960px){.wrap{grid-template-columns:1fr}.sb{position:static}.config-bar{gap:12px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <a class="logo" href="index.html">🔥 Facts on <em>Fire</em></a>
+    <span class="sep">›</span>
+    <span class="hdr-sub">Elementary</span>
+    <span class="sep">›</span>
+    <span class="hdr-sub">Cake, Waffle, Fry, Pea</span>
+    <a class="back" href="index.html">← Back to Hub</a>
+  </div>
+</header>
+
+<div class="outer">
+
+  <div class="config-bar">
+    <div class="cfg-col">
+      <span class="cfg-label">Anchor</span>
+      <div class="cfg-row">
+        <div class="stepper">
+          <button class="stp-btn" onclick="adjHM(-1)">−</button>
+          <div class="stp-val" id="v-hm">1</div>
+          <button class="stp-btn" onclick="adjHM(1)">+</button>
+        </div>
+        <button class="piece-btn cake"   id="pc-cake"   onclick="setPiece('cake')">Cake</button>
+        <button class="piece-btn waffle" id="pc-waffle" onclick="setPiece('waffle')">Waffle</button>
+        <button class="piece-btn fry on" id="pc-fry"    onclick="setPiece('fry')">Fry</button>
+        <button class="piece-btn pea"    id="pc-pea"    onclick="setPiece('pea')">Pea</button>
+        <span class="cfg-eq">=</span>
+        <input type="number" id="anchor-val" class="val-input" value="7" step="any" min="0.0001">
+      </div>
+    </div>
+
+    <div class="cfg-div"></div>
+
+    <div class="cfg-col">
+      <span class="cfg-label">Row Multipliers</span>
+      <div class="cfg-row">
+        <input type="text" id="rows-input" class="rows-input" value="0.1, 0.5, 1, 2, 3, 5, 10">
+      </div>
+    </div>
+
+    <button class="btn-build" onclick="build()">⊞ Build Grid</button>
+  </div>
+
+  <div class="wrap">
+
+  <aside class="sb">
+    <div class="sb-head">🎵 Choral Controls</div>
+    <div class="sb-body">
+      <div>
+        <span class="sb-label">Speed</span>
+        <div class="speed-row">
+          <button class="spd"    id="spd-slow"   onclick="setSpeed(3200)">Slow</button>
+          <button class="spd on" id="spd-normal" onclick="setSpeed(2000)">Normal</button>
+          <button class="spd"    id="spd-fast"   onclick="setSpeed(1100)">Fast</button>
+        </div>
+      </div>
+      <div>
+        <span class="sb-label">Highlight Pause</span>
+        <div class="speed-row">
+          <button class="spd on" id="pause-none"  onclick="setHPause(0)">None</button>
+          <button class="spd"    id="pause-short" onclick="setHPause(500)">Short</button>
+          <button class="spd"    id="pause-long"  onclick="setHPause(1000)">Long</button>
+        </div>
+      </div>
+      <div>
+        <span class="sb-label">Prompt Sound</span>
+        <div class="speed-row">
+          <button class="spd on" id="aud-woodblock" onclick="setAudioMode('woodblock')">🪵 Block</button>
+          <button class="spd"    id="aud-chime"     onclick="setAudioMode('chime')">🔔 Chime</button>
+          <button class="spd"    id="aud-none"      onclick="setAudioMode('none')">🔇 Off</button>
+        </div>
+      </div>
+      <hr class="sb-div">
+      <div>
+        <span class="sb-label">Controls</span>
+        <div class="pb-row">
+          <button class="pbbtn" id="btn-prev" onclick="doPrev()" disabled>
+            <span class="ico">⏮</span><span class="lbl">Prev</span>
+          </button>
+          <button class="pbbtn fire" id="btn-play" onclick="togglePlay()" disabled>
+            <span class="ico" id="play-ico">▶</span><span class="lbl" id="play-lbl">Play</span>
+          </button>
+          <button class="pbbtn" id="btn-next" onclick="doNext()" disabled>
+            <span class="ico">⏭</span><span class="lbl">Next</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="main-top">
+      <h3>Cake, Waffle, Fry, Pea Grid</h3>
+      <button class="btn-showall" id="btn-showall" onclick="showAll()">Show All</button>
+    </div>
+
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+
+    <div class="speech-strip">
+      <span class="speech-now" id="speech-now"></span>
+      <span class="speech-hint" id="speech-hint">Build a grid to begin.</span>
+    </div>
+
+    <div class="dienes-header" id="dienes-header"></div>
+    <div class="grid-area" id="grid-area">
+      <div class="empty">
+        <div class="empty-ico">🧮</div>
+        <div class="empty-msg">Set an anchor value above and click Build Grid to begin.</div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<script>
+// ─── constants ───────────────────────────────────────────────────────────────
+const PIECES       = ['cake','waffle','fry','pea'];
+const PIECE_FACTOR = {cake:1000, waffle:100, fry:10, pea:1};
+const PIECE_LABEL  = {cake:'Cake', waffle:'Waffle', fry:'Fry', pea:'Pea'};
+const COL_CLS      = {cake:'cc-cake', waffle:'cc-waffle', fry:'cc-fry', pea:'cc-pea'};
+const CH_CLS       = {cake:'ch-cake', waffle:'ch-waffle', fry:'ch-fry', pea:'ch-pea'};
+const DVB_CLS      = {cake:'dvb-cake', waffle:'dvb-waffle', fry:'dvb-fry', pea:'dvb-pea'};
+const PIECE_COLOR  = {cake:'var(--cake-fg)', waffle:'var(--waffle-fg)', fry:'var(--fry-fg)', pea:'var(--pea-fg)'};
+
+// ─── state ────────────────────────────────────────────────────────────────────
+let ANCHOR_PIECE = 'fry';
+let ANCHOR_HM    = 1;
+let ANCHOR_VAL   = 7;
+let ROWS         = [0.1, 0.5, 1, 2, 3, 5, 10];
+let PIECE_VALS   = {};
+let GRID         = [];
+let BUILT        = false;
+let ANCHOR_ROW   = -1;
+let ANCHOR_COL   = -1;
+let REVEALED     = new Set();   // 'r,c' strings
+let SEQUENCE     = [];          // [[r,c], ...]
+let CUR          = -1;
+let PLAYING      = false;
+let SPEED        = 2000;
+let HPAUSE       = 0;
+let AUDIO_MODE   = 'woodblock';
+let PLAY_TIMER   = null;
+let ANN_TIMER    = null;
+let AUDIO_CTX    = null;
+
+// ─── number → speech ─────────────────────────────────────────────────────────
+const ONES_W = ['zero','one','two','three','four','five','six','seven','eight','nine',
+  'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS_W = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+
+function intToWords(n) {
+  n = Math.round(n);
+  if (n < 0)   return 'negative ' + intToWords(-n);
+  if (n === 0) return 'zero';
+  if (n < 20)  return ONES_W[n];
+  if (n < 100) { const t=TENS_W[Math.floor(n/10)],o=n%10; return o?t+'-'+ONES_W[o]:t; }
+  if (n < 1000){ const h=ONES_W[Math.floor(n/100)],r=n%100; return r?h+' hundred '+intToWords(r):h+' hundred'; }
+  const k=Math.floor(n/1000),r=n%1000; return r?intToWords(k)+' thousand '+intToWords(r):intToWords(k)+' thousand';
+}
+
+function numToSpeech(n) {
+  if (n === 0) return 'zero';
+  if (n < 0)   return 'negative ' + numToSpeech(-n);
+  const str   = parseFloat(n.toPrecision(10)).toString();
+  const dot   = str.indexOf('.');
+  if (dot === -1) return intToWords(parseInt(str));
+  const intPart  = parseInt(str.slice(0, dot)) || 0;
+  const decStr   = str.slice(dot+1).replace(/0+$/,'');
+  if (!decStr)   return intToWords(intPart);
+  const decNum   = parseInt(decStr);
+  const dNames   = {1:'tenth',2:'hundredth',3:'thousandth',4:'ten-thousandth'};
+  const denom    = dNames[decStr.length] || 'decimal';
+  const decWords = intToWords(decNum)+' '+denom+(decNum!==1?'s':'');
+  return intPart === 0 ? decWords : intToWords(intPart)+' and '+decWords;
+}
+
+function fmtNum(n) {
+  if (n === 0) return '0';
+  const r = parseFloat(n.toPrecision(10));
+  if (Math.abs(r - Math.round(r)) < 1e-9) return String(Math.round(r));
+  return r.toString();
+}
+
+function fmtMult(m) {
+  if (Math.abs(m - Math.round(m)) < 1e-9) return String(Math.round(m));
+  return parseFloat(m.toPrecision(10)).toString();
+}
+
+// ─── config controls ─────────────────────────────────────────────────────────
+function adjHM(delta) {
+  ANCHOR_HM = Math.max(1, ANCHOR_HM + delta);
+  document.getElementById('v-hm').textContent = ANCHOR_HM;
+}
+
+function setPiece(p) {
+  ANCHOR_PIECE = p;
+  PIECES.forEach(pc => {
+    document.getElementById('pc-'+pc).className = 'piece-btn '+pc+(pc===p?' on':'');
+  });
+}
+
+// ─── build ───────────────────────────────────────────────────────────────────
+function build() {
+  if (PLAYING) doPause();
+
+  ANCHOR_VAL = parseFloat(document.getElementById('anchor-val').value) || 1;
+  const raw  = document.getElementById('rows-input').value;
+  const parsed = raw.split(',').map(s=>parseFloat(s.trim())).filter(n=>!isNaN(n)&&n>0);
+  if (parsed.length > 0) ROWS = parsed;
+
+  // Compute one-unit piece values from anchor
+  const unitVal = ANCHOR_VAL / ANCHOR_HM;
+  PIECE_VALS = {};
+  for (const p of PIECES)
+    PIECE_VALS[p] = unitVal * (PIECE_FACTOR[p] / PIECE_FACTOR[ANCHOR_PIECE]);
+
+  // Build grid[row][col]
+  GRID = ROWS.map(mult => PIECES.map(p => mult * PIECE_VALS[p]));
+
+  // Locate anchor cell
+  ANCHOR_COL = PIECES.indexOf(ANCHOR_PIECE);
+  ANCHOR_ROW = ROWS.findIndex(m => Math.abs(m - ANCHOR_HM) < 1e-9);
+
+  // Reveal only the anchor cell
+  REVEALED = new Set();
+  if (ANCHOR_ROW >= 0) REVEALED.add(ANCHOR_ROW+','+ANCHOR_COL);
+
+  // Sequence: all cells left→right top→bottom
+  SEQUENCE = [];
+  for (let r=0; r<ROWS.length; r++)
+    for (let c=0; c<4; c++)
+      SEQUENCE.push([r,c]);
+
+  BUILT = true;
+  CUR   = -1;
+
+  renderDienesHeader();
+  renderGrid();
+  updateProgress();
+  syncControls();
+
+  document.getElementById('btn-showall').style.display = '';
+  setSpeechHint('Click any ? cell to reveal it, or press Play to choral-count.');
+  document.getElementById('speech-now').textContent = '';
+}
+
+// ─── reveal ───────────────────────────────────────────────────────────────────
+function revealCell(r, c) {
+  const key = r+','+c;
+  if (REVEALED.has(key)) return;
+  REVEALED.add(key);
+
+  // Patch DOM directly — no full re-render needed
+  const el = document.querySelector(`[data-rc="${key}"]`);
+  if (!el) return;
+  const piece = PIECES[c];
+  el.className = `cwfp-cell ${COL_CLS[piece]} pop`;
+  if (r === ANCHOR_ROW && c === ANCHOR_COL) el.classList.add('anchor-cell');
+  el.style.cursor = 'default';
+  el.textContent = fmtNum(GRID[r][c]);
+  el.onclick = null;
+  setTimeout(() => el.classList.remove('pop'), 280);
+}
+
+function showAll() {
+  for (let r=0; r<ROWS.length; r++)
+    for (let c=0; c<4; c++)
+      revealCell(r, c);
+}
+
+// ─── dienes header ────────────────────────────────────────────────────────────
+function gridLines(x,y,w,h,nx,ny,col) {
+  let s='';
+  for(let i=1;i<nx;i++){const gx=(x+w*i/nx).toFixed(1);s+=`<line x1="${gx}" y1="${y}" x2="${gx}" y2="${y+h}" stroke="${col}" stroke-width="0.6"/>`;}
+  for(let j=1;j<ny;j++){const gy=(y+h*j/ny).toFixed(1);s+=`<line x1="${x}" y1="${gy}" x2="${x+w}" y2="${gy}" stroke="${col}" stroke-width="0.6"/>`;}
+  return s;
+}
+
+const PIECE_SVG = {
+  cake:`<svg viewBox="0 0 78 78" style="height:66px;width:auto"><polygon points="10,22 62,22 74,10 22,10" fill="#FFCFB8" stroke="#FFB899" stroke-width="1"/><polygon points="62,22 74,10 74,62 62,74" fill="#FFB090" stroke="#FFB899" stroke-width="1"/><rect x="10" y="22" width="52" height="52" fill="#FFF4F0" stroke="#FFB899" stroke-width="1.5"/>${gridLines(10,22,52,52,10,10,'#FFB899')}</svg>`,
+  waffle:`<svg viewBox="0 0 68 78" style="height:66px;width:auto"><rect x="4" y="16" width="60" height="56" fill="#EEF3FF" stroke="#A8BFFA" stroke-width="1.5"/>${gridLines(4,16,60,56,10,10,'#A8BFFA')}</svg>`,
+  fry:`<svg viewBox="0 0 30 78" style="height:66px;width:auto"><rect x="6" y="8" width="18" height="64" fill="#E8F7F5" stroke="#8DD4CA" stroke-width="1.5"/>${gridLines(6,8,18,64,1,10,'#8DD4CA')}</svg>`,
+  pea:`<svg viewBox="0 0 30 78" style="height:66px;width:auto"><rect x="6" y="54" width="18" height="18" fill="#F5EEFF" stroke="#C9A4E8" stroke-width="1.5"/></svg>`
+};
+
+function renderDienesHeader() {
+  let html = `<div class="dienes-row"><div class="dienes-mult-col"><span class="dienes-mult-label">×</span></div>`;
+  for (const p of PIECES) {
+    const val = BUILT ? fmtNum(PIECE_VALS[p]) : '—';
+    html += `<div class="dienes-piece-col">${PIECE_SVG[p]}<span class="dienes-piece-label" style="color:${PIECE_COLOR[p]}">${PIECE_LABEL[p]}</span><span class="dienes-val-badge ${DVB_CLS[p]}">${val}</span></div>`;
+  }
+  html += `</div>`;
+  document.getElementById('dienes-header').innerHTML = html;
+}
+
+// ─── grid render ─────────────────────────────────────────────────────────────
+function renderGrid() {
+  const area = document.getElementById('grid-area');
+  if (!BUILT) {
+    area.innerHTML = `<div class="empty"><div class="empty-ico">🧮</div><div class="empty-msg">Set an anchor value above and click Build Grid to begin.</div></div>`;
+    return;
+  }
+  const nRows    = ROWS.length;
+  const fontSize = nRows > 10 ? '13px' : nRows > 7 ? '14px' : '16px';
+  const minH     = nRows > 10 ? '44px' : '54px';
+
+  let html = `<div class="cwfp-grid">`;
+  // headers
+  html += `<div class="ch ch-mult" style="min-height:${minH}">×</div>`;
+  for (const p of PIECES)
+    html += `<div class="ch ${CH_CLS[p]}" style="min-height:${minH}">${PIECE_LABEL[p]}</div>`;
+
+  // rows
+  for (let r=0; r<nRows; r++) {
+    html += `<div class="rh" style="font-size:${fontSize};min-height:${minH}">${fmtMult(ROWS[r])}</div>`;
+    for (let c=0; c<4; c++) {
+      const key      = r+','+c;
+      const isActive = CUR >= 0 && SEQUENCE[CUR][0]===r && SEQUENCE[CUR][1]===c;
+      const visited  = CUR > 0 && SEQUENCE.slice(0,CUR).some(([sr,sc])=>sr===r&&sc===c);
+      const revealed = REVEALED.has(key);
+      const isAnchor = r===ANCHOR_ROW && c===ANCHOR_COL;
+      const piece    = PIECES[c];
+      let cls, content, onclick='';
+
+      if (isActive) {
+        // Choral active: fire style, but only show value if already revealed
+        cls     = `cwfp-cell ${COL_CLS[piece]} active`;
+        content = revealed ? fmtNum(GRID[r][c]) : '?';
+      } else if (revealed) {
+        cls  = `cwfp-cell ${COL_CLS[piece]}`;
+        if (isAnchor) cls += ' anchor-cell';
+        if (visited)  cls += ' visited';
+        content = fmtNum(GRID[r][c]);
+      } else {
+        cls     = `cwfp-cell hidden`;
+        content = '';
+        onclick = ` onclick="revealCell(${r},${c})"`;
+      }
+
+      html += `<div class="${cls}" data-rc="${key}" style="font-size:${fontSize};min-height:${minH}"${onclick}>${content}</div>`;
+    }
+  }
+  html += `</div>`;
+  area.innerHTML = html;
+}
+
+// ─── choral playback ─────────────────────────────────────────────────────────
+//
+// Timing model (fixed cadence):
+//   t = 0       → step fires: CUR++, renderGrid (highlight), display number
+//   t = HPAUSE  → play sound  (scheduled independently)
+//   t = SPEED   → next step   (scheduled from t=0, NOT from announce)
+//
+// Result: each cell gets exactly SPEED ms. Sound fires HPAUSE into that window.
+//
+function step() {
+  if (!BUILT || SEQUENCE.length === 0) return;
+
+  CUR++;
+  if (CUR >= SEQUENCE.length) CUR = 0;
+
+  // Render and update UI immediately
+  renderGrid();
+  updateProgress();
+  syncControls();
+
+  const [r, c] = SEQUENCE[CUR];
+  const val    = GRID[r][c];
+  const speech = numToSpeech(val);
+  const isRevealed = REVEALED.has(r+','+c);
+
+  document.getElementById('speech-now').textContent = isRevealed ? fmtNum(val) : '?';
+  setSpeechHint(isRevealed ? speech : '');
+
+  // Schedule next step at fixed SPEED from now
+  if (PLAYING) PLAY_TIMER = setTimeout(step, SPEED);
+
+  // Schedule sound at HPAUSE from now (independent)
+  clearTimeout(ANN_TIMER);
+  ANN_TIMER = setTimeout(playSound, HPAUSE);
+}
+
+function playSound() {
+  if      (AUDIO_MODE === 'woodblock') playWoodblock();
+  else if (AUDIO_MODE === 'chime')     playChime();
+}
+
+function doNext() {
+  if (!BUILT) return;
+  if (PLAYING) doPause();
+  step();
+}
+
+function doPrev() {
+  if (!BUILT || CUR <= 0) return;
+  if (PLAYING) doPause();
+  CUR = Math.max(-1, CUR - 2);
+  step();
+}
+
+function togglePlay() { if (!BUILT) return; PLAYING ? doPause() : doPlay(); }
+
+function doPlay() {
+  PLAYING = true;
+  document.getElementById('play-ico').textContent = '⏸';
+  document.getElementById('play-lbl').textContent = 'Pause';
+  document.getElementById('btn-play').classList.add('fire');
+  step();
+}
+
+function doPause() {
+  PLAYING = false;
+  clearTimeout(PLAY_TIMER);
+  clearTimeout(ANN_TIMER);
+  document.getElementById('play-ico').textContent = '▶';
+  document.getElementById('play-lbl').textContent = 'Play';
+  document.getElementById('btn-play').classList.remove('fire');
+}
+
+// ─── audio ───────────────────────────────────────────────────────────────────
+function getAudioCtx() {
+  if (!AUDIO_CTX) AUDIO_CTX = new (window.AudioContext||window.webkitAudioContext)();
+  return AUDIO_CTX;
+}
+
+function playWoodblock() {
+  try {
+    const ctx = getAudioCtx(), t = ctx.currentTime;
+    function hit(freq, when) {
+      const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate*0.06), ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.01));
+      const src=ctx.createBufferSource(); src.buffer=buf;
+      const filt=ctx.createBiquadFilter(); filt.type='bandpass'; filt.frequency.value=freq; filt.Q.value=8;
+      const g=ctx.createGain(); g.gain.setValueAtTime(0.4,when); g.gain.exponentialRampToValueAtTime(0.001,when+0.08);
+      src.connect(filt); filt.connect(g); g.connect(ctx.destination);
+      src.start(when); src.stop(when+0.1);
+    }
+    hit(900, t); hit(1150, t+0.065);
+  } catch(e) {}
+}
+
+function playChime() {
+  try {
+    const ctx=getAudioCtx(), t=ctx.currentTime;
+    const master=ctx.createGain();
+    master.gain.setValueAtTime(0.18,t);
+    master.gain.exponentialRampToValueAtTime(0.001,t+1.8);
+    master.connect(ctx.destination);
+    [[1,1],[2.756,.5],[5.404,.25],[8.933,.12]].forEach(([h,a])=>{
+      const osc=ctx.createOscillator(), g=ctx.createGain(); g.gain.value=a;
+      osc.frequency.value=880*h; osc.connect(g); g.connect(master);
+      osc.start(t); osc.stop(t+1.8);
+    });
+  } catch(e) {}
+}
+
+// ─── ui helpers ──────────────────────────────────────────────────────────────
+function setSpeechHint(t) { document.getElementById('speech-hint').textContent = t; }
+function updateProgress() {
+  const pct = SEQUENCE.length===0 ? 0 : ((CUR+1)/SEQUENCE.length)*100;
+  document.getElementById('prog-fill').style.width = pct+'%';
+}
+function syncControls() {
+  document.getElementById('btn-prev').disabled = !BUILT || CUR <= 0;
+  document.getElementById('btn-play').disabled = !BUILT;
+  document.getElementById('btn-next').disabled = !BUILT;
+}
+
+function setSpeed(ms) {
+  SPEED = ms;
+  const map={3200:'slow',2000:'normal',1100:'fast'};
+  ['slow','normal','fast'].forEach(k=>document.getElementById('spd-'+k).classList.remove('on'));
+  document.getElementById('spd-'+(map[ms]||'normal')).classList.add('on');
+}
+function setHPause(ms) {
+  HPAUSE = ms;
+  const map={0:'none',500:'short',1000:'long'};
+  ['none','short','long'].forEach(k=>document.getElementById('pause-'+k).classList.remove('on'));
+  document.getElementById('pause-'+(map[ms]||'none')).classList.add('on');
+}
+function setAudioMode(mode) {
+  AUDIO_MODE = mode;
+  ['woodblock','chime','none'].forEach(id=>document.getElementById('aud-'+id).classList.remove('on'));
+  document.getElementById('aud-'+mode).classList.add('on');
+}
+
+// ─── init ────────────────────────────────────────────────────────────────────
+setPiece('fry');
+renderDienesHeader();
+syncControls();
+</script>
+</body>
+</html>
