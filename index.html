@@ -224,11 +224,11 @@ footer a:hover{text-decoration:underline}
       <div style="flex:1;height:2px;background:var(--border);"></div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
-      <div class="hub-card hc-lock" style="cursor:default;pointer-events:none;opacity:0.55;">
+      <div class="hub-card hc-fire" onclick="showPanel('ms-workbooks')">
         <div class="hub-ico">📓</div>
         <div class="hub-label">Student Workbooks</div>
-        <div class="hub-desc">Decimals, fractions, ratios, and more. Workbooks and generators coming as they are built out.</div>
-        <span class="hub-count" style="background:var(--lock-lt);color:var(--lock);">🔒 Coming Soon</span>
+        <div class="hub-desc">Generate custom workbooks for integer operations and area skills. Choose your skill, set the schedule, and download student + answer key PDFs.</div>
+        <span class="hub-count">8 Skills · Print-Ready</span>
       </div>
       <div class="hub-card hc-teal" onclick="showPanel('ms-practice')">
         <div class="hub-ico">🖥️</div>
@@ -236,11 +236,11 @@ footer a:hover{text-decoration:underline}
         <div class="hub-desc">Browser-based tools for smartboard practice — choral grids, multiplicative sequences, and puzzle generators for grades 5–8.</div>
         <span class="hub-count">3 Tools · Free · No Login</span>
       </div>
-      <div class="hub-card hc-lock" style="cursor:default;pointer-events:none;opacity:0.55;">
+      <div class="hub-card hc-blue" onclick="showPanel('ms-resources')">
         <div class="hub-ico">📋</div>
         <div class="hub-label">Teacher Resources</div>
-        <div class="hub-desc">Tracking sheets and implementation guides for middle school will appear here as they are developed.</div>
-        <span class="hub-count" style="background:var(--lock-lt);color:var(--lock);">🔒 Coming Soon</span>
+        <div class="hub-desc">Scope &amp; sequence tracker and implementation tools for middle school teachers and coaches.</div>
+        <span class="hub-count">Planning &amp; Tracking</span>
       </div>
     </div>
   </div>
@@ -751,6 +751,130 @@ footer a:hover{text-decoration:underline}
   </section>
 </div>
 
+<!-- ── PANEL: 5–8 STUDENT WORKBOOKS ── -->
+<div class="panel" id="panel-ms-workbooks">
+  <button class="panel-back" onclick="showHub()">← Back to Grades 5–8</button>
+  <section>
+    <div class="section-header">
+      <div class="section-icon si-fire">📓</div>
+      <div>
+        <div class="section-title">Student Workbooks — Grades 5–8</div>
+        <div class="section-sub">Build fully custom workbooks for any integer or area skill. Set the number of cycles, choose your weekly schedule, and download student and answer-key PDFs instantly.</div>
+      </div>
+      <span class="section-badge sb-fire">PDF · Print-Ready</span>
+    </div>
+
+    <a class="res-card" href="ms_workbook_generator.html" style="margin-bottom:32px;border-color:var(--fire);background:var(--ember);display:flex;flex-direction:row;align-items:center;gap:20px;padding:20px 24px;">
+      <div class="res-card-icon ic-fire" style="width:56px;height:56px;font-size:1.8rem;flex-shrink:0;">⚙️</div>
+      <div style="flex:1;">
+        <div class="res-card-title" style="font-size:1.1rem;">MS Workbook Generator</div>
+        <div class="res-card-desc" style="margin-top:4px;">Choose from 8 skills across integers and area — perfect squares, all four integer operations (including mixed review), and area of rectangles &amp; squares. Set cycles, schedule, and download.</div>
+      </div>
+      <div style="font-size:0.88rem;font-weight:700;color:var(--fire);white-space:nowrap;display:flex;align-items:center;gap:4px;">Launch →</div>
+    </a>
+
+    <div class="card-grid wide">
+
+      <div class="res-card" style="cursor:default;">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-fire">²√</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Perfect Squares &amp; Square Roots</div>
+            <div class="res-card-type tp-fire">Grades 5–6 · 20 problems/page</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Fluency with squares 1–144 and their roots. Includes Maze Escape and Arranging Boxes puzzle days.</div>
+        <div class="res-card-footer"><span class="res-card-tag">Gr 5 Wk 9 · Gr 6 Wk 1 · Gr 8 Wk 19</span></div>
+      </div>
+
+      <div class="res-card" style="cursor:default;">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-fire">±⁻</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Integer Addition, Subtraction &amp; Mixed</div>
+            <div class="res-card-type tp-fire">Grade 6 · 20 problems/page</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Three skills: addition only, subtraction only, or mixed review with operators varying per problem. Number line reference included.</div>
+        <div class="res-card-footer"><span class="res-card-tag">Gr 6 Wk 15–19 · Gr 7 Wk 1 · Gr 8 Wk 1</span></div>
+      </div>
+
+      <div class="res-card" style="cursor:default;">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-fire">×÷⁻</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Integer Multiplication, Division &amp; Mixed</div>
+            <div class="res-card-type tp-fire">Grade 6 · 20 problems/page</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Three skills: multiplication only, division only, or mixed review. Sign rules reference box included. Division problems always yield whole-number quotients.</div>
+        <div class="res-card-footer"><span class="res-card-tag">Gr 6 Wk 20–23 · Gr 7 Wk 2 · Gr 8 Wk 1</span></div>
+      </div>
+
+      <div class="res-card" style="cursor:default;">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-fire">▭</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Area of Rectangles &amp; Squares</div>
+            <div class="res-card-type tp-fire">Grade 5 · 8 diagram problems/page</div>
+          </div>
+        </div>
+        <div class="res-card-desc">SVG diagram problems — find area, find a missing side. 8 problems per page across four problem types including squares and rectangles.</div>
+        <div class="res-card-footer"><span class="res-card-tag">Gr 5 Wk 10</span></div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ── PANEL: 5–8 TEACHER RESOURCES ── -->
+<div class="panel" id="panel-ms-resources">
+  <button class="panel-back" onclick="showHub()">← Back to Grades 5–8</button>
+  <section>
+    <div class="section-header">
+      <div class="section-icon si-blue">📋</div>
+      <div>
+        <div class="section-title">Teacher Resources — Grades 5–8</div>
+        <div class="section-sub">Planning tools and scope &amp; sequence resources for middle school implementation.</div>
+      </div>
+      <span class="section-badge sb-blue">Planning &amp; Tracking</span>
+    </div>
+    <div class="card-grid">
+
+      <a class="res-card" href="ms_scope_sequence_tracker.html">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-blue">📈</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Scope &amp; Sequence Tracker</div>
+            <div class="res-card-type tp-blue">Web App · Interactive</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Interactive 30-week scope and sequence for Grades 5–8. Track which skills have workbook, puzzle, or MS generator resources. Mark progress, add notes, drag to reorder, and filter by status — saves automatically between sessions.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">Grades 5–8 · 120 Skills</span>
+          <span class="res-card-cta">Launch</span>
+        </div>
+      </a>
+
+      <a class="res-card soon" href="#">
+        <div class="res-card-top">
+          <div class="res-card-icon ic-blue">📝</div>
+          <div class="res-card-meta">
+            <div class="res-card-title">Implementation Guide <span class="soon-pill">Soon</span></div>
+            <div class="res-card-type tp-blue">PDF · Reference</div>
+          </div>
+        </div>
+        <div class="res-card-desc">Setup guide for middle school coaches and teachers, including pacing suggestions and fidelity tools.</div>
+        <div class="res-card-footer">
+          <span class="res-card-tag">Coaches · Teachers</span>
+          <span class="res-card-cta">Coming soon</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+</div>
+
 <footer>
   <p>Facts on Fire is based on the <a href="https://brianponcy.wixsite.com/my-site-2/m-i-n-d-2-0-facts-on-fire" target="_blank">M.I.N.D. 2.0 program</a> by Brian Poncy. All materials free for classroom use.</p>
 </footer>
@@ -769,7 +893,7 @@ function showPanel(id){
 }
 // Support direct hash links
 const hash=location.hash.replace('#','');
-if(['workbooks','practice','resources','ms-practice'].includes(hash))showPanel(hash);
+if(['workbooks','practice','resources','ms-practice','ms-workbooks','ms-resources'].includes(hash))showPanel(hash);
 </script>
 </body>
 </html>

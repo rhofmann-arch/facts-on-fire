@@ -214,6 +214,93 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .ab-sum-check{font-size:8px;color:#007A6E;text-align:center}
 .ab-label{font-size:9px;font-weight:700;color:#666;letter-spacing:.02em;text-align:center;max-width:290px;line-height:1.4;padding:0 4px}
 
+/* ════════════════════════════════════════════════
+   INTEGER ADDITION PAGE STYLES
+   ════════════════════════════════════════════════ */
+
+/* Number line block */
+.ia-nl{margin-bottom:9px;}
+
+/* Problems flex container fills remaining vertical space */
+.ia-problems{
+  flex:1;display:flex;flex-direction:column;justify-content:space-between;
+}
+
+/* Horizontal section: 4 rows, distributed */
+.ia-h-sect{
+  flex:1.15;display:flex;flex-direction:column;justify-content:space-around;
+}
+.ia-h-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;
+}
+
+/* Divider */
+.ia-div{border:none;border-top:1px dashed #ccc;margin:0;}
+
+/* Vertical section: 2 rows, distributed */
+.ia-v-sect{
+  flex:1;display:flex;flex-direction:column;justify-content:space-around;
+}
+.ia-v-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr 1fr;align-items:flex-end;
+}
+
+/* Horizontal problem cell */
+.ia-h-cell{display:flex;align-items:baseline;gap:4px;padding:0 8px;}
+.ia-pnum{font-size:9px;font-weight:800;color:#ccc;min-width:14px;text-align:right;flex-shrink:0;line-height:1;padding-bottom:2px;}
+.ia-expr{white-space:nowrap;line-height:1.2;font-size:21px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;}
+.ia-blank{display:inline-block;border-bottom:2px solid #888;width:38px;height:20px;vertical-align:bottom;}
+.ia-ans{color:#b83000;font-size:21px;font-weight:800;font-family:'Nunito',sans-serif;}
+
+/* Vertical problem cell (table-based for digit alignment) */
+.ia-v-cell{display:flex;flex-direction:column;align-items:flex-start;padding:0 0 0 20px;}
+.ia-v-num{font-size:9px;font-weight:800;color:#ccc;margin-bottom:1px;line-height:1;}
+.ia-v-tbl{border-collapse:collapse;line-height:1.15;}
+.ia-v-tbl td{padding:0;vertical-align:baseline;}
+.ia-v-opcol{width:18px;text-align:right;padding-right:2px;font-size:27px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;}
+.ia-v-numcol{width:64px;text-align:right;font-size:27px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;}
+.ia-v-numcol.key{color:#b83000;}
+.ia-v-rule td{padding-top:2px;padding-bottom:0;}
+.ia-v-ansrow td{height:38px;}
+
+/* Target tip bar */
+.ia-tip{background:#FFF0E8;border-left:3px solid #FF4F00;padding:4px 10px;font-size:10.5px;font-weight:700;margin-bottom:6px;border-radius:0 4px 4px 0;font-family:'Nunito',sans-serif;}
+.ia-tip-blue{background:#EBF0FF;border-left:3px solid #1B4FCC;padding:4px 10px;font-size:10.5px;font-weight:700;margin-bottom:6px;border-radius:0 4px 4px 0;font-family:'Nunito',sans-serif;}
+
+/* Sign rules reference box (mul/div) */
+.sr-box{border:2px solid #1B4FCC;border-radius:7px;margin-bottom:9px;overflow:hidden;}
+.sr-hdr{background:#1B4FCC;color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;}
+.sr-body{padding:5px 14px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
+.sr-rule{font-size:12px;font-weight:800;color:#1a1a1a;white-space:nowrap;}
+.sr-rule em{font-style:normal;color:#1B4FCC;}
+/* Wider blank for mul/div answers (products up to ±144) */
+.ia-blank-lg{width:52px;}
+
+/* ════════════════════════════════════════════════════════════
+   AREA OF RECTANGLES PAGE STYLES
+   ════════════════════════════════════════════════════════════ */
+.ar-grid{
+  flex:1;display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:repeat(4,1fr);
+  gap:8px 12px;
+}
+.ar-cell{
+  border:1.5px solid #ddd;border-radius:7px;padding:6px 9px 7px;
+  display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;
+}
+.ar-pnum{position:absolute;top:5px;left:8px;font-size:9px;font-weight:800;color:#ccc;line-height:1;}
+.ar-diag{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;padding-top:8px;}
+.ar-diag svg{max-width:100%;height:100%;width:auto;}
+.ar-ans{display:flex;align-items:baseline;gap:5px;font-size:14px;font-weight:800;color:#1a1a1a;white-space:nowrap;padding-top:4px;flex-shrink:0;}
+.ar-blank{display:inline-block;border-bottom:2.5px solid #1a1a1a;width:68px;height:18px;vertical-align:bottom;}
+.ar-blank-sm{width:34px;}
+.ar-ans-val{color:#b83000;font-weight:800;font-size:14px;}
+.ar-ref{border:2px solid #007A6E;border-radius:7px;margin-bottom:8px;overflow:hidden;}
+.ar-ref-hdr{background:#007A6E;color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;}
+.ar-ref-body{padding:4px 14px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
+.ar-ref-f{font-size:12px;font-weight:800;color:#1a1a1a;}.ar-ref-f em{font-style:normal;color:#007A6E;}
+
 /* ── PREVIEW MODAL ── */
 .preview-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;flex-direction:column}
 .preview-modal.open{display:flex}
@@ -249,11 +336,48 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 
   <!-- ── STEP 1: SKILL ── -->
   <div class="panel active" id="panel-1">
-    <div class="skill-intro">Grades 5–8 &nbsp;·&nbsp; Choose a Skill</div>
-    <div class="skill-card selected" id="skill-card" onclick="selectSkill()">
-      <div class="skill-icon">²√</div>
-      <div class="skill-name">Perfect Squares &amp; Square Roots</div>
-      <div class="skill-desc">Fluency with perfect squares (1–144) and square roots (√1–√144). Timed probes and target practice mix squaring and rooting facts. 20 problems per page.</div>
+    <div class="skill-intro">Choose a Skill</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <div class="skill-card selected" id="skill-sq" onclick="selectSkill('squares')">
+        <div class="skill-icon">²√</div>
+        <div class="skill-name">Perfect Squares &amp; Square Roots</div>
+        <div class="skill-desc">Fluency with perfect squares (1–144) and square roots (√1–√144). Timed probes and target practice mix squaring and rooting facts. 20 problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-ia" onclick="selectSkill('intadd')">
+        <div class="skill-icon">﹢⁻</div>
+        <div class="skill-name">Integer Addition</div>
+        <div class="skill-desc">Adding positive and negative integers in the range −20 to 20. Number line reference at top. 12 horizontal + 8 vertical problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-is" onclick="selectSkill('intsub')">
+        <div class="skill-icon">﹣⁻</div>
+        <div class="skill-name">Integer Subtraction</div>
+        <div class="skill-desc">Subtracting positive and negative integers in the range −20 to 20, including subtracting negatives. Number line reference at top. 12 horizontal + 8 vertical problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-ar" onclick="selectSkill('arearect')">
+        <div class="skill-icon">▭</div>
+        <div class="skill-name">Area of Rectangles &amp; Squares</div>
+        <div class="skill-desc">Find area given dimensions, and find a missing side given area. 8 diagram problems per page: 2 sq→area, 2 rect→area, 1 sq→side, 3 rect→missing side.</div>
+      </div>
+      <div class="skill-card" id="skill-im" onclick="selectSkill('intmul')">
+        <div class="skill-icon">×⁻</div>
+        <div class="skill-name">Integer Multiplication</div>
+        <div class="skill-desc">Multiplying positive and negative integers in the range −12 to 12. Sign rules reference at top. 12 horizontal + 8 vertical problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-id" onclick="selectSkill('intdiv')">
+        <div class="skill-icon">÷⁻</div>
+        <div class="skill-name">Integer Division</div>
+        <div class="skill-desc">Dividing positive and negative integers with whole-number quotients. Sign rules reference at top. 12 horizontal + 8 vertical problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-ias" onclick="selectSkill('intaddsubmix')">
+        <div class="skill-icon">±⁻</div>
+        <div class="skill-name">Integer Add/Sub Mixed</div>
+        <div class="skill-desc">Addition and subtraction problems interleaved on the same page — operator varies per problem. Number line reference at top. 12 horizontal + 8 vertical problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-imd" onclick="selectSkill('intmuldivmix')">
+        <div class="skill-icon">×÷⁻</div>
+        <div class="skill-name">Integer Mul/Div Mixed</div>
+        <div class="skill-desc">Multiplication and division problems interleaved on the same page — operator varies per problem. Sign rules reference at top. 12 horizontal + 8 vertical problems per page.</div>
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn btn-fire" id="next-1" onclick="goStep(2)">Next: Schedule →</button>
@@ -336,7 +460,20 @@ const SQ_DATA = [
   {n:7,sq:49},{n:8,sq:64},{n:9,sq:81},{n:10,sq:100},{n:11,sq:121},{n:12,sq:144}
 ];
 const SQ_SET = new Set([1,4,9,16,25,36,49,64,81,100,121,144]);
-const SKILL_TITLE = 'Perfect Squares & Square Roots';
+
+let ACTIVE_SKILL = 'squares'; // 'squares' | 'intadd'
+function skillTitle(){
+  if(ACTIVE_SKILL==='intadd')        return 'Integer Addition';
+  if(ACTIVE_SKILL==='intsub')        return 'Integer Subtraction';
+  if(ACTIVE_SKILL==='intmul')        return 'Integer Multiplication';
+  if(ACTIVE_SKILL==='intdiv')        return 'Integer Division';
+  if(ACTIVE_SKILL==='intaddsubmix')  return 'Integer Addition & Subtraction';
+  if(ACTIVE_SKILL==='intmuldivmix')  return 'Integer Multiplication & Division';
+  if(ACTIVE_SKILL==='arearect')      return 'Area of Rectangles & Squares';
+  return 'Perfect Squares & Square Roots';
+}
+// Keep legacy const for any code that uses SKILL_TITLE directly (squares only)
+const SKILL_TITLE_SQ = 'Perfect Squares & Square Roots';
 
 function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
 function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=ri(0,i);[r[i],r[j]]=[r[j],r[i]];}return r;}
@@ -718,6 +855,896 @@ function refTableHTML(){
 }
 
 /* ════════════════════════════════════════════════════════════
+   INTEGER ADDITION — PROBLEM GENERATION
+   ════════════════════════════════════════════════════════════ */
+// Sign-mix defaults: 5 both-neg, 8 neg+pos, 5 pos+neg, 2 both-pos = 20
+const IA_MIX = {nn:5, np:8, pn:5, pp:2};
+const IA_RANGE = 20;
+
+function genIntAddProblems() {
+  const out = [];
+  function sameSign(v,s){return s<0?v<0:v>0;}
+  function addP(sA,sB,cnt){
+    for(let t=0;t<cnt*20;t++){
+      const a=ri(1,IA_RANGE)*sA, b=ri(1,IA_RANGE)*sB;
+      if(Math.abs(a)+Math.abs(b)<3) continue;
+      out.push({a,b,ans:a+b});
+      if(out.filter(p=>sameSign(p.a,sA)&&sameSign(p.b,sB)).length>=cnt) break;
+    }
+  }
+  addP(-1,-1,IA_MIX.nn); addP(-1,1,IA_MIX.np);
+  addP( 1,-1,IA_MIX.pn); addP( 1,1,IA_MIX.pp);
+  return shuffle(out).slice(0,20);
+}
+
+/* Raised-minus helper for negative numbers */
+function iaNeg(sz){
+  const sup=Math.round(sz*.62), lift=Math.round(sz*.30);
+  return `<span style="font-size:${sup}px;vertical-align:${lift}px;line-height:1;font-weight:800;">−</span>`;
+}
+function iaFmt(n,sz,col){
+  const abs=Math.abs(n), clr=col?'#b83000':'#1a1a1a';
+  const base=`font-size:${sz}px;font-weight:800;font-family:'Nunito',sans-serif;color:${clr};`;
+  return n<0
+    ? `<span style="${base}">${iaNeg(sz)}${abs}</span>`
+    : `<span style="${base}">${abs}</span>`;
+}
+
+/* Number line SVG — fixed −8 to 8, zero centred */
+function iaNumberLine(){
+  const MIN=-8,MAX=8,COUNT=17,GAPS=16;
+  const VW=540,PAD=30,SPAN=VW-2*PAD,STEP=SPAN/GAPS;
+  const LY=22,RDOT=4,TICKH=8,ZERO_X=8,LBL_Y=LY+RDOT+14;
+  let paths='',dots='',lbls='';
+  for(let i=0;i<COUNT;i++){
+    const v=MIN+i, x=PAD+i*STEP, isZ=v===0;
+    const th=TICKH+(isZ?3:0);
+    paths+=`<line x1="${x}" y1="${LY-th}" x2="${x}" y2="${LY+th}" stroke="#1a1a1a" stroke-width="${isZ?2:1.5}"/>`;
+    dots +=`<circle cx="${x}" cy="${LY}" r="${isZ?RDOT+1:RDOT}" fill="#1a1a1a"/>`;
+    const fsz=isZ?13:11, fwt=isZ?'bold':'600';
+    lbls +=`<text x="${x}" y="${LBL_Y}" text-anchor="middle" font-size="${fsz}" font-weight="${fwt}" font-family="Archivo,sans-serif" fill="#1a1a1a">${v}</text>`;
+  }
+  const lx1=PAD-8,lx2=VW-PAD+8,AH=7,AW=5;
+  const line=`<line x1="${lx1}" y1="${LY}" x2="${lx2}" y2="${LY}" stroke="#1a1a1a" stroke-width="1.5"/>`;
+  const aL=`<polygon points="${lx1},${LY} ${lx1+AH},${LY-AW} ${lx1+AH},${LY+AW}" fill="#1a1a1a"/>`;
+  const aR=`<polygon points="${lx2},${LY} ${lx2-AH},${LY-AW} ${lx2-AH},${LY+AW}" fill="#1a1a1a"/>`;
+  const svgH=LBL_Y+6;
+  return `<svg viewBox="0 0 ${VW} ${svgH}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible;">${line}${aL}${aR}${paths}${dots}${lbls}</svg>`;
+}
+
+/* Horizontal problem cell (1–12) */
+function iaHorizCell(p,num,key){
+  const SZ=21;
+  const op=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">+</span>`;
+  const eq=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">=</span>`;
+  const ans=key
+    ? iaFmt(p.ans,SZ,true)
+    : `<span class="ia-blank"></span>`;
+  return `<div class="ia-h-cell">
+    <span class="ia-pnum">${num}</span>
+    <span class="ia-expr">${iaFmt(p.a,SZ)}&thinsp;${op}&thinsp;${iaFmt(p.b,SZ)}&thinsp;${eq}&thinsp;${ans}</span>
+  </div>`;
+}
+
+/* Vertical problem cell (13–20) — table for exact column alignment */
+function iaVertCell(p,num,key){
+  const SZ=27, OPW=18, NUMW=60;
+  const ntd=(n,isAns=false)=>`<td class="ia-v-numcol${isAns?' key':''}" style="width:${NUMW}px;">${iaFmt(n,SZ,isAns)}</td>`;
+  const optd=sym=>`<td class="ia-v-opcol" style="width:${OPW}px;">${sym}</td>`;
+  const blank=()=>`<td style="width:${OPW}px;"></td>`;
+  const rule=`<tr class="ia-v-rule"><td colspan="2" style="padding:2px 0 0;"><div style="height:2px;background:#1a1a1a;"></div></td></tr>`;
+  const ansRow=key
+    ? `<tr>${blank()}${ntd(p.ans,true)}</tr>`
+    : `<tr class="ia-v-ansrow"><td colspan="2"></td></tr>`;
+  return `<div class="ia-v-cell">
+    <div class="ia-v-num">${num}</div>
+    <table class="ia-v-tbl">
+      <tr>${blank()}${ntd(p.a)}</tr>
+      <tr>${optd('+')}${ntd(p.b)}</tr>
+      ${rule}${ansRow}
+    </table>
+  </div>`;
+}
+
+/* Integer addition probe page */
+function iaProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>iaHorizCell(p,r*3+ci+1,key)).join('');
+    return `<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>iaVertCell(p,12+r*4+ci+1,key)).join('');
+    return `<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return `<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Integer Addition&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ia-nl">${iaNumberLine()}</div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Add.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* Integer addition target page */
+function iaTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>iaHorizCell(p,r*3+ci+1,key)).join('');
+    return `<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>iaVertCell(p,12+r*4+ci+1,key)).join('');
+    return `<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return `<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Integer Addition&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ia-nl">${iaNumberLine()}</div>
+    <div class="ia-tip">💡 Adding a negative moves <em>left</em>; adding a positive moves <em>right</em>.</div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Add.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   INTEGER SUBTRACTION — PROBLEM GENERATION & PAGE RENDERERS
+   ════════════════════════════════════════════════════════════ */
+// Sign-mix defaults: 4 neg−neg, 6 neg−pos, 7 pos−neg (key concept), 3 pos−pos = 20
+const IS_MIX = {nn:4, np:6, pn:7, pp:3};
+
+function genIntSubProblems(){
+  const out=[];
+  function sameSign(v,s){return s<0?v<0:v>0;}
+  function addP(sA,sB,cnt){
+    for(let t=0;t<cnt*20;t++){
+      const a=ri(1,IA_RANGE)*sA, b=ri(1,IA_RANGE)*sB;
+      // avoid trivial: both magnitude 1 gives 0 or ±2
+      if(Math.abs(a)+Math.abs(b)<4) continue;
+      out.push({a,b,ans:a-b});
+      if(out.filter(p=>sameSign(p.a,sA)&&sameSign(p.b,sB)).length>=cnt) break;
+    }
+  }
+  addP(-1,-1,IS_MIX.nn); addP(-1, 1,IS_MIX.np);
+  addP( 1,-1,IS_MIX.pn); addP( 1, 1,IS_MIX.pp);
+  return shuffle(out).slice(0,20);
+}
+
+/* Horizontal problem cell for subtraction (1–12)
+   Operator is always −. If b is negative, display shows ⁻b (raised minus on b).
+   e.g. 3 − ⁻4, ⁻4 − ⁻3, ⁻4 − 3, 8 − 3  */
+function isHorizCell(p,num,key){
+  const SZ=21;
+  const opSpan=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">−</span>`;
+  const eq=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">=</span>`;
+  const ans=key ? iaFmt(p.ans,SZ,true) : `<span class="ia-blank"></span>`;
+  return `<div class="ia-h-cell">
+    <span class="ia-pnum">${num}</span>
+    <span class="ia-expr">${iaFmt(p.a,SZ)}&thinsp;${opSpan}&thinsp;${iaFmt(p.b,SZ)}&thinsp;${eq}&thinsp;${ans}</span>
+  </div>`;
+}
+
+/* Vertical problem cell for subtraction (13–20) */
+function isVertCell(p,num,key){
+  const SZ=27, OPW=18, NUMW=60;
+  const ntd=(n,isAns=false)=>`<td class="ia-v-numcol${isAns?' key':''}" style="width:${NUMW}px;">${iaFmt(n,SZ,isAns)}</td>`;
+  const optd=sym=>`<td class="ia-v-opcol" style="width:${OPW}px;">${sym}</td>`;
+  const blank=()=>`<td style="width:${OPW}px;"></td>`;
+  const rule=`<tr class="ia-v-rule"><td colspan="2" style="padding:2px 0 0;"><div style="height:2px;background:#1a1a1a;"></div></td></tr>`;
+  const ansRow=key
+    ? `<tr>${blank()}${ntd(p.ans,true)}</tr>`
+    : `<tr class="ia-v-ansrow"><td colspan="2"></td></tr>`;
+  return `<div class="ia-v-cell">
+    <div class="ia-v-num">${num}</div>
+    <table class="ia-v-tbl">
+      <tr>${blank()}${ntd(p.a)}</tr>
+      <tr>${optd('−')}${ntd(p.b)}</tr>
+      ${rule}${ansRow}
+    </table>
+  </div>`;
+}
+
+/* Shared page builder for subtraction (probe and target share structure) */
+function _isPageRows(probs,key){
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>isHorizCell(p,r*3+ci+1,key)).join('');
+    return `<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>isVertCell(p,12+r*4+ci+1,key)).join('');
+    return `<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return {hRows,vRows};
+}
+
+function isProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const {hRows,vRows}=_isPageRows(probs,key);
+  return `<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Integer Subtraction&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ia-nl">${iaNumberLine()}</div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Subtract.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+function isTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const {hRows,vRows}=_isPageRows(probs,key);
+  return `<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Integer Subtraction&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ia-nl">${iaNumberLine()}</div>
+    <div class="ia-tip">💡 Subtracting a negative is the same as adding its opposite: <em>a − (−b) = a + b</em></div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Subtract.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   INTEGER MULTIPLICATION — PROBLEM GENERATION & PAGE RENDERERS
+   ════════════════════════════════════════════════════════════ */
+// Sign mix: emphasise mixed-sign cases (6+6) vs same-sign (4+4)
+const IM_MIX = {nn:4, np:6, pn:6, pp:4};
+
+function genIntMulProblems(){
+  const out=[];
+  function sameSign(v,s){return s<0?v<0:v>0;}
+  function addP(sA,sB,cnt){
+    for(let t=0;t<cnt*40;t++){
+      const a=ri(2,12)*sA, b=ri(2,12)*sB;
+      out.push({a,b,ans:a*b});
+      if(out.filter(p=>sameSign(p.a,sA)&&sameSign(p.b,sB)).length>=cnt) break;
+    }
+  }
+  addP(-1,-1,IM_MIX.nn); addP(-1, 1,IM_MIX.np);
+  addP( 1,-1,IM_MIX.pn); addP( 1, 1,IM_MIX.pp);
+  return shuffle(out).slice(0,20);
+}
+
+const MUL_SIGN_BOX=`<div class="sr-box">
+  <div class="sr-hdr">Sign Rules — Multiplication &amp; Division</div>
+  <div class="sr-body">
+    <span class="sr-rule">(+) × (+) = <em>(+)</em></span>
+    <span class="sr-rule">(−) × (−) = <em>(+)</em></span>
+    <span class="sr-rule">(+) × (−) = <em>(−)</em></span>
+    <span class="sr-rule">(−) × (+) = <em>(−)</em></span>
+  </div>
+</div>`;
+
+function imHorizCell(p,num,key){
+  const SZ=21;
+  const op=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">×</span>`;
+  const eq=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">=</span>`;
+  const ans=key?iaFmt(p.ans,SZ,true):`<span class="ia-blank ia-blank-lg"></span>`;
+  return`<div class="ia-h-cell">
+    <span class="ia-pnum">${num}</span>
+    <span class="ia-expr">${iaFmt(p.a,SZ)}&thinsp;${op}&thinsp;${iaFmt(p.b,SZ)}&thinsp;${eq}&thinsp;${ans}</span>
+  </div>`;
+}
+function imVertCell(p,num,key){
+  const SZ=27, OPW=18, NUMW=60;
+  const ntd=(n,isAns=false)=>`<td class="ia-v-numcol${isAns?' key':''}" style="width:${NUMW}px;">${iaFmt(n,SZ,isAns)}</td>`;
+  const optd=sym=>`<td class="ia-v-opcol" style="width:${OPW}px;">${sym}</td>`;
+  const blank=()=>`<td style="width:${OPW}px;"></td>`;
+  const rule=`<tr class="ia-v-rule"><td colspan="2" style="padding:2px 0 0;"><div style="height:2px;background:#1a1a1a;"></div></td></tr>`;
+  const ansRow=key?`<tr>${blank()}${ntd(p.ans,true)}</tr>`:`<tr class="ia-v-ansrow"><td colspan="2"></td></tr>`;
+  return`<div class="ia-v-cell">
+    <div class="ia-v-num">${num}</div>
+    <table class="ia-v-tbl">
+      <tr>${blank()}${ntd(p.a)}</tr>
+      <tr>${optd('×')}${ntd(p.b)}</tr>
+      ${rule}${ansRow}
+    </table>
+  </div>`;
+}
+function _imPageRows(probs,key){
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>imHorizCell(p,r*3+ci+1,key)).join('');
+    return`<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>imVertCell(p,12+r*4+ci+1,key)).join('');
+    return`<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return{hRows,vRows};
+}
+function imProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_imPageRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Integer Multiplication&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${MUL_SIGN_BOX}
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Multiply.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+function imTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_imPageRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Integer Multiplication&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${MUL_SIGN_BOX}
+    <div class="ia-tip-blue">💡 Same signs → positive answer &nbsp;·&nbsp; Different signs → negative answer &nbsp;·&nbsp; e.g. <em>(−3) × (−4) = 12</em></div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Multiply.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   INTEGER DIVISION — PROBLEM GENERATION & PAGE RENDERERS
+   ════════════════════════════════════════════════════════════ */
+// Generate by choosing quotient first so answers are always whole numbers
+// Sign mix: pp=5 nn=4 np=6 pn=5 = 20
+const ID_MIX = {pp:5, nn:4, np:6, pn:5};
+
+function genIntDivProblems(){
+  const out=[];
+  function sameSign(v,s){return s<0?v<0:v>0;}
+  function addP(sA,sB,cnt){
+    for(let t=0;t<cnt*40;t++){
+      const q=ri(2,12), b_abs=ri(2,10);
+      const a_abs=q*b_abs;
+      if(a_abs>120) continue;
+      const a=a_abs*sA, b=b_abs*sB;
+      out.push({a,b,ans:a/b});
+      if(out.filter(p=>sameSign(p.a,sA)&&sameSign(p.b,sB)).length>=cnt) break;
+    }
+  }
+  addP( 1, 1,ID_MIX.pp); addP(-1,-1,ID_MIX.nn);
+  addP(-1, 1,ID_MIX.np); addP( 1,-1,ID_MIX.pn);
+  return shuffle(out).slice(0,20);
+}
+
+const DIV_SIGN_BOX=`<div class="sr-box">
+  <div class="sr-hdr">Sign Rules — Multiplication &amp; Division</div>
+  <div class="sr-body">
+    <span class="sr-rule">(+) ÷ (+) = <em>(+)</em></span>
+    <span class="sr-rule">(−) ÷ (−) = <em>(+)</em></span>
+    <span class="sr-rule">(−) ÷ (+) = <em>(−)</em></span>
+    <span class="sr-rule">(+) ÷ (−) = <em>(−)</em></span>
+  </div>
+</div>`;
+
+function idHorizCell(p,num,key){
+  const SZ=21;
+  const op=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">÷</span>`;
+  const eq=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">=</span>`;
+  const ans=key?iaFmt(p.ans,SZ,true):`<span class="ia-blank ia-blank-lg"></span>`;
+  return`<div class="ia-h-cell">
+    <span class="ia-pnum">${num}</span>
+    <span class="ia-expr">${iaFmt(p.a,SZ)}&thinsp;${op}&thinsp;${iaFmt(p.b,SZ)}&thinsp;${eq}&thinsp;${ans}</span>
+  </div>`;
+}
+function idVertCell(p,num,key){
+  const SZ=27, OPW=18, NUMW=60;
+  const ntd=(n,isAns=false)=>`<td class="ia-v-numcol${isAns?' key':''}" style="width:${NUMW}px;">${iaFmt(n,SZ,isAns)}</td>`;
+  const optd=sym=>`<td class="ia-v-opcol" style="width:${OPW}px;">${sym}</td>`;
+  const blank=()=>`<td style="width:${OPW}px;"></td>`;
+  const rule=`<tr class="ia-v-rule"><td colspan="2" style="padding:2px 0 0;"><div style="height:2px;background:#1a1a1a;"></div></td></tr>`;
+  const ansRow=key?`<tr>${blank()}${ntd(p.ans,true)}</tr>`:`<tr class="ia-v-ansrow"><td colspan="2"></td></tr>`;
+  return`<div class="ia-v-cell">
+    <div class="ia-v-num">${num}</div>
+    <table class="ia-v-tbl">
+      <tr>${blank()}${ntd(p.a)}</tr>
+      <tr>${optd('÷')}${ntd(p.b)}</tr>
+      ${rule}${ansRow}
+    </table>
+  </div>`;
+}
+function _idPageRows(probs,key){
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>idHorizCell(p,r*3+ci+1,key)).join('');
+    return`<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>idVertCell(p,12+r*4+ci+1,key)).join('');
+    return`<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return{hRows,vRows};
+}
+function idProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_idPageRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Integer Division&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${DIV_SIGN_BOX}
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Divide.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+function idTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_idPageRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Integer Division&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${DIV_SIGN_BOX}
+    <div class="ia-tip-blue">💡 Same signs → positive answer &nbsp;·&nbsp; Different signs → negative answer &nbsp;·&nbsp; e.g. <em>(−12) ÷ (−4) = 3</em></div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Divide.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   INTEGER ADD/SUB MIXED — PROBLEM GENERATION & PAGE RENDERERS
+   ════════════════════════════════════════════════════════════ */
+/* Draw 10 problems from each generator, shuffle together.
+   Each problem carries its own operator so the horizontal and
+   vertical renderers can display it correctly. */
+
+function genIntAddSubMixProblems(){
+  const addProbs = genIntAddProblems().slice(0,10).map(p=>({...p, op:'+'}));
+  const subProbs = genIntSubProblems().slice(0,10).map(p=>({...p, op:'−'}));
+  return shuffle([...addProbs, ...subProbs]);
+}
+
+/* Horizontal cell — shows operator from the problem itself */
+function iasMixHorizCell(p,num,key){
+  const SZ=21;
+  const op=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">${p.op}</span>`;
+  const eq=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">=</span>`;
+  const ans=key?iaFmt(p.ans,SZ,true):`<span class="ia-blank"></span>`;
+  return`<div class="ia-h-cell">
+    <span class="ia-pnum">${num}</span>
+    <span class="ia-expr">${iaFmt(p.a,SZ)}&thinsp;${op}&thinsp;${iaFmt(p.b,SZ)}&thinsp;${eq}&thinsp;${ans}</span>
+  </div>`;
+}
+/* Vertical cell — shows operator from the problem itself */
+function iasMixVertCell(p,num,key){
+  const SZ=27, OPW=18, NUMW=60;
+  const ntd=(n,isAns=false)=>`<td class="ia-v-numcol${isAns?' key':''}" style="width:${NUMW}px;">${iaFmt(n,SZ,isAns)}</td>`;
+  const optd=sym=>`<td class="ia-v-opcol" style="width:${OPW}px;">${sym}</td>`;
+  const blank=()=>`<td style="width:${OPW}px;"></td>`;
+  const rule=`<tr class="ia-v-rule"><td colspan="2" style="padding:2px 0 0;"><div style="height:2px;background:#1a1a1a;"></div></td></tr>`;
+  const ansRow=key?`<tr>${blank()}${ntd(p.ans,true)}</tr>`:`<tr class="ia-v-ansrow"><td colspan="2"></td></tr>`;
+  return`<div class="ia-v-cell">
+    <div class="ia-v-num">${num}</div>
+    <table class="ia-v-tbl">
+      <tr>${blank()}${ntd(p.a)}</tr>
+      <tr>${optd(p.op)}${ntd(p.b)}</tr>
+      ${rule}${ansRow}
+    </table>
+  </div>`;
+}
+function _iasMixRows(probs,key){
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>iasMixHorizCell(p,r*3+ci+1,key)).join('');
+    return`<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>iasMixVertCell(p,12+r*4+ci+1,key)).join('');
+    return`<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return{hRows,vRows};
+}
+function iasMixProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_iasMixRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Integer Addition &amp; Subtraction&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ia-nl">${iaNumberLine()}</div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Add or Subtract.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+function iasMixTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_iasMixRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Integer Addition &amp; Subtraction&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ia-nl">${iaNumberLine()}</div>
+    <div class="ia-tip">💡 Adding negative → move <em>left</em> &nbsp;·&nbsp; Subtracting negative → same as adding: <em>a − (−b) = a + b</em></div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Add or Subtract.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   INTEGER MUL/DIV MIXED — PROBLEM GENERATION & PAGE RENDERERS
+   ════════════════════════════════════════════════════════════ */
+function genIntMulDivMixProblems(){
+  const mulProbs = genIntMulProblems().slice(0,10).map(p=>({...p, op:'×'}));
+  const divProbs = genIntDivProblems().slice(0,10).map(p=>({...p, op:'÷'}));
+  return shuffle([...mulProbs, ...divProbs]);
+}
+
+const MULDIV_SIGN_BOX=`<div class="sr-box">
+  <div class="sr-hdr">Sign Rules — Multiplication &amp; Division</div>
+  <div class="sr-body">
+    <span class="sr-rule">Same signs → <em>(+)</em></span>
+    <span class="sr-rule">Different signs → <em>(−)</em></span>
+  </div>
+</div>`;
+
+function imdMixHorizCell(p,num,key){
+  const SZ=21;
+  const op=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">${p.op}</span>`;
+  const eq=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">=</span>`;
+  const ans=key?iaFmt(p.ans,SZ,true):`<span class="ia-blank ia-blank-lg"></span>`;
+  return`<div class="ia-h-cell">
+    <span class="ia-pnum">${num}</span>
+    <span class="ia-expr">${iaFmt(p.a,SZ)}&thinsp;${op}&thinsp;${iaFmt(p.b,SZ)}&thinsp;${eq}&thinsp;${ans}</span>
+  </div>`;
+}
+function imdMixVertCell(p,num,key){
+  const SZ=27, OPW=18, NUMW=60;
+  const ntd=(n,isAns=false)=>`<td class="ia-v-numcol${isAns?' key':''}" style="width:${NUMW}px;">${iaFmt(n,SZ,isAns)}</td>`;
+  const optd=sym=>`<td class="ia-v-opcol" style="width:${OPW}px;">${sym}</td>`;
+  const blank=()=>`<td style="width:${OPW}px;"></td>`;
+  const rule=`<tr class="ia-v-rule"><td colspan="2" style="padding:2px 0 0;"><div style="height:2px;background:#1a1a1a;"></div></td></tr>`;
+  const ansRow=key?`<tr>${blank()}${ntd(p.ans,true)}</tr>`:`<tr class="ia-v-ansrow"><td colspan="2"></td></tr>`;
+  return`<div class="ia-v-cell">
+    <div class="ia-v-num">${num}</div>
+    <table class="ia-v-tbl">
+      <tr>${blank()}${ntd(p.a)}</tr>
+      <tr>${optd(p.op)}${ntd(p.b)}</tr>
+      ${rule}${ansRow}
+    </table>
+  </div>`;
+}
+function _imdMixRows(probs,key){
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>imdMixHorizCell(p,r*3+ci+1,key)).join('');
+    return`<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>imdMixVertCell(p,12+r*4+ci+1,key)).join('');
+    return`<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return{hRows,vRows};
+}
+function imdMixProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_imdMixRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Integer Multiplication &amp; Division&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${MULDIV_SIGN_BOX}
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Multiply or Divide.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+function imdMixTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_imdMixRows(probs,key);
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Integer Multiplication &amp; Division&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${MULDIV_SIGN_BOX}
+    <div class="ia-tip-blue">💡 Same signs → positive answer &nbsp;·&nbsp; Different signs → negative answer</div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Multiply or Divide.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   AREA OF RECTANGLES — PROBLEM GENERATION & PAGE RENDERERS
+   ════════════════════════════════════════════════════════════ */
+
+const AR_UNITS = ['cm','in','km','mi','ft','m'];
+
+/* Generate one randomized set of 8 problems:
+   2 × square→area, 2 × rect→area,
+   1 × square→side, 3 × rect→missing (base or height) */
+function genAreaRectProblems(){
+  const pick = arr => arr[ri(0,arr.length-1)];
+  const unit = () => pick(AR_UNITS);
+
+  // nice side lengths for squares: perfect-square answers look clean
+  const SQ_SIDES = [4,5,6,7,8,9,10,11,12];
+  // rect dimensions: keep answers ≤ 144, both sides 3–14
+  function rectPair(){
+    let b,h;
+    do { b=ri(3,14); h=ri(3,14); } while(b===h || b*h>144 || b*h<12);
+    return {b,h};
+  }
+
+  const probs = [];
+
+  // 2 square → find area
+  const sqSides = shuffle([...SQ_SIDES]).slice(0,2);
+  for(const s of sqSides){
+    probs.push({shape:'square',b:s,h:s,area:null,find:'area',unit:unit(),ans:s*s});
+  }
+
+  // 2 rect → find area
+  for(let i=0;i<2;i++){
+    const {b,h} = rectPair();
+    probs.push({shape:'rect',b,h,area:null,find:'area',unit:unit(),ans:b*h});
+  }
+
+  // 1 square → find side (area given)
+  {
+    const s = pick(SQ_SIDES);
+    probs.push({shape:'square',b:s,h:s,area:s*s,find:'side',unit:unit(),ans:s});
+  }
+
+  // 3 rect → find missing side (area given)
+  const findOpts = ['base','height','base'];  // slight base bias for variety
+  for(let i=0;i<3;i++){
+    const {b,h} = rectPair();
+    const find  = findOpts[i];
+    probs.push({shape:'rect',b,h,area:b*h,find,unit:unit(),ans: find==='base'?b:h});
+  }
+
+  return shuffle(probs);
+}
+
+/* ── SVG diagram ── */
+function arDiagSVG(p, key){
+  const VW=260, VH=118;
+  const PADL=18, PADR=64, PADT=22, PADB=12;
+  const AW=VW-PADL-PADR; // 178
+  const AH=VH-PADT-PADB; // 84
+  const INK='#1a1a1a', RED='#b83000', FILL='#F6F6F4';
+  const FS=12, FI=11;
+
+  // Rectangle draw size
+  let rw, rh;
+  if(p.shape==='square'){
+    rw = rh = 72;
+  } else {
+    const ratio = Math.max(0.55, Math.min(2.4, p.b/p.h));
+    rh = Math.min(AH, 80);
+    rw = Math.min(AW, Math.max(52, rh*ratio));
+    if(rw>=AW){ rw=AW; rh=Math.max(34, rw/ratio); }
+  }
+
+  const x0 = PADL + (AW-rw)/2;
+  const y0 = PADT + (AH-rh)/2;
+  const cx = x0+rw/2, cy = y0+rh/2;
+
+  let s = `<svg viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // Rectangle body
+  s += `<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="${FILL}" stroke="${INK}" stroke-width="2.5"/>`;
+
+  // Square: tick marks perpendicular to each side, crossing through midpoint
+  if(p.shape==='square'){
+    const TK=6;
+    // top & bottom: vertical ticks crossing horizontal edges
+    s += `<line x1="${cx}" y1="${y0-TK}" x2="${cx}" y2="${y0+TK}" stroke="${INK}" stroke-width="2"/>`;
+    s += `<line x1="${cx}" y1="${y0+rh-TK}" x2="${cx}" y2="${y0+rh+TK}" stroke="${INK}" stroke-width="2"/>`;
+    // left & right: horizontal ticks crossing vertical edges
+    s += `<line x1="${x0-TK}" y1="${cy}" x2="${x0+TK}" y2="${cy}" stroke="${INK}" stroke-width="2"/>`;
+    s += `<line x1="${x0+rw-TK}" y1="${cy}" x2="${x0+rw+TK}" y2="${cy}" stroke="${INK}" stroke-width="2"/>`;
+  }
+
+  // Dimension line helper (faint, with end-caps)
+  const dimL = (x1,y1,x2,y2) => {
+    const CAP=3, horiz=Math.abs(y2-y1)<1;
+    if(horiz) return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" stroke-width="1" opacity=".4"/>
+      <line x1="${x1}" y1="${y1-CAP}" x2="${x1}" y2="${y1+CAP}" stroke="${INK}" stroke-width="1" opacity=".4"/>
+      <line x1="${x2}" y1="${y2-CAP}" x2="${x2}" y2="${y2+CAP}" stroke="${INK}" stroke-width="1" opacity=".4"/>`;
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" stroke-width="1" opacity=".4"/>
+      <line x1="${x1-CAP}" y1="${y1}" x2="${x1+CAP}" y2="${y1}" stroke="${INK}" stroke-width="1" opacity=".4"/>
+      <line x1="${x2-CAP}" y1="${y2}" x2="${x2+CAP}" y2="${y2}" stroke="${INK}" stroke-width="1" opacity=".4"/>`;
+  };
+
+  // Base label (above top edge)
+  let bLbl=null, bClr=INK;
+  if(p.shape==='square'){
+    if(p.find==='area') bLbl=`${p.b} ${p.unit}`;
+    // find='side': no base label — area shown inside, ? on right
+  } else {
+    if(p.find==='base'){ bLbl=key?`${p.ans} ${p.unit}`:'?'; bClr=key?RED:INK; }
+    else bLbl=`${p.b} ${p.unit}`;
+  }
+  if(bLbl){
+    s += dimL(x0, y0-12, x0+rw, y0-12);
+    s += `<text x="${cx}" y="${y0-14}" text-anchor="middle" font-size="${FS}" font-weight="700" fill="${bClr}" font-family="Archivo,sans-serif">${bLbl}</text>`;
+  }
+
+  // Height label (right side)
+  let hLbl=null, hClr=INK;
+  if(p.find==='height'||p.find==='side'){ hLbl=key?`${p.ans} ${p.unit}`:'?'; hClr=key?RED:INK; }
+  else if(p.shape==='rect') hLbl=`${p.h} ${p.unit}`;
+  if(hLbl){
+    s += dimL(x0+rw+10, y0, x0+rw+10, y0+rh);
+    s += `<text x="${x0+rw+14}" y="${cy+5}" text-anchor="start" font-size="${FS}" font-weight="700" fill="${hClr}" font-family="Archivo,sans-serif">${hLbl}</text>`;
+  }
+
+  // Area label inside (when area is given)
+  if(p.area){
+    s += `<text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="${FI}" font-weight="700" fill="${INK}" font-family="Archivo,sans-serif">A = ${p.area} ${p.unit}\u00B2</text>`;
+  }
+
+  s += '</svg>';
+  return s;
+}
+
+/* ── Answer line: two blanks (number + units) ── */
+function arAnsLine(p, key){
+  const SYM  = {area:'A',side:'s',base:'b',height:'h'}[p.find];
+  const UNIT = p.find==='area' ? `${p.unit}\u00B2` : p.unit;
+  if(key){
+    return `<div class="ar-ans">${SYM} = <span class="ar-ans-val">${p.ans}</span> <span class="ar-ans-val">${UNIT}</span></div>`;
+  }
+  return `<div class="ar-ans">${SYM} = <span class="ar-blank"></span> <span class="ar-blank ar-blank-sm"></span></div>`;
+}
+
+/* ── Shared page grid builder ── */
+function _arGrid(probs, key){
+  return probs.map((p,i)=>`
+    <div class="ar-cell">
+      <div class="ar-pnum">${i+1}</div>
+      <div class="ar-diag">${arDiagSVG(p,key)}</div>
+      ${arAnsLine(p,key)}
+    </div>`).join('');
+}
+
+/* ── Formula reference (target only) ── */
+const AR_REF = `<div class="ar-ref">
+  <div class="ar-ref-hdr">📐 Formulas</div>
+  <div class="ar-ref-body">
+    <span class="ar-ref-f">Rectangle:&ensp;<em>A = b × h</em></span>
+    <span class="ar-ref-f">Square:&ensp;<em>A = s × s</em></span>
+    <span class="ar-ref-f">Missing side:&ensp;<em>b = A ÷ h</em></span>
+  </div>
+</div>`;
+
+function arProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  return `<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Practice</span>
+        <span>Area of Rectangles &amp; Squares&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ar-grid">${_arGrid(probs,key)}</div>
+  </div>`;
+}
+
+function arTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  return `<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Area of Rectangles &amp; Squares&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${AR_REF}
+    <div class="ar-grid">${_arGrid(probs,key)}</div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
    PAGE HTML GENERATORS
    ════════════════════════════════════════════════════════════ */
 function metaRowHTML(dayLabel){
@@ -734,7 +1761,7 @@ function probePageHTML(probs, key, pgNum, cycleNum, dayLabel){
   return`<div class="wb-page">
     <div class="wb-hdr">
       <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
-        <span>${SKILL_TITLE}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+        <span>${skillTitle()}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
       <span class="pg-num">${pgNum}</span>
     </div>
     ${metaRowHTML(dayLabel)}
@@ -748,7 +1775,7 @@ function targetPageHTML(probs, key, pgNum, cycleNum, dayLabel){
   return`<div class="wb-page">
     <div class="wb-hdr">
       <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
-        <span>${SKILL_TITLE}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+        <span>${skillTitle()}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
       <span class="pg-num">${pgNum}</span>
     </div>
     ${metaRowHTML(dayLabel)}
@@ -777,11 +1804,14 @@ function puzzlePageHTML(puzzles, renderFn, puzLabel, dirs, key, pgNum, cycleNum,
 }
 
 function coverPageHTML(){
+  const sub = (ACTIVE_SKILL==='intadd'||ACTIVE_SKILL==='intsub'||ACTIVE_SKILL==='intmul'||ACTIVE_SKILL==='intdiv'||ACTIVE_SKILL==='intaddsubmix'||ACTIVE_SKILL==='intmuldivmix'||ACTIVE_SKILL==='arearect')
+    ? 'M.I.N.D. 2.0 — Facts on Fire'
+    : 'Fluency to 12 &nbsp;·&nbsp; M.I.N.D. 2.0 — Facts on Fire';
   return`<div class="wb-page wb-cover">
     <div>
-      <div class="wb-cover-title">${SKILL_TITLE}</div>
+      <div class="wb-cover-title">${skillTitle()}</div>
       <div class="wb-cover-rule"></div>
-      <div class="wb-cover-sub">Fluency to 12 &nbsp;·&nbsp; M.I.N.D. 2.0 — Facts on Fire</div>
+      <div class="wb-cover-sub">${sub}</div>
     </div>
     <div class="wb-cover-fields">
       <div class="wb-cover-field"><span>Student Name:</span><div class="wb-cover-field-line"></div></div>
@@ -805,15 +1835,18 @@ function trackingPageHTML(schedule, weeks){
                :dy.puzzle==='mazeescape'?'Maze Escape'
                :dy.puzzle==='arrangingboxes'?'Arranging Boxes':'Puzzle';
       const isProbe=dy.type==='probe';
+      const probeLabel = ACTIVE_SKILL==='arearect'
+        ? `<span class="wb-cr-s">Number Correct (/ 8):</span><div class="wb-cr-ans"></div>`
+        : `<span class="wb-cr-s">Number Correct:</span><div class="wb-cr-ans"></div>`;
       const score=isProbe
-        ?`<span class="wb-cr-s">Number Correct:</span><div class="wb-cr-ans"></div>`
+        ? probeLabel
         :`<span class="wb-cr-s">Completed / Incomplete</span><div class="wb-cr-codes">O &nbsp; S &nbsp; N &nbsp; U &nbsp; ABS &nbsp; EX</div>`;
       rows+=`<div class="wb-cr"><div class="wb-cr-d">Day ${d+1}</div><div class="wb-cr-l">${lbl}</div>${score}</div>`;
     }
     cycles+=`<div class="wb-cyc"><div class="wb-cyc-h">Week ${w}</div><div class="wb-cyc-body">${rows}</div></div>`;
   }
   return`<div class="wb-page">
-    <div class="wb-trk-title">${SKILL_TITLE}</div>
+    <div class="wb-trk-title">${skillTitle()}</div>
     <div class="wb-trk-sub">M.I.N.D. 2.0 — Student Progress Tracker</div>
     ${codes}${cycles}
   </div>`;
@@ -856,11 +1889,41 @@ async function buildWorkbook(key){
       const dayLabel=`Day ${d+1} — ${dy.type==='probe'?'Timed Probe':dy.type==='target'?'Target Skill Practice':PUZ_CONFIG[dy.puzzle]?.label||'Puzzle'}`;
 
       if(dy.type==='probe'){
-        const probs=genProblems(20);
-        pages.push({html:probePageHTML(probs,key,pg,cyc,dayLabel), label:`Wk${cyc} D${d+1} Probe`});
+        const probs = ACTIVE_SKILL==='intadd'       ? genIntAddProblems()
+                    : ACTIVE_SKILL==='intsub'       ? genIntSubProblems()
+                    : ACTIVE_SKILL==='intmul'       ? genIntMulProblems()
+                    : ACTIVE_SKILL==='intdiv'       ? genIntDivProblems()
+                    : ACTIVE_SKILL==='intaddsubmix' ? genIntAddSubMixProblems()
+                    : ACTIVE_SKILL==='intmuldivmix' ? genIntMulDivMixProblems()
+                    : ACTIVE_SKILL==='arearect'     ? genAreaRectProblems()
+                    : genProblems(20);
+        const html  = ACTIVE_SKILL==='intadd'       ? iaProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intsub'       ? isProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intmul'       ? imProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intdiv'       ? idProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intaddsubmix' ? iasMixProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intmuldivmix' ? imdMixProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='arearect'     ? arProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : probePageHTML(probs,key,pg,cyc,dayLabel);
+        pages.push({html, label:`Wk${cyc} D${d+1} Probe`});
       } else if(dy.type==='target'){
-        const probs=genProblems(20);
-        pages.push({html:targetPageHTML(probs,key,pg,cyc,dayLabel), label:`Wk${cyc} D${d+1} Target`});
+        const probs = ACTIVE_SKILL==='intadd'       ? genIntAddProblems()
+                    : ACTIVE_SKILL==='intsub'       ? genIntSubProblems()
+                    : ACTIVE_SKILL==='intmul'       ? genIntMulProblems()
+                    : ACTIVE_SKILL==='intdiv'       ? genIntDivProblems()
+                    : ACTIVE_SKILL==='intaddsubmix' ? genIntAddSubMixProblems()
+                    : ACTIVE_SKILL==='intmuldivmix' ? genIntMulDivMixProblems()
+                    : ACTIVE_SKILL==='arearect'     ? genAreaRectProblems()
+                    : genProblems(20);
+        const html  = ACTIVE_SKILL==='intadd'       ? iaTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intsub'       ? isTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intmul'       ? imTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intdiv'       ? idTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intaddsubmix' ? iasMixTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intmuldivmix' ? imdMixTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='arearect'     ? arTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : targetPageHTML(probs,key,pg,cyc,dayLabel);
+        pages.push({html, label:`Wk${cyc} D${d+1} Target`});
       } else if(dy.type==='puzzle'){
         const cfg=PUZ_CONFIG[dy.puzzle];
         if(cfg){
@@ -940,7 +2003,11 @@ async function downloadBook(key){
     pLbl.textContent=`✅ Done! ${pages.length} pages saved.`;
 
     const suffix=key?'-teacher-key':'-student-book';
-    pdf.save(`perfect-squares-roots${suffix}.pdf`);
+    const slug = ACTIVE_SKILL==='intadd'   ? 'integer-addition'
+               : ACTIVE_SKILL==='intsub'   ? 'integer-subtraction'
+               : ACTIVE_SKILL==='arearect' ? 'area-rectangles-squares'
+               : 'perfect-squares-roots';
+    pdf.save(`${slug}${suffix}.pdf`);
 
   }catch(err){
     pLbl.textContent='Error: '+err.message;
@@ -1006,8 +2073,16 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closePreview();});
 /* ════════════════════════════════════════════════════════════
    WIZARD LOGIC
    ════════════════════════════════════════════════════════════ */
-function selectSkill(){
-  document.getElementById('skill-card').classList.add('selected');
+function selectSkill(id){
+  ACTIVE_SKILL = id || 'squares';
+  document.getElementById('skill-sq').classList.toggle('selected', ACTIVE_SKILL==='squares');
+  document.getElementById('skill-ia').classList.toggle('selected', ACTIVE_SKILL==='intadd');
+  document.getElementById('skill-is').classList.toggle('selected', ACTIVE_SKILL==='intsub');
+  document.getElementById('skill-ar').classList.toggle('selected', ACTIVE_SKILL==='arearect');
+  document.getElementById('skill-im').classList.toggle('selected', ACTIVE_SKILL==='intmul');
+  document.getElementById('skill-id').classList.toggle('selected', ACTIVE_SKILL==='intdiv');
+  document.getElementById('skill-ias').classList.toggle('selected', ACTIVE_SKILL==='intaddsubmix');
+  document.getElementById('skill-imd').classList.toggle('selected', ACTIVE_SKILL==='intmuldivmix');
 }
 
 function changeWeeks(delta){
@@ -1027,12 +2102,20 @@ function rebuildScheduleTable(){
     {val:'arrangingboxes', label:'Arranging Boxes'},
   ];
 
+  // Skills with no puzzles yet
+  const isIntSkill = ACTIVE_SKILL==='intadd' || ACTIVE_SKILL==='intsub' || ACTIVE_SKILL==='intmul' || ACTIVE_SKILL==='intdiv' || ACTIVE_SKILL==='intaddsubmix' || ACTIVE_SKILL==='intmuldivmix' || ACTIVE_SKILL==='arearect';
+  const filteredTypeOpts = isIntSkill
+    ? typeOpts.filter(o=>o.val!=='puzzle')
+    : typeOpts;
+
   let html='';
   for(let d=0;d<5;d++){
     const cur=DAY_SCHEDULE[d];
-    const tOpts=typeOpts.map(o=>`<option value="${o.val}"${cur.type===o.val?' selected':''}>${o.label}</option>`).join('');
+    // If integer skill and current day is puzzle, reset it to probe
+    if(isIntSkill && cur.type==='puzzle') cur.type='probe';
+    const tOpts=filteredTypeOpts.map(o=>`<option value="${o.val}"${cur.type===o.val?' selected':''}>${o.label}</option>`).join('');
     const pOpts=puzOpts.map(o=>`<option value="${o.val}"${cur.puzzle===o.val?' selected':''}>${o.label}</option>`).join('');
-    const isPuz=cur.type==='puzzle';
+    const isPuz=cur.type==='puzzle' && !isIntSkill;
     html+=`<tr>
       <td><span class="day-label">Day ${d+1}</span></td>
       <td><select class="day-sel" onchange="onTypeChange(${d},this.value)">${tOpts}</select></td>
@@ -1060,6 +2143,11 @@ function onPuzChange(d,val){DAY_SCHEDULE[d].puzzle=val;}
 
 function buildRefinePanel(){
   const body=document.getElementById('refine-body');
+
+  if(ACTIVE_SKILL==='intadd'||ACTIVE_SKILL==='intsub'||ACTIVE_SKILL==='intmul'||ACTIVE_SKILL==='intdiv'||ACTIVE_SKILL==='intaddsubmix'||ACTIVE_SKILL==='intmuldivmix'||ACTIVE_SKILL==='arearect'){
+    body.innerHTML='<p class="refine-skip">No puzzle days are available for this skill yet. Probes and target practice pages are ready to go!</p>';
+    return;
+  }
   const puzDays=DAY_SCHEDULE.map((d,i)=>({...d,dayNum:i+1})).filter(d=>d.type==='puzzle');
   if(!puzDays.length){
     body.innerHTML='<p class="refine-skip">No puzzle days are scheduled. You can add puzzle days in Step 2.</p>';
@@ -1118,7 +2206,7 @@ function buildSummary(){
   const studentPages=2+WEEKS*5;
   const keyPages=1+WEEKS*5;
   document.getElementById('gen-summary').innerHTML=`<h3>Book Summary</h3>
-    <div class="gen-row"><span class="gen-lbl">Skill</span><span class="gen-val">${SKILL_TITLE}</span></div>
+    <div class="gen-row"><span class="gen-lbl">Skill</span><span class="gen-val">${skillTitle()}</span></div>
     <div class="gen-row"><span class="gen-lbl">Cycles (Weeks)</span><span class="gen-val">${WEEKS}</span></div>
     <div class="gen-row"><span class="gen-lbl">Probe days / week</span><span class="gen-val">${probeDays}</span></div>
     <div class="gen-row"><span class="gen-lbl">Target days / week</span><span class="gen-val">${targetDays}</span></div>

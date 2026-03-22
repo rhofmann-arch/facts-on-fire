@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS Automaticity — Scope & Sequence Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS ── */
+  :root {
+    --fire: #FF4F00;
+    --ember: #FFF0EB;
+    --ink: #1A1A1A;
+    --muted: #6B7280;
+    --surf: #FFFFFF;
+    --bg: #F5F4F1;
+    --border: #E2E0DB;
+    --done-bg: #ECFDF5;
+    --done-border: #10B981;
+    --prog-bg: #FFFBEB;
+    --prog-border: #F59E0B;
+    --wb-color: #1B4FCC;
+    --puz-color: #7C3AED;
+    --font-head: 'Archivo Black', sans-serif;
+    --font-body: 'Archivo', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: var(--font-body); color: var(--ink); min-height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--ink);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  .topbar-title { font-family: var(--font-head); font-size: 16px; color: #fff; }
+  .topbar-sub { font-size: 12px; color: #aaa; font-weight: 500; }
+  .topbar-spacer { flex: 1; }
+
+  /* ── STATS BAR ── */
+  .statsbar {
+    background: var(--surf);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; align-items: center; gap: 8px; }
+  .stat-val { font-family: var(--font-head); font-size: 20px; color: var(--ink); }
+  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); line-height: 1.2; }
+  .stat-bar { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .stat-fill { height: 100%; background: var(--fire); border-radius: 3px; transition: width .4s; }
+  .stat-fill.green { background: #10B981; }
+  .stat-fill.amber { background: #F59E0B; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    padding: 10px 24px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .grade-tabs { display: flex; gap: 4px; }
+  .grade-tab {
+    padding: 5px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    background: var(--surf);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .15s;
+    color: var(--muted);
+  }
+  .grade-tab:hover { border-color: var(--fire); color: var(--fire); }
+  .grade-tab.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .filter-select {
+    padding: 5px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surf);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .filter-select:focus { outline: none; border-color: var(--fire); }
+  .search-input {
+    padding: 5px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    background: var(--surf);
+    color: var(--ink);
+    width: 180px;
+  }
+  .search-input:focus { outline: none; border-color: var(--fire); }
+  .controls-spacer { flex: 1; }
+  .legend { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .btn-reset {
+    padding: 5px 12px;
+    border: 1.5px solid #ef4444;
+    border-radius: 6px;
+    background: transparent;
+    color: #ef4444;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .15s;
+  }
+  .btn-reset:hover { background: #ef4444; color: #fff; }
+
+  /* ── GRID ── */
+  .grid-wrap {
+    padding: 16px 24px 40px;
+    overflow-x: auto;
+  }
+
+  /* All-grades grid view */
+  .all-grid {
+    display: grid;
+    grid-template-columns: 40px repeat(4, 1fr);
+    gap: 4px;
+    min-width: 900px;
+  }
+  .grid-header {
+    padding: 8px 10px;
+    font-family: var(--font-head);
+    font-size: 13px;
+    text-align: center;
+    border-radius: 6px;
+    position: sticky;
+    top: 0;
+  }
+  .grid-header.g5 { background: #DBEAFE; color: #1E40AF; }
+  .grid-header.g6 { background: #D1FAE5; color: #065F46; }
+  .grid-header.g7 { background: #FEF3C7; color: #92400E; }
+  .grid-header.g8 { background: #FCE7F3; color: #831843; }
+  .week-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 4px;
+  }
+
+  /* Single-grade list view */
+  .single-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-width: 700px;
+  }
+
+  /* ── SKILL CARD ── */
+  .skill-cell {
+    background: var(--surf);
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 9px;
+    cursor: pointer;
+    transition: .12s;
+    position: relative;
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    user-select: none;
+  }
+  .skill-cell:hover { border-color: var(--fire); box-shadow: 0 1px 6px rgba(255,79,0,.1); }
+  .skill-cell.done { background: var(--done-bg); border-color: var(--done-border); }
+  .skill-cell.inprog { background: var(--prog-bg); border-color: var(--prog-border); }
+  .skill-cell.hidden { display: none; }
+  .skill-cell.drag-over { border-color: var(--fire); border-style: dashed; background: var(--ember); }
+  .skill-cell.dragging { opacity: .4; }
+
+  .skill-row { display: flex; align-items: flex-start; gap: 6px; }
+  .skill-name-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.35;
+    flex: 1;
+  }
+  .skill-cell.done .skill-name-text { color: #065F46; }
+  .skill-cell.inprog .skill-name-text { color: #92400E; }
+
+  .status-btn {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: .12s;
+    margin-top: 1px;
+    background: var(--surf);
+  }
+  .status-btn:hover { transform: scale(1.2); }
+  .skill-cell.done .status-btn { background: #10B981; border-color: #10B981; }
+  .skill-cell.inprog .status-btn { background: #F59E0B; border-color: #F59E0B; }
+
+  .skill-meta { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 1px 5px;
+    border-radius: 3px;
+    line-height: 1.6;
+  }
+  .badge-wb { background: #DBEAFE; color: var(--wb-color); }
+  .badge-puz { background: #EDE9FE; color: var(--puz-color); }
+  .badge-ms { background: #FEF3C7; color: #92400E; }
+  .badge-wk { background: var(--border); color: var(--muted); font-size: 9px; }
+
+  .drag-handle {
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    cursor: grab;
+    color: #ccc;
+    font-size: 11px;
+    line-height: 1;
+  }
+  .drag-handle:active { cursor: grabbing; }
+
+  /* Single-grade row style */
+  .single-row {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+  .single-wk-label {
+    padding: 8px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: right;
+    padding-top: 10px;
+  }
+  .single-cell { width: 100%; }
+
+  /* Notes modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal {
+    background: var(--surf);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  }
+  .modal-title { font-family: var(--font-head); font-size: 16px; margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+  .modal-grade-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .modal textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    resize: vertical;
+    min-height: 80px;
+  }
+  .modal textarea:focus { outline: none; border-color: var(--fire); }
+  .modal-status { margin: 12px 0; display: flex; gap: 8px; }
+  .status-opt {
+    flex: 1;
+    padding: 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: .12s;
+  }
+  .status-opt:hover { border-color: var(--muted); }
+  .status-opt.sel-notstarted { border-color: var(--border); background: var(--bg); }
+  .status-opt.sel-inprog { border-color: #F59E0B; background: var(--prog-bg); color: #92400E; }
+  .status-opt.sel-done { border-color: #10B981; background: var(--done-bg); color: #065F46; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .btn-primary {
+    flex: 1;
+    padding: 9px;
+    background: var(--fire);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-secondary {
+    padding: 9px 16px;
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: #e04400; }
+  .btn-secondary:hover { border-color: var(--muted); color: var(--ink); }
+
+  /* ── TOOLTIP ── */
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Grade colors for headers */
+  .grade-5-hdr { background: #1E40AF; color: #fff; }
+  .grade-6-hdr { background: #065F46; color: #fff; }
+  .grade-7-hdr { background: #92400E; color: #fff; }
+  .grade-8-hdr { background: #831843; color: #fff; }
+
+  .empty-cell {
+    background: var(--bg);
+    border: 1.5px dashed var(--border);
+    border-radius: 7px;
+    min-height: 56px;
+    opacity: .5;
+  }
+  .empty-cell.drag-over {
+    border-color: var(--fire);
+    background: var(--ember);
+    opacity: 1;
+  }
+
+  @media (max-width: 700px) {
+    .all-grid { grid-template-columns: 30px repeat(2, 1fr); }
+    .statsbar { gap: 12px; }
+    .topbar { padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">MS Automaticity — Scope &amp; Sequence</div>
+    <div class="topbar-sub">Grades 5–8 · 30 Weeks · Resource &amp; Progress Tracker</div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#E5E7EB;border:1.5px solid #9CA3AF"></div>Not started</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div>In progress</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10B981"></div>Complete</div>
+    <div class="legend-item"><span class="badge badge-wb">WB</span>Workbook</div>
+    <div class="legend-item"><span class="badge badge-puz">PUZ</span>Puzzle</div>
+    <div class="legend-item"><span class="badge badge-ms">MS</span>MS gen</div>
+  </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="statsbar" id="statsbar">
+  <!-- filled by JS -->
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="grade-tabs">
+    <button class="grade-tab active" onclick="setView('all')">All Grades</button>
+    <button class="grade-tab" onclick="setView('5')" style="border-color:#BFDBFE;color:#1E40AF">Grade 5</button>
+    <button class="grade-tab" onclick="setView('6')" style="border-color:#A7F3D0;color:#065F46">Grade 6</button>
+    <button class="grade-tab" onclick="setView('7')" style="border-color:#FDE68A;color:#92400E">Grade 7</button>
+    <button class="grade-tab" onclick="setView('8')" style="border-color:#FBCFE8;color:#831843">Grade 8</button>
+  </div>
+  <select class="filter-select" id="filter-status" onchange="applyFilters()">
+    <option value="">All statuses</option>
+    <option value="notstarted">Not started</option>
+    <option value="inprog">In progress</option>
+    <option value="done">Done</option>
+  </select>
+  <select class="filter-select" id="filter-resource" onchange="applyFilters()">
+    <option value="">All resources</option>
+    <option value="has">Has resources</option>
+    <option value="none">No resources yet</option>
+  </select>
+  <input type="text" class="search-input" id="search-input" placeholder="Search skills…" oninput="applyFilters()">
+  <div class="controls-spacer"></div>
+  <button class="btn-reset" onclick="confirmReset()">Reset All Progress</button>
+</div>
+
+<!-- Grid -->
+<div class="grid-wrap" id="grid-wrap">
+  <!-- filled by JS -->
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">Skill Name</div>
+    <div class="modal-sub" id="modal-sub">Grade X · Week Y</div>
+    <div id="modal-grade-badge" class="modal-grade-badge"></div>
+    <div class="modal-status" id="modal-status">
+      <div class="status-opt" id="opt-notstarted" onclick="setModalStatus('notstarted')">⚪ Not Started</div>
+      <div class="status-opt" id="opt-inprog" onclick="setModalStatus('inprog')">🟡 In Progress</div>
+      <div class="status-opt" id="opt-done" onclick="setModalStatus('done')">🟢 Complete</div>
+    </div>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:6px">Notes</label>
+    <textarea id="modal-notes" placeholder="Add notes, links, ideas for this skill…"></textarea>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// resources: 'wb' = elementary workbook gen, 'ms' = MS workbook gen, 'puz' = puzzle gen, '' = none
+const SKILLS_RAW = [
+  // [week, grade, name, resources]
+  [1,'5','Multidigit addition',['wb']],
+  [2,'5','Multidigit subtraction',['wb']],
+  [3,'5','Multiplication facts (to 36)',['wb']],
+  [4,'5','Multiplication facts (to 81)',['wb']],
+  [5,'5','Division facts',['wb']],
+  [6,'5','Division facts (continued)',['wb']],
+  [7,'5','Long multiplication',['wb']],
+  [8,'5','Long division',['wb']],
+  [9,'5','Perfect squares (to 100)',['ms']],
+  [10,'5','Area of a rectangle',['ms']],
+  [11,'5','Area vs. perimeter',[]],
+  [12,'5','Area of parallelograms',['puz']],
+  [13,'5','Area of triangle — right triangles',['puz']],
+  [14,'5','Area of a triangle — all triangles',['puz']],
+  [15,'5','Decimal addition ($)',['wb']],
+  [16,'5','Decimal subtraction ($)',['wb']],
+  [17,'5','Decimal add/subtract',['wb']],
+  [18,'5','Decimal multiplication',['wb']],
+  [19,'5','Decimal multiplication (continued)',['wb']],
+  [20,'5','Decimal division',['wb']],
+  [21,'5','Decimal division (continued)',['wb']],
+  [22,'5','Equivalent fractions',['wb']],
+  [23,'5','Mixed/improper fractions',[]],
+  [24,'5','Fraction addition — like denominators',['wb']],
+  [25,'5','Fraction subtraction — like denominators',['wb']],
+  [26,'5','Fraction addition — level 1 unlike',['wb']],
+  [27,'5','Fraction subtraction — level 1 unlike',['wb']],
+  [28,'5','Fraction multiplication',['wb']],
+  [29,'5','Fraction division',['wb']],
+  [30,'5','Fraction division (continued)',['wb']],
+
+  [1,'6','Perfect squares (to 144)',['ms']],
+  [2,'6','Evaluating exponents',[]],
+  [3,'6','Factor trees / prime factorization',[]],
+  [4,'6','Order of operations with parentheses',[]],
+  [5,'6','Order of operations with exponents',[]],
+  [6,'6','Decimal computation +/−',['wb']],
+  [7,'6','Decimal computation ×/÷',['wb']],
+  [8,'6','Fraction computation +/−',['wb']],
+  [9,'6','Fraction computation ×/÷',['wb']],
+  [10,'6','Fractions to percents',[]],
+  [11,'6','Decimals to percents',[]],
+  [12,'6','Benchmark percents (1, 5, 10, 20)',[]],
+  [13,'6','Benchmark percents (25, 40, 50, 60, 75, 80)',[]],
+  [14,'6','Order of operations — four operations',[]],
+  [15,'6','Integer addition',['ms']],
+  [16,'6','Integer addition (continued)',['ms']],
+  [17,'6','Integer subtraction',['ms']],
+  [18,'6','Integer subtraction (continued)',['ms']],
+  [19,'6','Integer addition/subtraction mixed',['ms']],
+  [20,'6','Integer multiplication',['ms']],
+  [21,'6','Integer multiplication (continued)',['ms']],
+  [22,'6','Integer division',['ms']],
+  [23,'6','Integer division (continued)',['ms']],
+  [24,'6','Coordinate plane — graph points',[]],
+  [25,'6','Expressions — evaluate',[]],
+  [26,'6','Expressions — add/sub like terms',[]],
+  [27,'6','Expressions — scale an expression',[]],
+  [28,'6','One-step equations (whole numbers)',[]],
+  [29,'6','One-step equations (all)',[]],
+  [30,'6','Two-step equations (easy)',[]],
+
+  [1,'7','Integer add/sub',['ms']],
+  [2,'7','Integer ×/÷',['ms']],
+  [3,'7','Fraction add/sub',['wb']],
+  [4,'7','Fraction ×/÷',['wb']],
+  [5,'7','Decimal computation',['wb']],
+  [6,'7','Expressions',[]],
+  [7,'7','Two-step equations (easy)',[]],
+  [8,'7','Two-step equations',[]],
+  [9,'7','Ratio tables',[]],
+  [10,'7','Ratios — part:whole',[]],
+  [11,'7','Unit rate (how much for one)',[]],
+  [12,'7','Classifying quadrilaterals',['puz']],
+  [13,'7','Area — rect, parallelogram, triangle, trapezoid',['puz']],
+  [14,'7','Area / compound shapes',['puz']],
+  [15,'7','Area / negative space',['puz']],
+  [16,'7','Area of circles (in terms of π)',[]],
+  [17,'7','Area of circles/sectors (in terms of π)',[]],
+  [18,'7','Circumference of circles (in terms of π)',[]],
+  [19,'7','Circumference of sectors (in terms of π)',[]],
+  [20,'7','Complementary/supplementary angles',[]],
+  [21,'7','Angles in triangles',[]],
+  [22,'7','Triangle inequality theorem',[]],
+  [23,'7','Fraction/decimal benchmark percents',[]],
+  [24,'7','Percent of a number (1, 10, 5, 25, 50)',[]],
+  [25,'7','Percent of a number (40, 60, 75, 80, 150, 200)',[]],
+  [26,'7','Percent formula',[]],
+  [27,'7','Percent change (benchmark)',[]],
+  [28,'7','Percent change (any)',[]],
+  [29,'7','Simple probability',[]],
+  [30,'7','Compound probability',[]],
+
+  [1,'8','Integer computation',['ms']],
+  [2,'8','Fraction computation',['wb']],
+  [3,'8','Decimal computation',['wb']],
+  [4,'8','Ratios and rates',[]],
+  [5,'8','Expressions',[]],
+  [6,'8','Two-step equations',[]],
+  [7,'8','Distance, rate, time',[]],
+  [8,'8','Equations — variables both sides',[]],
+  [9,'8','Equations — clearing fractions',[]],
+  [10,'8','Equations — clearing fractions (continued)',[]],
+  [11,'8','Simple inequalities',[]],
+  [12,'8','Inequalities — two step',[]],
+  [13,'8','Evaluate absolute value',[]],
+  [14,'8','Slope between two points',[]],
+  [15,'8','Slope from a graph',[]],
+  [16,'8','Slope-intercept form from a graph',[]],
+  [17,'8','Graph y = mx + b',[]],
+  [18,'8','Graph y = mx + b (continued)',[]],
+  [19,'8','Perfect squares and roots',['ms']],
+  [20,'8','Evaluate exponents',[]],
+  [21,'8','Exponent rules — ×/÷',[]],
+  [22,'8','Order of operations with exponents',[]],
+  [23,'8','Solve simple quadratics (x² = 25)',[]],
+  [24,'8','Pythagorean theorem — solve for hypotenuse',[]],
+  [25,'8','Pythagorean theorem — solve for leg',[]],
+  [26,'8','Scientific notation — convert to/from',[]],
+  [27,'8','Recognize/classify transformations',[]],
+  [28,'8','Volume — rectangular prisms',[]],
+  [29,'8','Volume — cylinders',[]],
+  [30,'8','Volume — cones and spheres (formula match)',[]],
+];
+
+// Build skill objects with unique IDs
+const SKILLS = SKILLS_RAW.map((s, i) => ({
+  id: `s${i}`,
+  week: s[0],
+  grade: s[1],
+  name: s[2],
+  resources: s[3],
+  // these will be overridden from storage:
+  status: 'notstarted',
+  notes: '',
+  customWeek: s[0], // allows reordering
+}));
+
+const GRADE_COLORS = {
+  '5': { bg:'#DBEAFE', border:'#BFDBFE', text:'#1E40AF', hdr:'#1E40AF' },
+  '6': { bg:'#D1FAE5', border:'#A7F3D0', text:'#065F46', hdr:'#065F46' },
+  '7': { bg:'#FEF3C7', border:'#FDE68A', text:'#92400E', hdr:'#92400E' },
+  '8': { bg:'#FCE7F3', border:'#FBCFE8', text:'#831843', hdr:'#831843' },
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = {}; // keyed by skill id: { status, notes, customWeek }
+let currentView = 'all';
+let modalSkillId = null;
+let dragSrcId = null;
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+async function loadState() {
+  try {
+    const r = await window.storage.get('ms_tracker_state');
+    if (r && r.value) state = JSON.parse(r.value);
+  } catch(e) { state = {}; }
+  // Apply saved state to skills
+  SKILLS.forEach(s => {
+    if (state[s.id]) {
+      s.status = state[s.id].status || 'notstarted';
+      s.notes = state[s.id].notes || '';
+      s.customWeek = state[s.id].customWeek != null ? state[s.id].customWeek : s.week;
+    }
+  });
+}
+
+async function saveState() {
+  SKILLS.forEach(s => {
+    state[s.id] = { status: s.status, notes: s.notes, customWeek: s.customWeek };
+  });
+  try {
+    await window.storage.set('ms_tracker_state', JSON.stringify(state));
+  } catch(e) {}
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const total = SKILLS.length;
+  const done = SKILLS.filter(s => s.status === 'done').length;
+  const inprog = SKILLS.filter(s => s.status === 'inprog').length;
+  const hasRes = SKILLS.filter(s => s.resources.length > 0).length;
+
+  const byGrade = ['5','6','7','8'].map(g => {
+    const gs = SKILLS.filter(s => s.grade === g);
+    const gdone = gs.filter(s => s.status === 'done').length;
+    const ginprog = gs.filter(s => s.status === 'inprog').length;
+    const c = GRADE_COLORS[g];
+    return `
+      <div class="stat">
+        <div>
+          <div style="font-family:var(--font-head);font-size:13px;color:${c.hdr}">Grade ${g}</div>
+          <div class="stat-bar" style="margin-top:3px">
+            <div class="stat-fill green" style="width:${Math.round(gdone/gs.length*100)}%;background:${c.hdr}"></div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">${gdone}/${gs.length} done · ${ginprog} in progress</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('statsbar').innerHTML = `
+    <div class="stat">
+      <div class="stat-val">${total}</div>
+      <div class="stat-label">Total<br>Skills</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:#10B981">${done}</div>
+      <div class="stat-label">Complete</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:#F59E0B">${inprog}</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--wb-color)">${hasRes}</div>
+      <div class="stat-label">Have<br>Resources</div>
+    </div>
+    <div style="width:1px;background:var(--border);height:36px;margin:0 4px"></div>
+    ${byGrade}
+  `;
+}
+
+// ── VIEW ──────────────────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.grade-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['all','5','6','7','8'][i] === v);
+  });
+  renderGrid();
+}
+
+function getFilters() {
+  return {
+    status: document.getElementById('filter-status').value,
+    resource: document.getElementById('filter-resource').value,
+    search: document.getElementById('search-input').value.toLowerCase().trim(),
+  };
+}
+
+function skillVisible(s, f) {
+  if (f.status && s.status !== f.status) return false;
+  if (f.resource === 'has' && s.resources.length === 0) return false;
+  if (f.resource === 'none' && s.resources.length > 0) return false;
+  if (f.search && !s.name.toLowerCase().includes(f.search)) return false;
+  return true;
+}
+
+function applyFilters() { renderGrid(); }
+
+function renderGrid() {
+  const wrap = document.getElementById('grid-wrap');
+  const f = getFilters();
+
+  if (currentView === 'all') {
+    renderAllGrid(wrap, f);
+  } else {
+    renderSingleGrade(wrap, currentView, f);
+  }
+}
+
+function renderAllGrid(wrap, f) {
+  let html = '<div class="all-grid">';
+  // Header row
+  html += '<div class="week-label"></div>';
+  ['5','6','7','8'].forEach(g => {
+    const c = GRADE_COLORS[g];
+    html += `<div class="grid-header" style="background:${c.hdr};color:#fff">Grade ${g}</div>`;
+  });
+
+  for (let w = 1; w <= 30; w++) {
+    html += `<div class="week-label">W${w}</div>`;
+    ['5','6','7','8'].forEach(g => {
+      const skill = SKILLS.find(s => s.grade === g && s.customWeek === w);
+      if (!skill) {
+        html += `<div class="empty-cell" data-grade="${g}" data-week="${w}" 
+          ondragover="dragOver(event)" ondrop="drop(event,null,'${g}',${w})" ondragleave="dragLeave(event)"></div>`;
+      } else {
+        html += skillCellHTML(skill, f, g, w);
+      }
+    });
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function renderSingleGrade(wrap, grade, f) {
+  const c = GRADE_COLORS[grade];
+  let html = `<div class="single-grid">`;
+  html += `<div style="font-family:var(--font-head);font-size:20px;color:${c.hdr};margin-bottom:12px">Grade ${grade}</div>`;
+
+  for (let w = 1; w <= 30; w++) {
+    const skill = SKILLS.find(s => s.grade === grade && s.customWeek === w);
+    html += `<div class="single-row">
+      <div class="single-wk-label">Wk ${w}</div>
+      <div class="single-cell">`;
+    if (!skill) {
+      html += `<div class="empty-cell" data-grade="${grade}" data-week="${w}"
+        ondragover="dragOver(event)" ondrop="drop(event,null,'${grade}',${w})" ondragleave="dragLeave(event)"></div>`;
+    } else {
+      html += skillCellHTML(skill, f, grade, w);
+    }
+    html += `</div></div>`;
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function skillCellHTML(s, f, grade, week) {
+  const vis = skillVisible(s, f);
+  const c = GRADE_COLORS[grade];
+  const resBadges = s.resources.map(r => {
+    if (r === 'wb') return `<span class="badge badge-wb" data-tip="Elementary Workbook Generator">WB</span>`;
+    if (r === 'ms') return `<span class="badge badge-ms" data-tip="MS Workbook Generator">MS</span>`;
+    if (r === 'puz') return `<span class="badge badge-puz" data-tip="Puzzle/Activity Generator">PUZ</span>`;
+    return '';
+  }).join('');
+
+  const statusCls = s.status === 'done' ? 'done' : s.status === 'inprog' ? 'inprog' : '';
+  const hidCls = vis ? '' : ' hidden';
+  const noteIndicator = s.notes ? `<span title="${s.notes.replace(/"/g,'&quot;')}" style="font-size:9px;color:var(--muted)">📝</span>` : '';
+
+  return `<div class="skill-cell ${statusCls}${hidCls}" id="cell-${s.id}"
+    draggable="true"
+    ondragstart="dragStart(event,'${s.id}')"
+    ondragover="dragOver(event)"
+    ondrop="drop(event,'${s.id}','${grade}',${week})"
+    ondragend="dragEnd(event)"
+    ondragleave="dragLeave(event)"
+    ondblclick="openModal('${s.id}')"
+    title="Double-click to edit · Drag to reorder">
+    <div class="drag-handle">⠿</div>
+    <div class="skill-row">
+      <div class="status-btn" onclick="event.stopPropagation();cycleStatus('${s.id}')" title="Click to cycle status"></div>
+      <div class="skill-name-text">${s.name}</div>
+    </div>
+    <div class="skill-meta">
+      <span class="badge badge-wk">Wk ${s.week}</span>
+      ${resBadges}
+      ${noteIndicator}
+    </div>
+  </div>`;
+}
+
+// ── STATUS ────────────────────────────────────────────────────────────────────
+function cycleStatus(id) {
+  const s = SKILLS.find(x => x.id === id);
+  if (!s) return;
+  const cycle = { notstarted: 'inprog', inprog: 'done', done: 'notstarted' };
+  s.status = cycle[s.status] || 'notstarted';
+  saveState();
+  renderGrid();
+  renderStats();
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────────
+function dragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => { const el = document.getElementById('cell-'+id); if(el) el.classList.add('dragging'); }, 0);
+}
+
+function dragEnd(e) {
+  document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function drop(e, targetId, targetGrade, targetWeek) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragSrcId) return;
+
+  const src = SKILLS.find(s => s.id === dragSrcId);
+  if (!src) return;
+
+  if (targetId && targetId !== dragSrcId) {
+    // Swap weeks between two skills
+    const tgt = SKILLS.find(s => s.id === targetId);
+    const tmpWeek = src.customWeek;
+    const tmpGrade = src.grade;
+    src.customWeek = tgt.customWeek;
+    src.grade = tgt.grade;
+    tgt.customWeek = tmpWeek;
+    tgt.grade = tmpGrade;
+  } else if (!targetId && targetGrade && targetWeek) {
+    // Move to empty slot
+    src.customWeek = parseInt(targetWeek);
+    src.grade = targetGrade;
+  }
+
+  dragSrcId = null;
+  saveState();
+  renderGrid();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(id) {
+  const s = SKILLS.find(x => x.id === id);
+  if (!s) return;
+  modalSkillId = id;
+
+  const c = GRADE_COLORS[s.grade];
+  document.getElementById('modal-title').textContent = s.name;
+  document.getElementById('modal-sub').textContent = `Grade ${s.grade} · Week ${s.week}${s.customWeek !== s.week ? ` (moved to Wk ${s.customWeek})` : ''}`;
+
+  const badge = document.getElementById('modal-grade-badge');
+  badge.textContent = `Grade ${s.grade}`;
+  badge.style.background = c.bg;
+  badge.style.color = c.hdr;
+  badge.style.border = `1.5px solid ${c.border}`;
+
+  document.getElementById('modal-notes').value = s.notes || '';
+  setModalStatus(s.status, false);
+
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function setModalStatus(status, temp = true) {
+  ['notstarted','inprog','done'].forEach(st => {
+    const el = document.getElementById('opt-' + st);
+    el.className = 'status-opt';
+    if (st === status) el.className = 'status-opt sel-' + st;
+  });
+  if (temp) { /* just UI preview; saved on Save */ }
+  window._modalStatus = status;
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.add('hidden');
+  modalSkillId = null;
+}
+
+function saveModal() {
+  if (!modalSkillId) return;
+  const s = SKILLS.find(x => x.id === modalSkillId);
+  s.status = window._modalStatus || s.status;
+  s.notes = document.getElementById('modal-notes').value;
+  document.getElementById('modal-overlay').classList.add('hidden');
+  saveState();
+  renderGrid();
+  renderStats();
+  modalSkillId = null;
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function confirmReset() {
+  if (!confirm('Reset ALL progress and reordering? This cannot be undone.')) return;
+  SKILLS.forEach(s => { s.status = 'notstarted'; s.notes = ''; s.customWeek = s.week; s.grade = SKILLS_RAW[SKILLS.indexOf(s)][1]; });
+  state = {};
+  saveState();
+  renderGrid();
+  renderStats();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async function init() {
+  await loadState();
+  renderStats();
+  renderGrid();
+})();
+</script>
+</body>
+</html>
