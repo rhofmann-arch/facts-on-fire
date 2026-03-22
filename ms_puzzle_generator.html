@@ -159,6 +159,15 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
         <button class="tbtn" id="tbtn-arrangingboxes" onclick="selType('arrangingboxes',this)">
           <span class="ico">▣</span><span class="lbl">Arranging Boxes</span>
         </button>
+        <button class="tbtn" id="tbtn-fourthpoint" onclick="selType('fourthpoint',this)">
+          <span class="ico">▱</span><span class="lbl">Fourth Point</span>
+        </button>
+        <button class="tbtn" id="tbtn-digitdiv" onclick="selType('digitdiv',this)">
+          <span class="ico">÷</span><span class="lbl">Digit Division</span>
+        </button>
+        <button class="tbtn" id="tbtn-divpyramid" onclick="selType('divpyramid',this)">
+          <span class="ico">△÷</span><span class="lbl">Div Pyramid</span>
+        </button>
       </div>
     </div>
 
@@ -241,6 +250,15 @@ let ME_PUZZLES = [];
 // Arranging Boxes state
 let AB_PUZZLES = [];
 
+// Fourth Point state
+let FP_PUZZLES = [];
+
+// Digit Division state
+let DD_PUZZLES = [];
+
+// Division Pyramid state
+let DP_PUZZLES = [];
+
 const ri       = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const f        = n => n.toFixed(1);
 
@@ -278,6 +296,21 @@ const DIFF_OPTS = {
     { l:'Intermediate', d:'4 boxes to arrange' },
     { l:'Challenge',    d:'5 boxes to arrange' },
   ],
+  fourthpoint: [
+    { l:'Beginner',     d:'5×5 grid · complete the parallelogram' },
+    { l:'Intermediate', d:'5×5 grid · rectangles & rhombuses' },
+    { l:'Challenge',    d:'5×5 grid · squares & isosceles trapezoids' },
+  ],
+  digitdiv: [
+    { l:'Beginner',     d:'2 blanks · unique solution' },
+    { l:'Intermediate', d:'3 blanks · unique solution' },
+    { l:'Challenge',    d:'4 blanks · one or two answers' },
+  ],
+  divpyramid: [
+    { l:'Beginner',     d:'÷2 & ÷5 · 4-row pyramids' },
+    { l:'Intermediate', d:'÷2, ÷4, ÷5 · 5-row pyramids' },
+    { l:'Challenge',    d:'÷3, ÷4, ÷5 · 5-row pyramids' },
+  ],
 };
 
 // ── UI wiring ─────────────────────────────────────────────────────────────────
@@ -286,9 +319,9 @@ function selType(type, btn) {
   DIFF = 0;
   document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator', mazeescape:'Maze Escape Generator', arrangingboxes:'Arranging Boxes Generator' };
-  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1', mazeescape:'e.g. Maze Escape #1', arrangingboxes:'e.g. Arranging Boxes #1' };
-  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles', mazeescape:'↻\u2005Generate New Puzzles', arrangingboxes:'↻\u2005Generate New Puzzles' };
+  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator', mazeescape:'Maze Escape Generator', arrangingboxes:'Arranging Boxes Generator', fourthpoint:'Fourth Point Generator', digitdiv:'Digit Division Generator', divpyramid:'Division Pyramid Generator' };
+  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1', mazeescape:'e.g. Maze Escape #1', arrangingboxes:'e.g. Arranging Boxes #1', fourthpoint:'e.g. Fourth Point #1', digitdiv:'e.g. Digit Division #1', divpyramid:'e.g. Division Pyramid #1' };
+  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles', mazeescape:'↻\u2005Generate New Puzzles', arrangingboxes:'↻\u2005Generate New Puzzles', fourthpoint:'↻\u2005Generate New Puzzles', digitdiv:'↻\u2005Generate New Puzzles', divpyramid:'↻\u2005Generate New Puzzles' };
   document.getElementById('hdr-type-label').textContent    = labels[type];
   document.getElementById('pg-title').placeholder          = placeholders[type];
   document.getElementById('btn-gen').textContent           = genLabels[type];
@@ -332,6 +365,15 @@ function refresh() {
   } else if (TYPE === 'arrangingboxes') {
     if (!AB_PUZZLES.length) return;
     out.innerHTML = ab_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'fourthpoint') {
+    if (!FP_PUZZLES.length) return;
+    out.innerHTML = fp_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'digitdiv') {
+    if (!DD_PUZZLES.length) return;
+    out.innerHTML = dd_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'divpyramid') {
+    if (!DP_PUZZLES.length) return;
+    out.innerHTML = dp_buildSheet(VIEW === 'key');
   } else {
     if (!ZK_PUZZLES.length) return;
     out.innerHTML = zk_buildSheet(VIEW === 'key');
@@ -340,7 +382,7 @@ function refresh() {
 
 function generate() {
   DIFF = parseInt(document.querySelector('input[name="diff"]:checked')?.value ?? '0');
-  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : TYPE === 'mazeescape' ? '⊞' : TYPE === 'arrangingboxes' ? '▣' : '◇';
+  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : TYPE === 'mazeescape' ? '⊞' : TYPE === 'arrangingboxes' ? '▣' : TYPE === 'fourthpoint' ? '▱' : TYPE === 'digitdiv' ? '÷' : TYPE === 'divpyramid' ? '△' : '◇';
   document.getElementById('out').innerHTML =
     `<div class="gen-msg"><div class="spin">${ico}</div><br>Generating…</div>`;
   requestAnimationFrame(() => setTimeout(() => {
@@ -380,6 +422,27 @@ function generate() {
           `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
         return;
       }
+    } else if (TYPE === 'fourthpoint') {
+      FP_PUZZLES = fp_genSheet(DIFF);
+      if (!FP_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
+    } else if (TYPE === 'digitdiv') {
+      DD_PUZZLES = dd_genSheet(DIFF);
+      if (!DD_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
+    } else if (TYPE === 'divpyramid') {
+      DP_PUZZLES = dp_genSheet(DIFF);
+      if (!DP_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
     } else {
       const cfg = ZK_CONFIGS[DIFF];
       const pool = []; while (pool.length < 6) pool.push(...cfg.shapes);
@@ -413,6 +476,9 @@ function downloadPDF(mode) {
                 TYPE === 'sankaku' ? SK_PUZZLES.length > 0 :
                 TYPE === 'mazeescape' ? ME_PUZZLES.length > 0 :
                 TYPE === 'arrangingboxes' ? AB_PUZZLES.length > 0 :
+                TYPE === 'fourthpoint' ? FP_PUZZLES.length > 0 :
+                TYPE === 'digitdiv' ? DD_PUZZLES.length > 0 :
+                TYPE === 'divpyramid' ? DP_PUZZLES.length > 0 :
                 ZK_PUZZLES.length > 0;
   if (!ready) { alert('Generate a puzzle first.'); return; }
 
@@ -421,6 +487,9 @@ function downloadPDF(mode) {
      TYPE === 'sankaku' ? SK_TITLES[DIFF] :
      TYPE === 'mazeescape' ? ME_TITLES[DIFF] :
      TYPE === 'arrangingboxes' ? AB_TITLES[DIFF] :
+     TYPE === 'fourthpoint' ? FP_TITLES[DIFF] :
+     TYPE === 'digitdiv' ? DD_TITLES[DIFF] :
+     TYPE === 'divpyramid' ? DP_TITLES[DIFF] :
      ZK_TITLES[DIFF]);
   const sheets = TYPE === 'sixlegs'
     ? { s: sl_printSheet(false, title), k: sl_printSheet(true, title) }
@@ -430,6 +499,12 @@ function downloadPDF(mode) {
     ? { s: me_printSheet(false, title), k: me_printSheet(true, title) }
     : TYPE === 'arrangingboxes'
     ? { s: ab_printSheet(false, title), k: ab_printSheet(true, title) }
+    : TYPE === 'fourthpoint'
+    ? { s: fp_printSheet(false, title), k: fp_printSheet(true, title) }
+    : TYPE === 'digitdiv'
+    ? { s: dd_printSheet(false, title), k: dd_printSheet(true, title) }
+    : TYPE === 'divpyramid'
+    ? { s: dp_printSheet(false, title), k: dp_printSheet(true, title) }
     : { s: zk_printSheet(false, title), k: zk_printSheet(true, title) };
   const typeCSS = TYPE === 'sixlegs'
     ? `.sheet{padding:18px 32px 28px;max-width:860px;margin:0 auto}`
@@ -1462,6 +1537,723 @@ function ab_printSheet(isKey, title){ return ab_sheetHTML(isKey, title); }
     document.head.appendChild(s);
   }
 })();
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FOURTH POINT
+// Three corners of a named quadrilateral are shown on a 5×5 dot grid.
+// Find and mark the unique 4th corner.
+// Uniqueness is verified by exhaustive search: no other grid point completes
+// the same shape type.  Shape classification reuses the zk_* helpers.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const FP_TITLES = [
+  'Fourth Point — Parallelogram',
+  'Fourth Point — Rectangles & Rhombuses',
+  'Fourth Point — Squares & Isosceles Trapezoids',
+];
+const FP_DIRS = [
+  'Three corners of a <strong>parallelogram</strong> are shown. Find and mark the 4th corner on each grid.',
+  'Three corners of the named quadrilateral are shown. Find and mark the 4th corner on each grid.',
+  'Three corners of the named quadrilateral are shown. Find and mark the 4th corner on each grid.',
+];
+const FP_CONFIGS = [
+  { shapes:['parallelogram'],                 N:4, cellPx:28, numPuz:9 },
+  { shapes:['rectangle','rhombus'],           N:4, cellPx:28, numPuz:9 },
+  { shapes:['square','isoscelesTrapezoid'],   N:4, cellPx:28, numPuz:9 },
+];
+
+const FP_LABEL_LINES = {
+  parallelogram:     ['Parallelogram'],
+  rectangle:         ['Rectangle'],
+  rhombus:           ['Rhombus'],
+  square:            ['Square'],
+  isoscelesTrapezoid:['Isosceles','Trapezoid'],
+};
+
+// ── Grid helpers ──────────────────────────────────────────────────────────────
+const fp_eq   = (a, b) => a[0]===b[0] && a[1]===b[1];
+
+function fp_gridPts(N) {
+  const pts=[];
+  for (let r=0;r<=N;r++) for (let c=0;c<=N;c++) pts.push([c,r]);
+  return pts;
+}
+
+// ── Shape classifier (exclusive hierarchy: square ≠ rectangle ≠ rhombus) ──────
+// Returns: 'parallelogram' | 'rectangle' | 'rhombus' | 'square' |
+//          'isoscelesTrapezoid' | 'trapezoid' | 'irregular' | null (degenerate)
+function fp_quadKind(pts) {
+  // Reject any three collinear
+  for (let i=0;i<4;i++) for (let j=i+1;j<4;j++) for (let k=j+1;k<4;k++)
+    if (zk_col3(pts[i],pts[j],pts[k])) return null;
+  // Require convex
+  const ord = zk_convex4(pts);
+  if (!ord) return null;
+  const [A,B,C,D] = ord;
+  // ── Parallelogram family: midpoints of diagonals coincide ──
+  if (A[0]+C[0]===B[0]+D[0] && A[1]+C[1]===B[1]+D[1]) {
+    const sidesEq = zk_d2(A,B)===zk_d2(B,C);
+    const diagEq  = zk_d2(A,C)===zk_d2(B,D);
+    if (sidesEq && diagEq) return 'square';
+    if (diagEq)            return 'rectangle';
+    if (sidesEq)           return 'rhombus';
+    return 'parallelogram';
+  }
+  // ── Trapezoid family: exactly one pair of parallel sides ──
+  const AB=zk_sub(B,A), BC=zk_sub(C,B), CD=zk_sub(D,C), DA=zk_sub(A,D);
+  const p1=zk_cr2(AB,CD)===0, p2=zk_cr2(BC,DA)===0;
+  if (p1!==p2) {
+    // Isosceles: equal legs
+    const legsEq = p1 ? zk_d2(B,C)===zk_d2(D,A) : zk_d2(A,B)===zk_d2(C,D);
+    return legsEq ? 'isoscelesTrapezoid' : 'trapezoid';
+  }
+  return 'irregular';
+}
+
+// ── Pool builder ──────────────────────────────────────────────────────────────
+// Returns array of {given:[pt,pt,pt], answer:pt, shapeType, N} with unique solutions.
+function fp_buildPool(shapeType, N) {
+  const all  = fp_gridPts(N);
+  const raw  = [];
+  const seen = new Set(); // deduplicate by canonical set-key + which point is missing
+
+  const isPara = ['parallelogram','rectangle','rhombus','square'].includes(shapeType);
+
+  if (isPara) {
+    // Algebraic approach: for each unordered triple, compute all 3 possible
+    // parallelogram 4th points (one for each "opposite vertex" assignment).
+    for (let i=0;i<all.length;i++)
+    for (let j=i+1;j<all.length;j++)
+    for (let k=j+1;k<all.length;k++) {
+      const [A,B,C] = [all[i],all[j],all[k]];
+      if (zk_col3(A,B,C)) continue;
+      // Three possible D's: one for each point acting as the diagonal partner to D
+      const tries = [
+        [B[0]+C[0]-A[0], B[1]+C[1]-A[1], [A,B,C]],  // A & D are diagonal pair
+        [A[0]+C[0]-B[0], A[1]+C[1]-B[1], [A,B,C]],  // B & D are diagonal pair
+        [A[0]+B[0]-C[0], A[1]+B[1]-C[1], [A,B,C]],  // C & D are diagonal pair
+      ];
+      for (const [dx,dy,given] of tries) {
+        if (dx<0||dx>N||dy<0||dy>N) continue;           // off-grid
+        const D=[dx,dy];
+        if (given.some(p=>fp_eq(p,D))) continue;          // duplicate
+        if (fp_quadKind([A,B,C,D])!==shapeType) continue; // wrong shape
+        const setKey=[A,B,C,D].map(p=>p[0]*100+p[1]).sort().join(',');
+        const puzKey=setKey+'|'+dx*100+dy;
+        if (seen.has(puzKey)) continue;
+        seen.add(puzKey);
+        raw.push({given:[A,B,C], answer:D, shapeType, N});
+      }
+    }
+  } else {
+    // Brute-force: enumerate all 4-combos, classify, then try each as missing
+    for (let i=0;i<all.length;i++)
+    for (let j=i+1;j<all.length;j++)
+    for (let k=j+1;k<all.length;k++)
+    for (let l=k+1;l<all.length;l++) {
+      if (fp_quadKind([all[i],all[j],all[k],all[l]])!==shapeType) continue;
+      for (let m=0;m<4;m++) {
+        const four=[all[i],all[j],all[k],all[l]];
+        const given=four.filter((_,idx)=>idx!==m);
+        const answer=four[m];
+        const puzKey=four.map(p=>p[0]*100+p[1]).sort().join(',')+'|'+answer[0]*100+answer[1];
+        if (seen.has(puzKey)) continue;
+        seen.add(puzKey);
+        raw.push({given, answer, shapeType, N});
+      }
+    }
+  }
+
+  // ── Uniqueness filter: exactly one grid point completes this shape ──────────
+  return raw.filter(puz => {
+    let cnt=0;
+    for (const d of all) {
+      if (puz.given.some(g=>fp_eq(g,d))) continue;
+      if (fp_quadKind([...puz.given, d])===shapeType) { if(++cnt>1) return false; }
+    }
+    return cnt===1;
+  });
+}
+
+// ── Sheet generator ───────────────────────────────────────────────────────────
+function fp_genSheet(diff) {
+  const cfg     = FP_CONFIGS[diff];
+  const puzzles = [];
+
+  // Build shuffled pools per shape type (done once per generate() call)
+  const pools = {};
+  for (const st of cfg.shapes) {
+    pools[st] = shuffle(fp_buildPool(st, cfg.N));
+  }
+
+  const usedKeys = new Set();
+  let si = 0; // index into shapes cycle
+
+  for (let attempt=0; puzzles.length < cfg.numPuz && attempt < cfg.numPuz*6; attempt++) {
+    const shapeType = cfg.shapes[si % cfg.shapes.length];
+    si++;
+    const pool = pools[shapeType];
+    if (!pool || !pool.length) continue;
+
+    // Pick a random entry from the pool
+    const idx = ri(0, pool.length-1);
+    const puz = pool.splice(idx,1)[0]; // remove to avoid repeats
+
+    const key = [...puz.given, puz.answer].map(p=>p[0]*100+p[1]).join(',');
+    if (usedKeys.has(key)) continue;
+    usedKeys.add(key);
+    puzzles.push(puz);
+  }
+
+  return puzzles;
+}
+
+// ── SVG layout constants ──────────────────────────────────────────────────────
+const FP_PAGE_COLS=3, FP_PAGE_ROWS=3;
+const FP_PUZ_W=164, FP_PUZ_H=186;
+const FP_COL_GAP=8, FP_ROW_GAP=8, FP_MX=6, FP_MY=6;
+const FP_SVG_W = FP_PAGE_COLS*FP_PUZ_W + (FP_PAGE_COLS-1)*FP_COL_GAP + 2*FP_MX;
+const FP_SVG_H = FP_PAGE_ROWS*FP_PUZ_H + (FP_PAGE_ROWS-1)*FP_ROW_GAP + 2*FP_MY;
+
+function fp_renderPage(puzzles, isKey) {
+  const cfg=FP_CONFIGS[DIFF];
+  let s=`<svg viewBox="0 0 ${FP_SVG_W} ${FP_SVG_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">`;
+  for (let i=0;i<FP_PAGE_COLS*FP_PAGE_ROWS;i++) {
+    const col=i%FP_PAGE_COLS, row=Math.floor(i/FP_PAGE_COLS);
+    const px=FP_MX+col*(FP_PUZ_W+FP_COL_GAP), py=FP_MY+row*(FP_PUZ_H+FP_ROW_GAP);
+    s+=fp_renderOne(puzzles[i]||null, px, py, cfg.cellPx, isKey, i+1);
+  }
+  return s+'</svg>';
+}
+
+function fp_renderOne(puz, px, py, cellPx, isKey, num) {
+  if (!puz) return `<text x="${px+FP_PUZ_W/2}" y="${py+FP_PUZ_H/2}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11" fill="#ccc">—</text>`;
+
+  const N=puz.N, GRID_PX=N*cellPx, DP=7; // DP = dashed-border padding
+  const gx=px+Math.round((FP_PUZ_W-GRID_PX)/2), gy=py+22;
+  let s='';
+
+  // ── Puzzle number ──
+  s+=`<text x="${px+6}" y="${py+15}" font-family="Archivo,sans-serif" font-size="11" fill="#888" font-weight="600">(${num})</text>`;
+
+  // ── Dashed outer frame ──
+  s+=`<rect x="${gx-DP}" y="${gy-DP}" width="${GRID_PX+2*DP}" height="${GRID_PX+2*DP}" fill="none" stroke="#bbb" stroke-width="1.1" stroke-dasharray="5,3.5" rx="2"/>`;
+
+  // ── Solid grid border + white background ──
+  s+=`<rect x="${gx}" y="${gy}" width="${GRID_PX}" height="${GRID_PX}" fill="white" stroke="#2a2a2a" stroke-width="1.6"/>`;
+
+  // ── Dashed interior grid lines ──
+  for (let r=1;r<N;r++) { const y=gy+r*cellPx; s+=`<line x1="${gx}" y1="${y}" x2="${gx+GRID_PX}" y2="${y}" stroke="#ccc" stroke-width="0.8" stroke-dasharray="4,3"/>`; }
+  for (let c=1;c<N;c++) { const x=gx+c*cellPx; s+=`<line x1="${x}" y1="${gy}" x2="${x}" y2="${gy+GRID_PX}" stroke="#ccc" stroke-width="0.8" stroke-dasharray="4,3"/>`; }
+
+  // ── Key: filled quadrilateral ──
+  if (isKey) {
+    const all4=[...puz.given, puz.answer];
+    const ord=zk_convex4(all4)||all4;
+    const poly=ord.map(([c,r])=>`${gx+c*cellPx},${gy+r*cellPx}`).join(' ');
+    s+=`<polygon points="${poly}" fill="rgba(184,48,0,0.10)" stroke="#b83000" stroke-width="1.8" stroke-linejoin="round"/>`;
+  }
+
+  // ── Background dots (all grid points not given/answer) ──
+  for (let r=0;r<=N;r++) for (let c=0;c<=N;c++) {
+    if (puz.given.some(g=>g[0]===c&&g[1]===r)) continue;
+    if (isKey && puz.answer[0]===c && puz.answer[1]===r) continue;
+    s+=`<circle cx="${gx+c*cellPx}" cy="${gy+r*cellPx}" r="2.5" fill="#333"/>`;
+  }
+
+  // ── Given points: bullseye style (matches PDF) ──
+  for (const [c,r] of puz.given) {
+    const x=gx+c*cellPx, y=gy+r*cellPx;
+    s+=`<circle cx="${x}" cy="${y}" r="8" fill="white" stroke="#1a1a1a" stroke-width="1.8"/>`;
+    s+=`<circle cx="${x}" cy="${y}" r="3.5" fill="#1a1a1a"/>`;
+  }
+
+  // ── Answer point (key): red bullseye ──
+  if (isKey) {
+    const [ac,ar]=puz.answer, ax=gx+ac*cellPx, ay=gy+ar*cellPx;
+    s+=`<circle cx="${ax}" cy="${ay}" r="8" fill="white" stroke="#b83000" stroke-width="2.5"/>`;
+    s+=`<circle cx="${ax}" cy="${ay}" r="3.5" fill="#b83000"/>`;
+  }
+
+  // ── Shape label (one or two lines) ──
+  const lines=FP_LABEL_LINES[puz.shapeType]||[puz.shapeType];
+  const lx=gx+GRID_PX/2, ly0=gy+GRID_PX+17;
+  const fsz=lines.length>1?11:13;
+  lines.forEach((ln,i)=>{ s+=`<text x="${lx}" y="${ly0+i*14}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="${fsz}" font-weight="700" fill="#111">${ln}</text>`; });
+
+  return s;
+}
+
+// ── Sheet builders ────────────────────────────────────────────────────────────
+function fp_sheetHTML(isKey, title) {
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  return `<div class="sheet narrow">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${FP_DIRS[DIFF]}</div>
+    <div class="sh-svg">${fp_renderPage(FP_PUZZLES, isKey)}</div>
+  </div>`;
+}
+function fp_buildSheet(isKey) {
+  const title = document.getElementById('pg-title').value.trim() || FP_TITLES[DIFF];
+  return fp_sheetHTML(isKey, title);
+}
+function fp_printSheet(isKey, title) { return fp_sheetHTML(isKey, title); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DIGIT DIVISION
+// Format: D × Q = A  (1-digit divisor × 3-digit quotient = 4-digit dividend)
+// All 8 positions use distinct digits from 1–9 (no zeros).
+// Some digits are shown in boxes; student fills blanks using the listed pool.
+// Divisor is always pre-given (shown). Blanks are among the 7 other positions.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DD_TITLES = [
+  'Digit Division — Beginner',
+  'Digit Division — Intermediate',
+  'Digit Division — Challenge',
+];
+const DD_DIRS = [
+  'Use the given digits to make each division correct. Each puzzle has a unique solution.',
+  'Use the given digits to make each division correct. Each puzzle has a unique solution.',
+  'Use the given digits to make each division correct.',
+];
+const DD_CONFIGS = [
+  { numBlanks:2, numPuz:9 },
+  { numBlanks:3, numPuz:9 },
+  { numBlanks:4, numPuz:9 },
+];
+
+// ── Pool of valid triples (lazy, cached) ──────────────────────────────────────
+let DD_POOL = null;
+function dd_buildPool() {
+  if (DD_POOL) return DD_POOL;
+  DD_POOL = [];
+  for (let d = 2; d <= 9; d++) {
+    for (let q = 100; q <= 999; q++) {
+      const a = d * q;
+      if (a > 9999) break;
+      const digs = [
+        d,
+        (q/100|0), (q/10|0)%10, q%10,
+        (a/1000|0), (a/100|0)%10, (a/10|0)%10, a%10
+      ];
+      // Only reject if leading digit is 0 (divisor/quotient hundreds/dividend thousands)
+      // Interior zeros are fine and make interesting puzzles
+      if (digs[4] === 0) continue; // dividend thousands can't be 0 (impossible anyway)
+      if (new Set(digs).size !== 8) continue;
+      DD_POOL.push({ d, q, a, digits: digs });
+    }
+  }
+  return DD_POOL;
+}
+
+// ── Permutations of small arrays ──────────────────────────────────────────────
+function dd_perms(arr) {
+  if (arr.length <= 1) return [[...arr]];
+  const r = [];
+  for (let i = 0; i < arr.length; i++) {
+    const rest = arr.filter((_, j) => j !== i);
+    for (const p of dd_perms(rest)) r.push([arr[i], ...p]);
+  }
+  return r;
+}
+
+// ── Count/collect solutions for a given blank mask ────────────────────────────
+// blanks: sorted array of position indices (0=divisor, 1-3=quotient, 4-7=dividend)
+function dd_solutions(entry, blanks) {
+  const givenSet = new Set(entry.digits.filter((_, i) => !blanks.includes(i)));
+  const free     = entry.digits.filter(x => !givenSet.has(x));
+  const sols     = [];
+  for (const perm of dd_perms(free)) {
+    const t = [...entry.digits];
+    blanks.forEach((pos, i) => { t[pos] = perm[i]; });
+    const tD = t[0], tQ = t[1]*100 + t[2]*10 + t[3];
+    const tA = t[4]*1000 + t[5]*100 + t[6]*10 + t[7];
+    if (tD * tQ === tA) { sols.push(t); if (sols.length > 2) return sols; }
+  }
+  return sols;
+}
+
+// ── Puzzle generator ──────────────────────────────────────────────────────────
+function dd_genPuzzle(diff, usedKeys) {
+  const cfg = DD_CONFIGS[diff];
+  const pool = shuffle([...dd_buildPool()]);
+  const positions = [1, 2, 3, 4, 5, 6, 7]; // positions that can be blank (not divisor)
+
+  for (const entry of pool) {
+    const key = entry.d + ',' + entry.q;
+    if (usedKeys.has(key)) continue;
+    for (let att = 0; att < 60; att++) {
+      const blanks = shuffle([...positions]).slice(0, cfg.numBlanks).sort((a,b)=>a-b);
+      // Require at least 1 quotient blank (pos 1-3) — makes puzzle more engaging
+      if (!blanks.some(p => p <= 3)) continue;
+      const sols = dd_solutions(entry, blanks);
+      if (!sols.length || sols.length > 2) continue;
+      if (diff < 2 && sols.length !== 1) continue; // beginner/intermediate: unique only
+      usedKeys.add(key);
+      return { ...entry, blanks, sols, numAnswers: sols.length };
+    }
+  }
+  return null;
+}
+
+function dd_genSheet(diff) {
+  const cfg = DD_CONFIGS[diff];
+  const used = new Set();
+  const puzzles = [];
+  let attempts = 0;
+  while (puzzles.length < cfg.numPuz && attempts < cfg.numPuz * 40) {
+    attempts++;
+    const p = dd_genPuzzle(diff, used);
+    if (p) puzzles.push(p);
+  }
+  return puzzles;
+}
+
+// ── SVG layout ────────────────────────────────────────────────────────────────
+const DD_PAGE_COLS = 3, DD_PAGE_ROWS = 3;
+const DD_PUZ_W = 176, DD_PUZ_H = 162;
+const DD_COL_GAP = 8, DD_ROW_GAP = 6, DD_MX = 8, DD_MY = 8;
+const DD_SVG_W = DD_PAGE_COLS*DD_PUZ_W + (DD_PAGE_COLS-1)*DD_COL_GAP + 2*DD_MX;
+const DD_SVG_H = DD_PAGE_ROWS*DD_PUZ_H + (DD_PAGE_ROWS-1)*DD_ROW_GAP + 2*DD_MY;
+
+const DD_B = 27; // box size
+const DD_S = 29; // box step (size + 2px gap)
+
+function dd_renderPage(puzzles, isKey) {
+  let s = `<svg viewBox="0 0 ${DD_SVG_W} ${DD_SVG_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">`;
+  for (let i = 0; i < 9; i++) {
+    const col = i%3, row = (i/3|0);
+    s += dd_renderOne(
+      puzzles[i]||null,
+      DD_MX + col*(DD_PUZ_W+DD_COL_GAP),
+      DD_MY + row*(DD_PUZ_H+DD_ROW_GAP),
+      isKey, i+1
+    );
+  }
+  return s + '</svg>';
+}
+
+function dd_renderOne(puz, px, py, isKey, num) {
+  if (!puz) return `<text x="${px+DD_PUZ_W/2}" y="${py+DD_PUZ_H/2}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11" fill="#ccc">—</text>`;
+
+  // Figure geometry
+  // Total figure width: DD_B(divisor) + 7(bracket gap) + 4*DD_S−2(dividend) = 27+7+114 = 148
+  const figW = DD_B + 7 + 4*DD_S - 2;
+  const figX = px + ((DD_PUZ_W - figW) >> 1);
+  const bracketX = figX + DD_B + 4;   // left edge of division bracket
+  const a0X = bracketX + 3;           // left edge of first dividend box
+  const q0X = a0X + DD_S;            // left edge of first quotient box (above a[1])
+
+  const qY     = py + 24;             // quotient boxes top
+  const lineY  = qY + DD_B + 4;       // horizontal division line
+  const aY     = lineY + 4;           // dividend boxes top (= divisor top)
+  const bottomY = aY + DD_B;          // bottom of dividend row
+
+  let s = '';
+
+  // Puzzle number
+  s += `<text x="${px+5}" y="${py+13}" font-family="Archivo,sans-serif" font-size="11" fill="#999" font-weight="600">(${num})</text>`;
+
+  // Dashed outer frame
+  s += `<rect x="${px+4}" y="${py+16}" width="${DD_PUZ_W-8}" height="${DD_PUZ_H-20}" fill="none" stroke="#ddd" stroke-width="1" stroke-dasharray="5,3.5" rx="2"/>`;
+
+  // Division bracket: horizontal line above dividend, vertical line at left
+  s += `<line x1="${bracketX}" y1="${lineY}" x2="${a0X+4*DD_S-2}" y2="${lineY}" stroke="#1a1a1a" stroke-width="1.8"/>`;
+  s += `<line x1="${bracketX}" y1="${lineY}" x2="${bracketX}" y2="${aY+DD_B+1}" stroke="#1a1a1a" stroke-width="1.8"/>`;
+
+  // Helper: one digit box
+  const box = (bx, by, val, keyAns) => {
+    let r = `<rect x="${bx}" y="${by}" width="${DD_B}" height="${DD_B}" fill="white" stroke="#1a1a1a" stroke-width="1.7" rx="1"/>`;
+    if (val !== null) {
+      const fill = keyAns ? '#b83000' : '#1a1a1a';
+      r += `<text x="${bx+DD_B/2}" y="${by+DD_B*0.74}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="17" font-weight="800" fill="${fill}">${val}</text>`;
+    }
+    return r;
+  };
+
+  // Divisor box (pos 0 — always shown)
+  s += box(figX, aY, puz.d, false);
+
+  // Quotient boxes (pos 1,2,3) — above dividend positions 1,2,3
+  for (let i = 0; i < 3; i++) {
+    const blank = puz.blanks.includes(i+1);
+    s += box(q0X + i*DD_S, qY,
+      blank ? (isKey ? puz.sols[0][i+1] : null) : puz.digits[i+1],
+      isKey && blank);
+  }
+
+  // Dividend boxes (pos 4,5,6,7)
+  for (let i = 0; i < 4; i++) {
+    const blank = puz.blanks.includes(i+4);
+    s += box(a0X + i*DD_S, aY,
+      blank ? (isKey ? puz.sols[0][i+4] : null) : puz.digits[i+4],
+      isKey && blank);
+  }
+
+  // "uses all of" label
+  const cx = px + DD_PUZ_W/2;
+  s += `<text x="${cx}" y="${bottomY+13}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="9.5" fill="#888">uses all of</text>`;
+
+  // Digit list: given digits struck through, blanks bolded
+  const allDigits = [...puz.digits].sort((a,b)=>a-b);
+  const givenSet  = new Set(puz.digits.filter((_,i) => !puz.blanks.includes(i)));
+  const parts = allDigits.map((d, i) => {
+    const struck = givenSet.has(d);
+    const comma  = i < allDigits.length-1 ? `<tspan fill="#999" font-weight="400">, </tspan>` : '';
+    const stk    = struck ? ` text-decoration="line-through"` : '';
+    const fill   = struck ? '#aaa' : '#1a1a1a';
+    const wt     = struck ? '500'  : '800';
+    return `<tspan${stk} fill="${fill}" font-weight="${wt}">${d}</tspan>${comma}`;
+  }).join('');
+  s += `<text x="${cx}" y="${bottomY+26}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13">${parts}</text>`;
+
+  // "two answers" note
+  if (puz.numAnswers > 1)
+    s += `<text x="${cx}" y="${bottomY+41}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="10" font-weight="700" fill="#b83000">two answers</text>`;
+
+  return s;
+}
+
+// ── Sheet builders ────────────────────────────────────────────────────────────
+function dd_sheetHTML(isKey, title) {
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  return `<div class="sheet narrow">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${DD_DIRS[DIFF]}</div>
+    <div class="sh-svg">${dd_renderPage(DD_PUZZLES, isKey)}</div>
+  </div>`;
+}
+function dd_buildSheet(isKey) {
+  const title = document.getElementById('pg-title').value.trim() || DD_TITLES[DIFF];
+  return dd_sheetHTML(isKey, title);
+}
+function dd_printSheet(isKey, title) { return dd_sheetHTML(isKey, title); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DIVISION PYRAMIDS
+// All numbers shown — student traces path top→bottom by dividing.
+// At each step, quotient = current÷divisor; move to the touching block below
+// that contains the quotient (each block touches positions i and i+1 below it).
+// Exactly one valid path guaranteed (beginner & intermediate); unique confirmed
+// by exhaustive DFS search. Key highlights the path in blue.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DP_TITLES = [
+  'Division Pyramids — Beginner',
+  'Division Pyramids — Intermediate',
+  'Division Pyramids — Challenge',
+];
+const DP_DIRS = [
+  'Start at the top. Divide by the divisor to find the quotient, then move to the touching block below that contains it. Find the path all the way to the bottom!',
+  'Start at the top. Divide by the divisor to find the quotient, then move to the touching block below that contains it. Find the path all the way to the bottom!',
+  'Start at the top. Divide by the divisor to find the quotient, then move to the touching block below that contains it. Find the path all the way to the bottom!',
+];
+const DP_CONFIGS = [
+  { depth:4, divisors:[2,5],   numPuz:4 },
+  { depth:5, divisors:[2,4,5], numPuz:4 },
+  { depth:5, divisors:[3,4,5], numPuz:4 },
+];
+// [min, max] for bottom path value by divisor and depth
+const DP_BOTTOM_RANGE = {
+  2:{ 4:[18,75], 5:[16,52] },
+  3:{ 5:[10,44]            },
+  4:{ 5:[5,17]             },
+  5:{ 4:[5,17],  5:[6,24]  },
+};
+
+// Format numbers with thousands comma
+function dp_fmt(n) {
+  if (n >= 10000) return Math.floor(n/10000) + ',' + String(Math.floor((n%10000)/1000)) + ',' + String(n%1000).padStart(3,'0');
+  if (n >= 1000)  return Math.floor(n/1000) + ',' + String(n%1000).padStart(3,'0');
+  return String(n);
+}
+
+// Count valid top→bottom paths (capped at 2 for efficiency)
+function dp_countPaths(rows, divisor) {
+  let count = 0;
+  const depth = rows.length;
+  function dfs(r, c) {
+    if (count > 1) return;
+    if (r === depth-1) { count++; return; }
+    const target = rows[r][c] / divisor;
+    if (!Number.isInteger(target) || target <= 0) return;
+    for (const nc of [c, c+1]) {
+      if (nc <= r+1 && rows[r+1][nc] === target) {
+        dfs(r+1, nc);
+        if (count > 1) return;
+      }
+    }
+  }
+  dfs(0, 0);
+  return count;
+}
+
+// Pick distractor offset pool. For non-bottom rows, prefer same-divisibility
+// offsets so distractors look plausible (e.g., other multiples of 5 for ÷5).
+function dp_offsets(divisor, isBottom) {
+  const d = divisor;
+  if (isBottom) return shuffle([1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,-7,8,-8,9,-9,10,-10,11,-11,12,-12]);
+  // Prefer multiples of divisor for interior rows — makes distractors harder to rule out
+  return shuffle([d,-d,2*d,-2*d,3*d,-3*d,4*d,-4*d,5*d,-5*d,1,-1,2,-2,3,-3,4,-4]);
+}
+
+function dp_genPuzzle(divisor, depth, maxTries=800) {
+  const [bMin, bMax] = (DP_BOTTOM_RANGE[divisor]||{})[depth] || [10,50];
+  for (let t = 0; t < maxTries; t++) {
+    const bottom = ri(bMin, bMax);
+
+    // Path values: index 0=top, depth-1=bottom
+    const pv = [bottom];
+    for (let i = 1; i < depth; i++) pv.unshift(pv[0] * divisor);
+
+    // Path positions: random left/right walk
+    const pp = [0];
+    for (let r = 1; r < depth; r++) pp.push(pp[r-1] + ri(0,1));
+
+    // Build rows with distractors
+    const rows = [];
+    let valid = true;
+
+    for (let r = 0; r < depth; r++) {
+      const row = new Array(r+1).fill(null);
+      row[pp[r]] = pv[r];
+      const isBottom = (r === depth-1);
+
+      for (let c = 0; c <= r; c++) {
+        if (c === pp[r]) continue;
+
+        // Bad values: path value, anything reachable-from-above, duplicates in row
+        const bad = new Set([pv[r]]);
+        if (r > 0) {
+          for (const pc of [c-1, c]) {
+            if (pc >= 0 && pc < rows[r-1].length && rows[r-1][pc] !== null) {
+              const v = rows[r-1][pc];
+              if (v % divisor === 0) bad.add(v / divisor);
+            }
+          }
+        }
+        row.forEach(v => v !== null && bad.add(v));
+
+        let placed = false;
+        for (const off of dp_offsets(divisor, isBottom)) {
+          const cand = pv[r] + off;
+          if (cand > 0 && !bad.has(cand)) {
+            row[c] = cand; bad.add(cand); placed = true; break;
+          }
+        }
+        if (!placed) { valid = false; break; }
+      }
+
+      if (!valid) break;
+      rows.push(row);
+    }
+
+    if (!valid || rows.length !== depth) continue;
+    if (dp_countPaths(rows, divisor) === 1) {
+      return { rows, divisor, depth, pathPos: pp, pathVals: pv };
+    }
+  }
+  return null;
+}
+
+function dp_genSheet(diff) {
+  const cfg = DP_CONFIGS[diff];
+  const puzzles = [];
+  for (let i = 0; i < cfg.numPuz; i++) {
+    const d = cfg.divisors[i % cfg.divisors.length];
+    const p = dp_genPuzzle(d, cfg.depth);
+    if (p) puzzles.push(p);
+  }
+  return puzzles;
+}
+
+// ── SVG layout ────────────────────────────────────────────────────────────────
+const DP_BW = 50, DP_BH = 30, DP_BGAP = 4, DP_RSTEP = 42;
+const DP_HDR_H = 34; // height reserved for divisor label above pyramid
+const DP_PAD_B = 14; // padding below pyramid
+const DP_PAGE_COLS = 2, DP_PAGE_ROWS = 2;
+const DP_PUZ_W = 310, DP_PUZ_H = 262;
+const DP_COL_GAP = 12, DP_ROW_GAP = 12, DP_MX = 8, DP_MY = 8;
+const DP_SVG_W = DP_PAGE_COLS*DP_PUZ_W + (DP_PAGE_COLS-1)*DP_COL_GAP + 2*DP_MX;
+const DP_SVG_H = DP_PAGE_ROWS*DP_PUZ_H + (DP_PAGE_ROWS-1)*DP_ROW_GAP + 2*DP_MY;
+
+function dp_renderPage(puzzles, isKey) {
+  let s = `<svg viewBox="0 0 ${DP_SVG_W} ${DP_SVG_H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">`;
+  for (let i = 0; i < 4; i++) {
+    const col = i%2, row = i>>1;
+    s += dp_renderOne(
+      puzzles[i]||null,
+      DP_MX + col*(DP_PUZ_W+DP_COL_GAP),
+      DP_MY + row*(DP_PUZ_H+DP_ROW_GAP),
+      isKey, i+1
+    );
+  }
+  return s + '</svg>';
+}
+
+function dp_renderOne(puz, px, py, isKey, num) {
+  if (!puz) return `<text x="${px+DP_PUZ_W/2}" y="${py+DP_PUZ_H/2}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11" fill="#ccc">—</text>`;
+
+  const { rows, divisor, depth, pathPos } = puz;
+  let s = '';
+
+  // Puzzle number
+  s += `<text x="${px+6}" y="${py+14}" font-family="Archivo,sans-serif" font-size="11" fill="#999" font-weight="600">(${num})</text>`;
+
+  // Dashed outer frame
+  s += `<rect x="${px+4}" y="${py+4}" width="${DP_PUZ_W-8}" height="${DP_PUZ_H-8}" fill="none" stroke="#ddd" stroke-width="1" stroke-dasharray="5,3.5" rx="3"/>`;
+
+  // Divisor badge — centered, bold
+  const cx = px + DP_PUZ_W/2;
+  s += `<text x="${cx}" y="${py+22}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="15" font-weight="800" fill="#222">÷${divisor}</text>`;
+
+  const pyBase = py + DP_HDR_H; // y-origin of row 0 boxes
+
+  for (let r = 0; r < depth; r++) {
+    const nBoxes = r + 1;
+    const rowW  = nBoxes*DP_BW + (nBoxes-1)*DP_BGAP;
+    const rowX  = px + (DP_PUZ_W - rowW) / 2;
+    const rowY  = pyBase + r*DP_RSTEP;
+
+    for (let c = 0; c < nBoxes; c++) {
+      const bx = rowX + c*(DP_BW + DP_BGAP);
+      const by = rowY;
+      const onPath = isKey && pathPos[r] === c;
+
+      const fill   = onPath ? 'rgba(27,79,204,0.14)' : 'white';
+      const stroke = onPath ? '#1B4FCC' : '#1a1a1a';
+      const sw     = onPath ? '2.5' : '1.6';
+      const tFill  = onPath ? '#1B4FCC' : '#1a1a1a';
+
+      s += `<rect x="${bx}" y="${by}" width="${DP_BW}" height="${DP_BH}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" rx="2"/>`;
+
+      const txt = dp_fmt(rows[r][c]);
+      const fs  = txt.length >= 6 ? 9.5 : txt.length === 5 ? 10.5 : txt.length === 4 ? 12 : 13;
+      s += `<text x="${bx+DP_BW/2}" y="${by+DP_BH*0.71}" text-anchor="middle" font-family="Archivo,sans-serif" font-size="${fs}" font-weight="800" fill="${tFill}">${txt}</text>`;
+    }
+  }
+
+  return s;
+}
+
+// ── Sheet builders ────────────────────────────────────────────────────────────
+function dp_sheetHTML(isKey, title) {
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  return `<div class="sheet narrow">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${DP_DIRS[DIFF]}</div>
+    <div class="sh-svg">${dp_renderPage(DP_PUZZLES, isKey)}</div>
+  </div>`;
+}
+function dp_buildSheet(isKey) {
+  const title = document.getElementById('pg-title').value.trim() || DP_TITLES[DIFF];
+  return dp_sheetHTML(isKey, title);
+}
+function dp_printSheet(isKey, title) { return dp_sheetHTML(isKey, title); }
 
 renderDiffOpts();
 generate();
