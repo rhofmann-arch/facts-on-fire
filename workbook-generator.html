@@ -450,6 +450,18 @@ table.xo td.crossed{background:#ffe5e5;color:#ccc}
 /* ================================================================
    END LOCKED FORMAT — DOT SKILLS
    ================================================================ */
+/* Warp & Weft */
+.ww-pair{display:flex;gap:20px;flex:1;margin-top:4px}
+.ww-block{flex:1;border:2px solid #ccc;border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.ww-block-hdr{font-size:9px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;background:#f5f5f5;border-bottom:1px solid #e0e0e0}
+.ww-grid{display:grid;grid-template-columns:repeat(3,1fr);flex:1}
+.ww-cell{display:flex;align-items:center;justify-content:center;font-family:Helvetica,Arial,sans-serif;font-size:17px;font-weight:800;color:#1a1a1a;padding:10px 4px;border-bottom:1px solid #e8e8e8;border-right:1px solid #e8e8e8;white-space:nowrap}
+.ww-cell:nth-child(3n){border-right:none}
+.ww-anchor{background:#e8e8e8;font-weight:900}
+.ww-blank{display:inline-block;width:28px;border-bottom:2px solid #888;height:14px;vertical-align:baseline;margin-left:3px}
+.ww-ans-key{color:#b83000;font-weight:900;margin-left:3px}
+.ww-anchor-input{width:58px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;text-align:center;background:var(--surf);color:var(--ink)}
+.ww-anchor-input:focus{outline:none;border-color:var(--fire)}
 /* Refine panel */
 .refine-section{margin-bottom:28px}
 .refine-section-hdr{font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 0 8px;border-bottom:2px solid var(--border);margin-bottom:16px}
@@ -2657,7 +2669,7 @@ function trackingPageHTML(title, schedule, weeks) {
     let rows='';
     for(let d=0;d<5;d++){
       const dy=schedule[d];
-      const intLabels={ccc:'Cover-Copy-Compare',ff:'Fact Families',factfamily:'Fact Family Practice',touchmath:'TouchMath',tablescaffold:'Table Scaffold'};
+      const intLabels={ccc:'Cover-Copy-Compare',ff:'Fact Families',factfamily:'Fact Family Practice',warpweft:'Warp & Weft',touchmath:'TouchMath',tablescaffold:'Table Scaffold'};
       const lbl=dy.type==='probe'?'Probe'
                :dy.type==='target'?'Target Skill Practice'
                :dy.type==='intervention'?(intLabels[dy.intType||'ccc']||'Intervention')
@@ -3480,7 +3492,7 @@ function buildRefinePanel() {
       byInt[it].push(d.dayNum);
     }
 
-    const intLabels = {ccc:'Cover-Copy-Compare', ff:'Fact Families', factfamily:'Fact Family Practice', touchmath:'TouchMath', tablescaffold:'Table Scaffold'};
+    const intLabels = {ccc:'Cover-Copy-Compare', ff:'Fact Families', factfamily:'Fact Family Practice', warpweft:'Warp & Weft', touchmath:'TouchMath', tablescaffold:'Table Scaffold'};
     // Intervention scaffold options (for FF only)
     const FF_SCAFFOLD_OPTS = [
       {v:0, l:'Both equations shown (fill answers)'},
@@ -3506,6 +3518,38 @@ function buildRefinePanel() {
         paramSelects = '<span style="font-size:12px;color:var(--muted);align-self:center">TouchMath — no additional options.</span>';
       } else if (it === 'tablescaffold') {
         paramSelects = '<span style="font-size:12px;color:var(--muted);align-self:center">Table Scaffold — no additional options.</span>';
+      } else if (it === 'warpweft') {
+        if (!window.INT_PARAMS.warpweft) window.INT_PARAMS.warpweft = {mode:'auto', anchorA:'', anchorB:'', anchorOp:'+'};
+        const wp = window.INT_PARAMS.warpweft;
+        const isSub    = SEL_SKILL && SEL_SKILL.genType === 'sub';
+        const isAddSub = SEL_SKILL && SEL_SKILL.genType === 'addsub';
+        if (!wp.anchorOp) wp.anchorOp = isSub ? '-' : '+';
+        const opSelector = isAddSub
+          ? `<select class="refine-select" style="width:64px;text-align:center;font-size:16px;font-weight:800;padding:5px 6px" onchange="onWWAnchorInput('op',this.value)">
+               <option value="+"${wp.anchorOp==='+' ? ' selected':''}>+</option>
+               <option value="-"${wp.anchorOp==='-' ? ' selected':''}>−</option>
+             </select>`
+          : `<span style="font-size:18px;font-weight:800;color:#1a1a1a;padding:0 6px">${isSub ? '&minus;' : '+'}</span>`;
+        paramSelects = `
+          <div class="refine-param">
+            <span class="refine-param-lbl">Anchor Selection</span>
+            <select class="refine-select" style="min-width:220px" onchange="onWWModeChange(this.value)">
+              <option value="auto"${wp.mode==='auto' ? ' selected':''}>Auto — random from skill pool</option>
+              <option value="manual"${wp.mode==='manual' ? ' selected':''}>Manual — enter anchor fact</option>
+            </select>
+          </div>
+          <div id="ww-anchor-fields" style="display:${wp.mode==='manual'?'flex':'none'};align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <span class="refine-param-lbl" style="margin-top:0">Anchor:</span>
+            <input type="number" class="ww-anchor-input" min="1" max="99"
+              value="${wp.anchorA||''}" placeholder="a"
+              oninput="onWWAnchorInput('a',this.value)">
+            ${opSelector}
+            <input type="number" class="ww-anchor-input" min="1" max="99"
+              value="${wp.anchorB||''}" placeholder="b"
+              oninput="onWWAnchorInput('b',this.value)">
+            <span style="font-size:16px;font-weight:800">=</span>
+            <span id="ww-anchor-preview" style="font-size:13px;font-weight:700;min-width:60px">${wp.anchorA && wp.anchorB ? wwAnchorPreviewText(wp) : '<span style="color:var(--muted)">?</span>'}</span>
+          </div>`;
       } else {
         paramSelects = '<span style="font-size:12px;color:var(--muted);align-self:center">Cover-Copy-Compare — no additional options.</span>';
       }
@@ -4126,6 +4170,114 @@ async function factFamilyPageHTML(k, cycNum, dayLabel) {
 // END LOCKED FORMAT — FACT FAMILY INTERVENTION PAGE
 // ================================================================
 
+// ── WARP & WEFT INTERVENTION ──────────────────────────────────────────────────
+// 3×5 grid: cols vary first operand (a-1, a, a+1), rows vary second operand
+// (b-2 → b+2). Anchor at center (row 3, col 2) — shaded with answer shown.
+// Two grids per page, side-by-side.
+
+function pickWWAnchor(skill) {
+  const pool = [];
+  const isSub    = skill.genType === 'sub';
+  const isAddSub = skill.genType === 'addsub';
+  if (!isSub) {
+    const maxS = skill.maxSum || 18;
+    // addition: a≥2, b≥3 ensures all 15 cells have operands ≥1
+    for (let a = 2; a <= maxS - 3; a++)
+      for (let b = 3; b <= maxS - a; b++)
+        pool.push({ a, b, op: '+' });
+  }
+  if (isSub || isAddSub) {
+    const maxM = skill.maxMin || 18;
+    // subtraction: b≥3, a-b≥4 ensures (a-1)-(b+2)≥1
+    for (let a = 7; a <= maxM; a++)
+      for (let b = 3; b <= a - 4; b++)
+        pool.push({ a, b, op: '-' });
+  }
+  if (!pool.length) return isSub ? { a: 9, b: 3, op: '-' } : { a: 4, b: 3, op: '+' };
+  return pool[ri(0, pool.length - 1)];
+}
+
+function validateWWAnchor(a, b, op) {
+  if (!Number.isInteger(a) || !Number.isInteger(b) || a < 1 || b < 1) return null;
+  if (a < 2 || b < 3) return null;
+  if (op === '-' && (a - b) < 4) return null;
+  return { a, b, op };
+}
+
+function buildWarpWeftGrid(a, b, op) {
+  const cells = [];
+  for (let rb = -2; rb <= 2; rb++)
+    for (let ca = -1; ca <= 1; ca++) {
+      const fa = a + ca, fb = b + rb;
+      const ans = op === '+' ? fa + fb : fa - fb;
+      cells.push({ fa, fb, op, ans, isAnchor: ca === 0 && rb === 0 });
+    }
+  return cells;
+}
+
+function wwCellHTML(cell, key) {
+  const opDisp = cell.op === '-' ? '&minus;' : '+';
+  let ansContent;
+  if (cell.isAnchor) {
+    ansContent = String(cell.ans);
+  } else if (key) {
+    ansContent = `<span class="ww-ans-key">${cell.ans}</span>`;
+  } else {
+    ansContent = `<span class="ww-blank"></span>`;
+  }
+  return `<div class="ww-cell${cell.isAnchor ? ' ww-anchor' : ''}">${cell.fa}&nbsp;${opDisp}&nbsp;${cell.fb}&nbsp;=&nbsp;${ansContent}</div>`;
+}
+
+function wwBlockHTML(cells, blockNum, key) {
+  return `<div class="ww-block">
+  <div class="ww-block-hdr">#${blockNum}</div>
+  <div class="ww-grid">${cells.map(c => wwCellHTML(c, key)).join('')}</div>
+</div>`;
+}
+
+function warpWeftPageHTML(grids, pageNum, cycNum, dayLabel, title, key) {
+  const blocks = grids.map((cells, i) => wwBlockHTML(cells, i + 1, key)).join('');
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycNum}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span></span>
+    <span class="wb-meta-act">${dayLabel}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+  <div class="wb-dir">Start with the <strong>shaded anchor fact</strong>. Use it to figure out the answers to the surrounding facts.</div>
+  <div class="ww-pair">${blocks}</div>
+</div>`;
+}
+
+function wwAnchorPreviewText(wp) {
+  const a = parseInt(wp.anchorA, 10), b = parseInt(wp.anchorB, 10);
+  const op = wp.anchorOp || '+';
+  if (isNaN(a) || isNaN(b)) return '<span style="color:var(--muted)">?</span>';
+  const valid = validateWWAnchor(a, b, op);
+  if (!valid) return '<span style="color:#c00">⚠ invalid anchor</span>';
+  const ans = op === '-' ? a - b : a + b;
+  const opD = op === '-' ? '&minus;' : '+';
+  return `<span style="color:var(--teal)">${a} ${opD} ${b} = ${ans} ✓</span>`;
+}
+
+function onWWModeChange(mode) {
+  if (!window.INT_PARAMS) window.INT_PARAMS = {};
+  if (!window.INT_PARAMS.warpweft) window.INT_PARAMS.warpweft = {};
+  window.INT_PARAMS.warpweft.mode = mode;
+  const el = document.getElementById('ww-anchor-fields');
+  if (el) el.style.display = mode === 'manual' ? 'flex' : 'none';
+}
+
+function onWWAnchorInput(field, val) {
+  if (!window.INT_PARAMS) window.INT_PARAMS = {};
+  if (!window.INT_PARAMS.warpweft) window.INT_PARAMS.warpweft = { mode: 'manual' };
+  const key = 'anchor' + field.charAt(0).toUpperCase() + field.slice(1);
+  window.INT_PARAMS.warpweft[key] = val;
+  const prev = document.getElementById('ww-anchor-preview');
+  if (prev) prev.innerHTML = wwAnchorPreviewText(window.INT_PARAMS.warpweft);
+}
+// ── END WARP & WEFT ──────────────────────────────────────────────────────────
+
 async function buildWorkbook(skill, schedule, weeks, key) {
   const title = skill.name + (key ? ' — Teacher Key' : '');
   const pages = [];
@@ -4149,7 +4301,7 @@ async function buildWorkbook(skill, schedule, weeks, key) {
       if(typeof window.onBuildProgress==='function') window.onBuildProgress(++pagesBuilt, totalPages);
       const cycNum = w+1;
       const ffK = dy.ffFamily || 2;
-      const intLabel = dy.intType==='ff'?'Fact Families':dy.intType==='factfamily'?`Fact Family Practice (${ffK}s)`:dy.intType==='touchmath'?'TouchMath':dy.intType==='tablescaffold'?'Table Scaffold':'CCC Standard';
+      const intLabel = dy.intType==='ff'?'Fact Families':dy.intType==='factfamily'?`Fact Family Practice (${ffK}s)`:dy.intType==='touchmath'?'TouchMath':dy.intType==='tablescaffold'?'Table Scaffold':dy.intType==='warpweft'?'Warp & Weft':'CCC Standard';
       const dayLabel = `Day ${d+1} \u2013 ${
         dy.type==='probe'?'Probe':
         dy.type==='target'?'Target Skill Practice':
@@ -4211,6 +4363,20 @@ async function buildWorkbook(skill, schedule, weeks, key) {
           const hdrDigs = tmHeaderDigits(skill);
           const probs = genTMProblems(skill, 16);
           pages.push(tmPageHTML(probs, hdrDigs, cycNum, dayLabel, skill.name, skillOp));
+        } else if(intT==='warpweft'){
+          // Warp & Weft — 2 grids per page
+          const wp = (window.INT_PARAMS&&window.INT_PARAMS.warpweft)||{mode:'auto'};
+          const grids = [];
+          for(let gi=0;gi<2;gi++){
+            let anc = null;
+            if(wp.mode==='manual'&&wp.anchorA&&wp.anchorB){
+              const mOp = wp.anchorOp||(skill.genType==='sub'?'-':'+');
+              anc = validateWWAnchor(parseInt(wp.anchorA,10), parseInt(wp.anchorB,10), mOp);
+            }
+            if(!anc) anc = pickWWAnchor(skill);
+            grids.push(buildWarpWeftGrid(anc.a, anc.b, anc.op));
+          }
+          pages.push(warpWeftPageHTML(grids, pg, cycNum, dayLabel, skill.name, key));
         } else {
           // Fact Families
           const isMDFF = skill.genType==='mult' || skill.genType==='div';
@@ -4550,6 +4716,7 @@ const INTERVENTION_TYPES = [
   {id:'ccc',           label:'Cover-Copy-Compare'},
   {id:'ff',            label:'Fact Families'},
   {id:'factfamily',    label:'Fact Family Practice'},
+  {id:'warpweft',      label:'Warp & Weft'},
   {id:'touchmath',     label:'TouchMath'},
   {id:'tablescaffold', label:'Table Scaffold'},
 ];

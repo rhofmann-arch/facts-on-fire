@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS Workbook Generator — Facts on Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root{--bg:#FAFAF7;--surf:#FFF;--ink:#0E1117;--ink2:#3A4150;--muted:#8A94A0;
+  --border:#E4E6EA;--fire:#FF4F00;--ember:#FFF0E8;--teal:#007A6E;--teal-lt:#E6F4F2;
+  --blue:#1B4FCC;--blue-lt:#EBF0FF;--r:12px}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ── HEADER ── */
+header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);position:sticky;top:0;z-index:100}
+.hdr{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;height:54px}
+.logo{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;display:flex;align-items:center;gap:7px;text-decoration:none}
+.logo em{color:var(--fire);font-style:normal}
+.back{margin-left:auto;color:#aaa;font-size:12px;font-weight:600;text-decoration:none;padding:5px 12px;border:1px solid #333;border-radius:6px;transition:.15s}
+.back:hover{color:#fff;border-color:#666}
+
+/* ── WIZARD ── */
+.wizard{max-width:1100px;margin:0 auto;padding:32px 24px 80px}
+.steps{display:flex;gap:0;margin-bottom:36px;border-bottom:2px solid var(--border)}
+.step{padding:10px 20px;font-size:13px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;cursor:default;transition:.15s}
+.step.active{color:var(--fire);border-bottom-color:var(--fire)}
+.step.done{color:var(--teal)}
+.panel{display:none}.panel.active{display:block}
+
+/* ── BUTTONS ── */
+.btn{padding:11px 22px;border-radius:9px;font-family:'Archivo Black',sans-serif;font-size:13px;cursor:pointer;border:none;transition:.15s;letter-spacing:.2px}
+.btn-fire{background:var(--fire);color:#fff}.btn-fire:hover{background:#e03900}
+.btn-fire:disabled{opacity:.5;cursor:wait}
+.btn-outline{background:var(--surf);color:var(--ink);border:2px solid var(--border)}.btn-outline:hover{border-color:var(--fire);color:var(--fire)}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{filter:brightness(1.1)}
+.btn-teal:disabled{opacity:.5;cursor:wait}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+
+/* ── SKILL CARD ── */
+.skill-intro{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px}
+.skill-card{background:var(--surf);border:2px solid var(--border);border-radius:12px;padding:20px 22px;cursor:pointer;transition:.15s;display:inline-flex;flex-direction:column;gap:8px;max-width:360px}
+.skill-card:hover{border-color:var(--fire);box-shadow:0 2px 8px rgba(255,79,0,.12)}
+.skill-card.selected{border-color:var(--fire);background:var(--ember)}
+.skill-icon{font-size:26px;line-height:1}
+.skill-name{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--ink)}
+.skill-desc{font-size:12px;font-weight:500;color:var(--muted);line-height:1.5}
+
+/* ── SCHEDULE ── */
+.struct-row{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.struct-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);min-width:60px}
+.weeks-input{display:flex;align-items:center;gap:10px}
+.weeks-btn{width:32px;height:32px;border:2px solid var(--border);border-radius:7px;background:var(--surf);cursor:pointer;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:.15s;color:var(--ink)}
+.weeks-btn:hover{border-color:var(--fire);color:var(--fire)}
+.weeks-val{font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--ink);min-width:28px;text-align:center}
+.schedule-table{width:100%;border-collapse:collapse;margin-bottom:24px}
+.schedule-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border)}
+.schedule-table td{padding:7px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+.schedule-table tr:last-child td{border-bottom:none}
+.day-label{font-size:13px;font-weight:700;color:var(--ink);padding-left:4px}
+.day-sel,.puzzle-sel{padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Archivo',sans-serif;font-size:12px;font-weight:600;background:var(--surf);color:var(--ink);cursor:pointer;transition:.15s}
+.day-sel{width:200px}.puzzle-sel{min-width:200px;margin-left:8px}
+.day-sel:focus,.puzzle-sel:focus{outline:none;border-color:var(--fire)}
+.puzzle-sel:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── REFINE ── */
+.refine-card{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px}
+.rc-lbl{flex:0 0 160px}
+.rc-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.rc-days{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.rc-desc{font-size:11px;font-weight:500;color:var(--muted);line-height:1.4}
+.refine-params{display:flex;flex-wrap:wrap;gap:12px;flex:1}
+.rp-group{display:flex;flex-direction:column;gap:4px;min-width:130px}
+.rp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)}
+.rp-sel{padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Archivo',sans-serif;font-size:12px;font-weight:600;background:var(--surf);color:var(--ink);cursor:pointer}
+.rp-sel:focus{outline:none;border-color:var(--fire)}
+.refine-skip{font-size:12px;color:var(--muted);padding:20px 0;text-align:center}
+
+/* ── GENERATE STEP ── */
+.gen-summary{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:20px}
+.gen-summary h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.gen-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.gen-row:last-child{border-bottom:none}
+.gen-lbl{font-weight:600;color:var(--ink2)}.gen-val{font-weight:700;color:var(--ink)}
+.prog-wrap{margin-bottom:20px}
+.prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.prog-fill{height:100%;background:var(--fire);border-radius:3px;transition:width .3s}
+.prog-lbl{font-size:12px;color:var(--muted);font-weight:600}
+
+/* ════════════════════════════════════════════════
+   WORKBOOK PAGE STYLES  (816px = 8.5in at 96dpi)
+   ════════════════════════════════════════════════ */
+.wb-page{
+  width:8.5in;min-height:11in;padding:.45in .65in .5in;
+  font-family:'Nunito',sans-serif;background:#fff;
+  box-sizing:border-box;display:flex;flex-direction:column;
+}
+
+/* Page header */
+.wb-hdr{font-size:12px;font-weight:800;color:#1a1a1a;border-bottom:2.5px solid #1a1a1a;padding-bottom:4px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:baseline}
+.wb-hdr-l{display:flex;align-items:baseline;gap:10px}
+.wb-badge{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:2px 7px;border-radius:3px}
+.wb-badge.probe{background:#b83000}.wb-badge.target{background:#007A6E}.wb-badge.puzzle{background:#1B4FCC}
+.pg-num{font-size:10px;font-weight:600;color:#aaa}
+
+/* Meta / name-score row */
+.wb-meta{display:flex;align-items:baseline;margin-bottom:10px;font-size:11.5px;font-weight:700;color:#1a1a1a}
+.wb-meta-name{white-space:nowrap;margin-right:4px}
+.wb-line{display:inline-block;border-bottom:1.5px solid #555;vertical-align:baseline;height:12px}
+.wb-line.long{width:160px}.wb-line.med{width:90px}.wb-line.short{width:50px}
+.wb-meta-act{flex:1;text-align:center;font-size:12px;font-weight:800}
+.wb-meta-right{white-space:nowrap;margin-left:4px}
+
+/* Directions */
+.wb-dir{font-size:10.5px;font-weight:700;color:#444;margin-bottom:8px;padding-bottom:5px;border-bottom:1.5px solid #e8e8e8}
+
+/* ── PROBE / TARGET: 20-fact grid (4 cols × 5 rows) ── */
+.prob-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px 10px;flex:1;align-content:start}
+.prob-cell{display:flex;align-items:center;gap:4px;padding:4px 3px;border-bottom:1px solid #ececec;min-height:49px}
+.prob-num{font-size:9px;font-weight:800;color:#ccc;min-width:14px;align-self:flex-start;padding-top:4px}
+.prob-expr{display:flex;align-items:center;gap:3px;font-size:21px;font-weight:800;color:#1a1a1a;line-height:1;flex:1}
+.prob-eq{font-size:18px;font-weight:700;color:#666}
+.prob-blank{display:inline-block;border-bottom:2px solid #888;min-width:38px;height:22px;vertical-align:bottom}
+.prob-blank.key{min-width:38px;height:22px;display:inline-flex;align-items:flex-end;justify-content:center;border-bottom:2px solid #b83000}
+.key-ans{color:#b83000;font-size:21px;font-weight:800;line-height:1}
+/* radical */
+.rad-sym{font-size:28px;font-weight:400;line-height:1;color:#1a1a1a;font-family:'Times New Roman',serif}
+.rad-num{font-size:21px;font-weight:800;border-top:2.5px solid #1a1a1a;padding:0 2px;line-height:1.3}
+/* square */
+.sq-base{font-size:21px;font-weight:800;line-height:1}
+.sq-exp{font-size:16px;font-weight:800;position:relative;top:-10px;margin-left:0;line-height:1}
+
+/* ── REFERENCE TABLE ── */
+.ref-wrap{border:2px solid #007A6E;border-radius:7px;margin-bottom:9px;overflow:hidden}
+.ref-hdr{background:#007A6E;color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px}
+.ref-body{padding:5px 10px;display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.ref-col{display:flex;flex-direction:column}
+.ref-col-hdr{font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#007A6E;padding:2px 0 3px;border-bottom:1.5px solid #007A6E;margin-bottom:2px}
+.ref-row{display:flex;flex-wrap:wrap;gap:0 4px;padding:1px 0;border-bottom:1px solid #f0f0f0;font-size:10.5px;font-weight:700;color:#1a1a1a;line-height:1.4}
+.ref-row:last-child{border-bottom:none}
+.ref-fact{white-space:nowrap;min-width:75px}
+.ref-ans{color:#007A6E;font-weight:800}
+.ref-sup{font-size:7.5px;font-weight:800;vertical-align:super}
+
+/* ── COVER ── */
+.wb-cover{justify-content:center;align-items:center;text-align:center;gap:20px;padding:1.5in}
+.wb-cover-title{font-family:'Archivo Black',sans-serif;font-size:28px;color:#1a1a1a;line-height:1.25;max-width:5.5in}
+.wb-cover-rule{width:4in;height:2px;background:#1a1a1a;margin:4px auto}
+.wb-cover-sub{font-size:14px;font-weight:600;color:#777}
+.wb-cover-fields{margin-top:1.5in;text-align:left;width:5in}
+.wb-cover-field{display:flex;align-items:baseline;gap:8px;margin-bottom:22px;font-size:13px;font-weight:700;color:#333}
+.wb-cover-field-line{flex:1;border-bottom:1.5px solid #aaa;height:14px}
+
+/* ── TRACKING ── */
+.wb-trk-title{font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:3px}
+.wb-trk-sub{font-size:12px;font-weight:600;color:#aaa;margin-bottom:13px}
+.wb-codes{font-size:10.5px;font-weight:600;color:#555;padding:5px 10px;background:#f8f8f8;border:1px solid #ddd;border-radius:4px;margin-bottom:14px;line-height:1.8}
+.wb-cyc{margin-bottom:12px;border:1.5px solid #ccc;border-radius:6px;overflow:hidden}
+.wb-cyc-h{background:#1a1a1a;color:#fff;font-size:13px;font-weight:800;padding:5px 12px}
+.wb-cyc-body{padding:3px 12px 1px}
+.wb-cr{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:11.5px;color:#222}
+.wb-cr:last-child{border-bottom:none}
+.wb-cr-d{font-size:11px;font-weight:800;color:#999;flex:0 0 36px}
+.wb-cr-l{font-weight:700;flex:0 0 240px}
+.wb-cr-s{font-weight:600;color:#555;white-space:nowrap}
+.wb-cr-codes{font-size:10.5px;font-weight:700;color:#999;white-space:nowrap;margin-left:4px}
+.wb-cr-ans{border-bottom:1.5px solid #aaa;flex:1;min-width:60px;height:12px}
+
+/* ── PUZZLE PAGE CONTAINER ── */
+.wb-puz-wrap{flex:1;display:flex}
+.wb-puz-grid{display:grid;gap:10px;width:100%;flex:1}
+.wb-puz-grid.g2x2{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.wb-puz-cell{border:1.5px solid #ddd;border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;position:relative}
+.wb-puz-num{position:absolute;top:6px;left:8px;font-size:9px;font-weight:800;color:#ccc}
+
+/* ════════════════════════════════════════════════
+   MAZE ESCAPE PUZZLE STYLES (matches elementary Multiple Maze)
+   ════════════════════════════════════════════════ */
+.maze-grid{display:inline-grid;gap:3px;background:#b0b4b8;padding:3px;border:2px solid #444;border-radius:3px}
+.mc{width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;background:#f5f5f5;border-radius:2px;color:#1a1a1a}
+.mc.mc-s{background:#D0F0DB;outline:2.5px solid #1A7A3A;outline-offset:-1px;z-index:1}
+.mc.mc-f{background:#FFE2D0;outline:2.5px solid #FF4F00;outline-offset:-1px;z-index:1}
+.mc.mc-p{background:#FFF0E0;outline:2px solid #FF9000;outline-offset:-1px}
+.mc.mc-d{background:#E8EEFF;outline:1.5px solid #9AAAE0;outline-offset:-1px}
+.mc.mc-trap{color:#888}
+.me-outer{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%}
+.mleg{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:8.5px;font-weight:700;font-family:'Archivo',sans-serif;color:#555;margin-top:3px}
+.mli{display:flex;align-items:center;gap:3px}
+.msw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ════════════════════════════════════════════════
+   ARRANGING BOXES PUZZLE STYLES
+   ════════════════════════════════════════════════ */
+.ab-wrap{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%}
+.ab-section-lbl{font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#888;text-align:center}
+.ab-row{display:flex;align-items:center;justify-content:center;gap:5px}
+.ab-box{
+  width:52px;height:48px;
+  border:2px solid #1a1a1a;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:#1a1a1a;
+  background:#fff;position:relative;
+  box-shadow:3px 3px 0 #aaa;
+}
+.ab-box.ab-empty{background:#f5f5f5;color:transparent;box-shadow:3px 3px 0 #ccc;border-color:#bbb}
+.ab-box.ab-sol{border-color:#b83000;color:#b83000;box-shadow:3px 3px 0 #e8b0a0}
+.ab-arrow{font-size:15px;color:#bbb}
+/* Solution row with sum labels */
+.ab-sol-row{display:flex;align-items:flex-start;justify-content:center}
+.ab-slot{display:flex;flex-direction:column;align-items:center}
+.ab-connector{display:flex;flex-direction:column;align-items:center;justify-content:center;width:26px;padding-top:8px}
+.ab-sum-val{font-size:9.5px;font-weight:800;color:#007A6E;text-align:center;line-height:1.2}
+.ab-sum-check{font-size:8px;color:#007A6E;text-align:center}
+.ab-label{font-size:9px;font-weight:700;color:#666;letter-spacing:.02em;text-align:center;max-width:290px;line-height:1.4;padding:0 4px}
+
+/* ── PREVIEW MODAL ── */
+.preview-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;flex-direction:column}
+.preview-modal.open{display:flex}
+.preview-bar{background:#111;padding:10px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #333;flex-shrink:0}
+.preview-bar h2{font-size:14px;font-weight:700;color:#fff}
+.preview-bar .pg-ct{font-size:12px;color:#888}
+.preview-close{margin-left:auto;color:#aaa;background:none;border:1px solid #444;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600}
+.preview-close:hover{color:#fff;border-color:#888}
+.preview-zoom{display:flex;align-items:center;gap:8px;font-size:12px;color:#aaa}
+.preview-zoom input{width:90px;accent-color:var(--fire)}
+.preview-strip{height:80px;background:#0a0a0a;overflow-x:auto;overflow-y:hidden;display:flex;align-items:center;padding:6px 8px;gap:3px;flex-shrink:0;border-bottom:1px solid #333}
+.preview-pages{flex:1;overflow:auto;padding:32px;display:flex;flex-direction:column;align-items:center;gap:32px;background:#1a1a1a}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <a href="index.html" class="logo">🔥 <em>Facts on Fire</em></a>
+    <span style="color:#444;font-size:18px">|</span>
+    <span style="font-size:14px;color:#aaa;font-weight:500">MS Workbook Generator</span>
+    <a href="index.html" class="back">← Back to Hub</a>
+  </div>
+</header>
+
+<div class="wizard">
+  <div class="steps">
+    <div class="step active" id="step-ind-1">1 · Skill</div>
+    <div class="step" id="step-ind-2">2 · Schedule</div>
+    <div class="step" id="step-ind-3">3 · Refine</div>
+    <div class="step" id="step-ind-4">4 · Generate</div>
+  </div>
+
+  <!-- ── STEP 1: SKILL ── -->
+  <div class="panel active" id="panel-1">
+    <div class="skill-intro">Grades 5–8 &nbsp;·&nbsp; Choose a Skill</div>
+    <div class="skill-card selected" id="skill-card" onclick="selectSkill()">
+      <div class="skill-icon">²√</div>
+      <div class="skill-name">Perfect Squares &amp; Square Roots</div>
+      <div class="skill-desc">Fluency with perfect squares (1–144) and square roots (√1–√144). Timed probes and target practice mix squaring and rooting facts. 20 problems per page.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-fire" id="next-1" onclick="goStep(2)">Next: Schedule →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: SCHEDULE ── -->
+  <div class="panel" id="panel-2">
+    <div class="struct-row">
+      <span class="struct-label">Weeks</span>
+      <div class="weeks-input">
+        <button class="weeks-btn" onclick="changeWeeks(-1)">−</button>
+        <div class="weeks-val" id="weeks-display">3</div>
+        <button class="weeks-btn" onclick="changeWeeks(+1)">+</button>
+      </div>
+      <span style="font-size:12px;color:var(--muted);font-weight:600">weeks of daily pages (1–8)</span>
+    </div>
+    <table class="schedule-table">
+      <thead><tr>
+        <th style="width:80px">Day</th>
+        <th>Activity Type</th>
+        <th>Puzzle Selection</th>
+      </tr></thead>
+      <tbody id="sched-body"></tbody>
+    </table>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-fire" onclick="goStep(3)">Next: Refine →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: REFINE ── -->
+  <div class="panel" id="panel-3">
+    <div id="refine-body"></div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-fire" onclick="goStep(4)">Next: Generate →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: GENERATE ── -->
+  <div class="panel" id="panel-4">
+    <div class="gen-summary" id="gen-summary"></div>
+    <p id="gen-note" style="font-size:12px;color:var(--muted);margin-bottom:24px"></p>
+    <div class="prog-wrap" id="prog-wrap" style="display:none">
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-lbl" id="prog-lbl">Generating…</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(3)">← Back</button>
+      <button class="btn btn-fire" id="btn-student" onclick="downloadBook(false)">📄 Download Student Book</button>
+      <button class="btn btn-teal"  id="btn-key"     onclick="downloadBook(true)">🗝 Download Teacher Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden render target for html2canvas -->
+<div id="render-target" style="position:fixed;left:-9999px;top:0;width:816px;overflow:hidden;background:#fff"></div>
+
+<!-- Preview modal -->
+<div class="preview-modal" id="preview-modal">
+  <div class="preview-bar">
+    <h2 id="preview-title">Preview</h2>
+    <span class="pg-ct" id="preview-page-count"></span>
+    <div class="preview-zoom">
+      Zoom: <input type="range" min=".4" max="1" step=".05" value=".7" oninput="setPreviewZoom(this.value)">
+    </div>
+    <button class="preview-close" onclick="closePreview()">✕ Close</button>
+  </div>
+  <div class="preview-strip" id="preview-strip"></div>
+  <div class="preview-pages" id="preview-pages"></div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   CONSTANTS & UTILITIES
+   ════════════════════════════════════════════════════════════ */
+const SQ_DATA = [
+  {n:1,sq:1},{n:2,sq:4},{n:3,sq:9},{n:4,sq:16},{n:5,sq:25},{n:6,sq:36},
+  {n:7,sq:49},{n:8,sq:64},{n:9,sq:81},{n:10,sq:100},{n:11,sq:121},{n:12,sq:144}
+];
+const SQ_SET = new Set([1,4,9,16,25,36,49,64,81,100,121,144]);
+const SKILL_TITLE = 'Perfect Squares & Square Roots';
+
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=ri(0,i);[r[i],r[j]]=[r[j],r[i]];}return r;}
+
+/* ════════════════════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════════════════════ */
+let WEEKS = 3;
+let DAY_SCHEDULE = [
+  {type:'probe',  puzzle:null},
+  {type:'puzzle', puzzle:'mazeescape',      diff:0},
+  {type:'target', puzzle:null},
+  {type:'puzzle', puzzle:'arrangingboxes',  diff:0},
+  {type:'probe',  puzzle:null},
+];
+const PUZZLE_DIFFS = {mazeescape:0, arrangingboxes:0};
+
+/* ════════════════════════════════════════════════════════════
+   MAZE ESCAPE GENERATOR  (4-direction only, matches elementary)
+   ════════════════════════════════════════════════════════════ */
+function me4nbrs(r,c,R,C){
+  const o=[];
+  if(r>0)   o.push([r-1,c]);
+  if(r<R-1) o.push([r+1,c]);
+  if(c>0)   o.push([r,c-1]);
+  if(c<C-1) o.push([r,c+1]);
+  return o;
+}
+
+function me4nbrs(r,c,R,C){
+  const o=[];
+  if(r>0)   o.push([r-1,c]);
+  if(r<R-1) o.push([r+1,c]);
+  if(c>0)   o.push([r,c-1]);
+  if(c<C-1) o.push([r,c+1]);
+  return o;
+}
+function me_borderCells(R,C){
+  const b=[];
+  for(let c=0;c<C;c++){b.push([0,c]);b.push([R-1,c]);}
+  for(let r=1;r<R-1;r++){b.push([r,0]);b.push([r,C-1]);}
+  return b;
+}
+function me_edge(r,c,R,C){
+  if(r===0)return'top';if(r===R-1)return'bottom';
+  if(c===0)return'left';return'right';
+}
+function me_borderExits(isMult,sr,sc,R,C){
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  const q=[[sr,sc]];const exits=[];
+  while(q.length){
+    const[r,c]=q.shift();
+    for(const[nr,nc] of me4nbrs(r,c,R,C)){
+      if(vis[nr][nc]||!isMult[nr][nc])continue;
+      vis[nr][nc]=true;
+      const isBorder=(nr===0||nr===R-1||nc===0||nc===C-1);
+      if(isBorder)exits.push([nr,nc]);
+      else q.push([nr,nc]);
+    }
+  }
+  return exits;
+}
+function me_pathCount(isMult,sr,sc,er,ec,R,C){
+  let count=0;
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  function dfs(r,c){
+    if(count>=2)return;
+    for(const[nr,nc] of me4nbrs(r,c,R,C)){
+      if(!isMult[nr][nc]||vis[nr][nc])continue;
+      if(nr===er&&nc===ec){count++;continue;}
+      vis[nr][nc]=true;dfs(nr,nc);vis[nr][nc]=false;
+      if(count>=2)return;
+    }
+  }
+  dfs(sr,sc);
+  return count;
+}
+function me_shortestLen(isMult,sr,sc,er,ec,R,C){
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  const q=[[sr,sc,1]];
+  while(q.length){
+    const[r,c,len]=q.shift();
+    for(const[nr,nc] of me4nbrs(r,c,R,C)){
+      if(!isMult[nr][nc]||vis[nr][nc])continue;
+      if(nr===er&&nc===ec)return len+1;
+      vis[nr][nc]=true;q.push([nr,nc,len+1]);
+    }
+  }
+  return Infinity;
+}
+function me_buildPath(sr,sc,er,ec,R,C,minLen,maxLen){
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  const path=[[sr,sc]];
+  const stack=[{nbs:shuffle(me4nbrs(sr,sc,R,C)),ni:0}];
+  while(stack.length){
+    const[cr,cc]=path[path.length-1];
+    if(cr===er&&cc===ec){
+      if(path.length>=minLen)return path;
+      vis[cr][cc]=false;path.pop();stack.pop();continue;
+    }
+    if(path.length>=maxLen){vis[cr][cc]=false;path.pop();stack.pop();continue;}
+    const fr=stack[stack.length-1];let pushed=false;
+    while(fr.ni<fr.nbs.length){
+      const[nr,nc]=fr.nbs[fr.ni++];
+      if(vis[nr][nc])continue;
+      vis[nr][nc]=true;path.push([nr,nc]);
+      stack.push({nbs:shuffle(me4nbrs(nr,nc,R,C)),ni:0});
+      pushed=true;break;
+    }
+    if(!pushed){vis[cr][cc]=false;path.pop();stack.pop();}
+  }
+  return null;
+}
+
+function genMazeEscape(diff){
+  const R=5,C=5;
+  const sqArr=[4,9,16,25,36,49,64,81,100,121,144];
+  const nonSq=[];
+  for(let n=2;n<=150;n++){const s=Math.round(Math.sqrt(n));if(s*s!==n)nonSq.push(n);}
+  const cfg=[
+    {minLen:5,maxLen:9, deadMin:1,deadMax:2},
+    {minLen:7,maxLen:12,deadMin:2,deadMax:4},
+    {minLen:9,maxLen:15,deadMin:3,deadMax:5},
+  ][Math.min(diff,2)];
+  const borderCells=me_borderCells(R,C);
+
+  for(let att=0;att<8000;att++){
+    const[sr,sc]=borderCells[ri(0,borderCells.length-1)];
+    const startEdge=me_edge(sr,sc,R,C);
+    const endCands=borderCells.filter(([r,c])=>{
+      if(r===sr&&c===sc)return false;
+      if(me_edge(r,c,R,C)===startEdge)return false;
+      return Math.abs(r-sr)+Math.abs(c-sc)>=4;
+    });
+    if(!endCands.length)continue;
+    const[er,ec]=endCands[ri(0,endCands.length-1)];
+
+    const path=me_buildPath(sr,sc,er,ec,R,C,cfg.minLen,cfg.maxLen);
+    if(!path||path.length<cfg.minLen)continue;
+
+    const grid=Array.from({length:R},()=>Array(C).fill(0));
+    const isMult=Array.from({length:R},()=>Array(C).fill(false));
+    const isPath=Array.from({length:R},()=>Array(C).fill(false));
+    const ps=new Set(path.map(([r,c])=>r+','+c));
+    const sqP=shuffle([...sqArr]);
+    grid[sr][sc]=1;isMult[sr][sc]=true;isPath[sr][sc]=true;
+    for(let i=1;i<path.length;i++){
+      const[r,c]=path[i];grid[r][c]=sqP[i-1];isMult[r][c]=true;isPath[r][c]=true;
+    }
+    if(path.some(([r,c])=>!grid[r][c]))continue;
+
+    {const exits=me_borderExits(isMult,sr,sc,R,C);
+    if(exits.length!==1||exits[0][0]!==er||exits[0][1]!==ec)continue;}
+    if(me_pathCount(isMult,sr,sc,er,ec,R,C)!==1)continue;
+    if(me_shortestLen(isMult,sr,sc,er,ec,R,C)<5)continue;
+
+    const usedSq=new Set(path.map((_,i)=>i===0?1:sqP[i-1]));
+    const availSq=shuffle(sqArr.filter(s=>!usedSq.has(s)));
+    let dIdx=0,deadAdded=0;
+    const adjPath=[];
+    for(const[pr,pc] of path)
+      for(const[nr,nc] of me4nbrs(pr,pc,R,C))
+        if(!isPath[nr][nc]&&!isMult[nr][nc]&&
+           !(nr===0||nr===R-1||nc===0||nc===C-1))
+          adjPath.push([nr,nc]);
+    shuffle(adjPath);
+    for(const[r,c] of adjPath){
+      if(deadAdded>=cfg.deadMax||dIdx>=availSq.length)break;
+      grid[r][c]=availSq[dIdx];isMult[r][c]=true;
+      const exits=me_borderExits(isMult,sr,sc,R,C);
+      const ok=exits.length===1&&exits[0][0]===er&&exits[0][1]===ec
+        &&me_pathCount(isMult,sr,sc,er,ec,R,C)===1
+        &&me_shortestLen(isMult,sr,sc,er,ec,R,C)>=5;
+      if(ok){deadAdded++;dIdx++;}
+      else{isMult[r][c]=false;grid[r][c]=0;}
+    }
+    if(deadAdded<cfg.deadMin)continue;
+
+    const nsP=shuffle([...nonSq]);let ni=0;
+    for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(!grid[r][c])grid[r][c]=nsP[ni++];
+
+    const finalExits=me_borderExits(isMult,sr,sc,R,C);
+    if(finalExits.length!==1||finalExits[0][0]!==er||finalExits[0][1]!==ec)continue;
+    if(me_pathCount(isMult,sr,sc,er,ec,R,C)!==1)continue;
+    if(me_shortestLen(isMult,sr,sc,er,ec,R,C)<5)continue;
+
+    return{grid,sr,sc,er,ec,pathSet:ps,isMult,isPath,R,C};
+  }
+  return null;
+}
+
+function renderMazeEscape(puz,key){
+  if(!puz)return'<div style="font-size:11px;color:#c00;padding:8px">⚠ Generation failed</div>';
+  const{grid,sr,sc,er,ec,isMult,isPath,R,C}=puz;
+  const csz=48,gap=3;
+  const colT=`grid-template-columns:repeat(${C},${csz}px)`;
+  const lStyle=(col)=>`height:${csz}px;display:flex;align-items:center;font-size:8px;font-weight:800;font-family:'Archivo',sans-serif;color:${col};white-space:nowrap`;
+  const wStyle=`width:${csz}px;text-align:center;font-size:8px;font-weight:800;font-family:'Archivo',sans-serif`;
+
+  // GO and END labels always shown (students need them to solve the puzzle)
+  let topCells='';
+  for(let c=0;c<C;c++){
+    const isGO=(sr===0&&sc===c),isEND=(er===0&&ec===c);
+    topCells+=isGO?`<div style="${wStyle};color:#1A7A3A">&#9660; GO</div>`
+             :isEND?`<div style="${wStyle};color:#FF4F00">&#9660; END</div>`
+             :`<div style="${wStyle}"></div>`;
+  }
+  let botCells='';
+  for(let c=0;c<C;c++){
+    const isGO=(sr===R-1&&sc===c),isEND=(er===R-1&&ec===c);
+    botCells+=isGO?`<div style="${wStyle};color:#1A7A3A">&#9650; GO</div>`
+             :isEND?`<div style="${wStyle};color:#FF4F00">&#9650; END</div>`
+             :`<div style="${wStyle}"></div>`;
+  }
+  let leftCells='',rightCells='';
+  for(let r=0;r<R;r++){
+    const isGoL=(sc===0&&sr===r),isEndL=(ec===0&&er===r);
+    const isGoR=(sc===C-1&&sr===r),isEndR=(ec===C-1&&er===r);
+    leftCells +=isGoL?`<div style="${lStyle('#1A7A3A')}">GO&#9658;</div>`
+               :isEndL?`<div style="${lStyle('#FF4F00')}">END&#9658;</div>`
+               :`<div style="height:${csz}px"></div>`;
+    rightCells+=isGoR?`<div style="${lStyle('#1A7A3A')}">&#9668;GO</div>`
+               :isEndR?`<div style="${lStyle('#FF4F00')}">&#9668;END</div>`
+               :`<div style="height:${csz}px"></div>`;
+  }
+
+  let cells='';
+  for(let r=0;r<R;r++){
+    for(let c=0;c<C;c++){
+      const v=grid[r][c];
+      const isGO=r===sr&&c===sc,isEND=r===er&&c===ec;
+      const onPath=isPath[r][c]&&!isGO&&!isEND;
+      const isDead=isMult[r][c]&&!isPath[r][c]&&!isGO&&!isEND;
+      let cls='mc';
+      if(isGO)              cls+=' mc-s';
+      else if(isEND)        cls+=' mc-f';
+      else if(key&&onPath)  cls+=' mc-p';
+      else if(key&&isDead)  cls+=' mc-d';
+      // no mc-trap: all non-highlighted cells same dark color so perfect squares aren't obvious
+      cells+=`<div class="${cls}" style="font-size:${v>=100?12:14}px">${v}</div>`;
+    }
+  }
+  const keyLeg=key?`<div class="mleg">
+    <div class="mli"><div class="msw" style="background:#D0F0DB;outline:2px solid #1A7A3A"></div>GO (start)</div>
+    <div class="mli"><div class="msw" style="background:#FFF0E0;outline:2px solid #FF9000"></div>Path</div>
+    <div class="mli"><div class="msw" style="background:#FFE2D0;outline:2px solid #FF4F00"></div>END (exit)</div>
+    <div class="mli"><div class="msw" style="background:#E8EEFF;outline:1.5px solid #9AAAE0"></div>Dead end</div>
+  </div>`:'';
+  return`<div class="me-outer">
+    <div style="display:flex;gap:${gap}px;margin-left:26px;margin-right:26px">${topCells}</div>
+    <div style="display:flex;align-items:center;gap:0">
+      <div style="display:flex;flex-direction:column;gap:${gap}px;width:26px;align-items:flex-end;padding-right:3px">${leftCells}</div>
+      <div class="maze-grid" style="--mcsz:${csz}px;--mfsz:14px;--mgap:${gap}px;${colT}">${cells}</div>
+      <div style="display:flex;flex-direction:column;gap:${gap}px;width:26px;align-items:flex-start;padding-left:3px">${rightCells}</div>
+    </div>
+    <div style="display:flex;gap:${gap}px;margin-left:26px;margin-right:26px">${botCells}</div>
+    ${keyLeg}
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ARRANGING BOXES GENERATOR
+   ════════════════════════════════════════════════════════════ */
+function genArrangingBoxes(diff){
+  const cfg=[
+    {num:3, maxVal:20},
+    {num:4, maxVal:25},
+    {num:5, maxVal:30},
+  ][Math.min(diff,2)];
+  const PSUMS=new Set([4,9,16,25,36,49,64]);
+
+  for(let attempt=0;attempt<300000;attempt++){
+    const start=ri(1,cfg.maxVal);
+    const chain=[start];
+    const used=new Set([start]);
+    let ok=true;
+
+    for(let i=1;i<cfg.num;i++){
+      const prev=chain[chain.length-1];
+      const cands=[];
+      for(let n=1;n<=cfg.maxVal;n++){
+        if(!used.has(n)&&PSUMS.has(prev+n))cands.push(n);
+      }
+      if(!cands.length){ok=false;break;}
+      const next=cands[ri(0,cands.length-1)];
+      chain.push(next);used.add(next);
+    }
+    if(ok&&chain.length===cfg.num){
+      return{numbers:shuffle([...chain]),solution:chain};
+    }
+  }
+  return null;
+}
+
+function renderArrangingBoxes(puz, key){
+  if(!puz)return'<div style="font-size:11px;color:#c00;padding:8px">⚠ Generation failed</div>';
+  const{numbers,solution}=puz;
+
+  const givenBoxes=numbers.map(n=>`<div class="ab-box">${n}</div>`).join('');
+
+  let ansHtml;
+  if(key){
+    const slots=[];
+    for(let i=0;i<solution.length;i++){
+      slots.push(`<div class="ab-slot"><div class="ab-box ab-sol">${solution[i]}</div></div>`);
+      if(i<solution.length-1){
+        const sum=solution[i]+solution[i+1];
+        slots.push(`<div class="ab-slot"><div class="ab-connector"><div class="ab-sum-val">${sum}</div><div class="ab-sum-check">✓</div></div></div>`);
+      }
+    }
+    ansHtml=`<div class="ab-sol-row">${slots.join('')}</div>`;
+  } else {
+    const emptyBoxes=solution.map(()=>`<div class="ab-box ab-empty"></div>`).join('');
+    ansHtml=`<div class="ab-row">${emptyBoxes}</div>`;
+  }
+
+  return`<div class="ab-wrap">
+    <div class="ab-section-lbl">Given</div>
+    <div class="ab-row">${givenBoxes}</div>
+    <div class="ab-arrow">↓</div>
+    <div class="ab-section-lbl">Rearrange</div>
+    ${ansHtml}
+    <div class="ab-label">Neighboring boxes must sum to a perfect square.</div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PROBE / TARGET PROBLEM GENERATORS
+   ════════════════════════════════════════════════════════════ */
+function genProblems(n=20){
+  const pool=[];
+  for(const{n:base,sq} of SQ_DATA){
+    pool.push({type:'sq',   display:base, answer:sq});
+    pool.push({type:'root', display:sq,   answer:base});
+  }
+  return shuffle(pool).slice(0,n);
+}
+
+function sqExpr(base){
+  return`<span class="sq-base">${base}</span><span class="sq-exp">2</span>`;
+}
+function rootExpr(val){
+  return`<span class="rad-sym">√</span><span class="rad-num">${val}</span>`;
+}
+function probCellHTML(fact, idx, key){
+  const expr=fact.type==='sq'?sqExpr(fact.display):rootExpr(fact.display);
+  const ans=key
+    ?`<span class="prob-blank key"><span class="key-ans">${fact.answer}</span></span>`
+    :`<span class="prob-blank"></span>`;
+  return`<div class="prob-cell">
+    <span class="prob-num">${idx+1}</span>
+    <span class="prob-expr">${expr}<span class="prob-eq">&thinsp;=</span>${ans}</span>
+  </div>`;
+}
+
+function refTableHTML(){
+  const sqRows=[];const rtRows=[];
+  for(let row=0;row<4;row++){
+    const sqCols=[],rtCols=[];
+    for(let col=0;col<3;col++){
+      const{n,sq}=SQ_DATA[row*3+col];
+      sqCols.push(`<span class="ref-fact">${n}<span class="ref-sup">2</span> = <span class="ref-ans">${sq}</span></span>`);
+      rtCols.push(`<span class="ref-fact">√${sq} = <span class="ref-ans">${n}</span></span>`);
+    }
+    sqRows.push(`<div class="ref-row">${sqCols.join('')}</div>`);
+    rtRows.push(`<div class="ref-row">${rtCols.join('')}</div>`);
+  }
+  return`<div class="ref-wrap">
+    <div class="ref-hdr">📋 Reference — Perfect Squares &amp; Square Roots (1–12)</div>
+    <div class="ref-body">
+      <div class="ref-col"><div class="ref-col-hdr">Perfect Squares</div>${sqRows.join('')}</div>
+      <div class="ref-col"><div class="ref-col-hdr">Square Roots</div>${rtRows.join('')}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PAGE HTML GENERATORS
+   ════════════════════════════════════════════════════════════ */
+function metaRowHTML(dayLabel){
+  return`<div class="wb-meta">
+    <span class="wb-meta-name">Name:&nbsp;<span class="wb-line long"></span></span>
+    <span class="wb-meta-act">${dayLabel}</span>
+    <span class="wb-meta-right">Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>`;
+}
+
+function probePageHTML(probs, key, pgNum, cycleNum, dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const probsHTML=probs.map((p,i)=>probCellHTML(p,i,key)).join('');
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>${SKILL_TITLE}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="prob-grid">${probsHTML}</div>
+  </div>`;
+}
+
+function targetPageHTML(probs, key, pgNum, cycleNum, dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const probsHTML=probs.map((p,i)=>probCellHTML(p,i,key)).join('');
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>${SKILL_TITLE}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${refTableHTML()}
+    <div class="prob-grid">${probsHTML}</div>
+  </div>`;
+}
+
+function puzzlePageHTML(puzzles, renderFn, puzLabel, dirs, key, pgNum, cycleNum, dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const cells=puzzles.map((p,i)=>`
+    <div class="wb-puz-cell">
+      <span class="wb-puz-num">${i+1}</span>
+      ${renderFn(p,key)}
+    </div>`).join('');
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge puzzle">Puzzle</span>
+        <span>${puzLabel}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="wb-dir">${dirs}</div>
+    <div class="wb-puz-wrap"><div class="wb-puz-grid g2x2">${cells}</div></div>
+  </div>`;
+}
+
+function coverPageHTML(){
+  return`<div class="wb-page wb-cover">
+    <div>
+      <div class="wb-cover-title">${SKILL_TITLE}</div>
+      <div class="wb-cover-rule"></div>
+      <div class="wb-cover-sub">Fluency to 12 &nbsp;·&nbsp; M.I.N.D. 2.0 — Facts on Fire</div>
+    </div>
+    <div class="wb-cover-fields">
+      <div class="wb-cover-field"><span>Student Name:</span><div class="wb-cover-field-line"></div></div>
+      <div class="wb-cover-field">
+        <span>Class:</span><div class="wb-cover-field-line" style="max-width:150px"></div>
+        &nbsp;&nbsp;<span>Teacher:</span><div class="wb-cover-field-line"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function trackingPageHTML(schedule, weeks){
+  const codes=`<div class="wb-codes"><b>Completion codes:</b>&nbsp; O = Outstanding &nbsp; S = Satisfactory &nbsp; N = Needs Improvement &nbsp; U = Unsatisfactory &nbsp; ABS = Absent &nbsp; EX = Excused</div>`;
+  let cycles='';
+  for(let w=1;w<=weeks;w++){
+    let rows='';
+    for(let d=0;d<5;d++){
+      const dy=schedule[d];
+      const lbl=dy.type==='probe'?'Timed Probe'
+               :dy.type==='target'?'Target Skill Practice'
+               :dy.puzzle==='mazeescape'?'Maze Escape'
+               :dy.puzzle==='arrangingboxes'?'Arranging Boxes':'Puzzle';
+      const isProbe=dy.type==='probe';
+      const score=isProbe
+        ?`<span class="wb-cr-s">Number Correct:</span><div class="wb-cr-ans"></div>`
+        :`<span class="wb-cr-s">Completed / Incomplete</span><div class="wb-cr-codes">O &nbsp; S &nbsp; N &nbsp; U &nbsp; ABS &nbsp; EX</div>`;
+      rows+=`<div class="wb-cr"><div class="wb-cr-d">Day ${d+1}</div><div class="wb-cr-l">${lbl}</div>${score}</div>`;
+    }
+    cycles+=`<div class="wb-cyc"><div class="wb-cyc-h">Week ${w}</div><div class="wb-cyc-body">${rows}</div></div>`;
+  }
+  return`<div class="wb-page">
+    <div class="wb-trk-title">${SKILL_TITLE}</div>
+    <div class="wb-trk-sub">M.I.N.D. 2.0 — Student Progress Tracker</div>
+    ${codes}${cycles}
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   WORKBOOK BUILD
+   ════════════════════════════════════════════════════════════ */
+const PUZ_CONFIG = {
+  mazeescape: {
+    label: 'Perfect Squares Maze Escape',
+    dirs:  'Start at GO. Move up, down, left, or right through perfect squares to reach END. There is exactly one correct path!',
+    renderFn: renderMazeEscape,
+    genFn: genMazeEscape,
+  },
+  arrangingboxes: {
+    label: 'Arranging Boxes',
+    dirs:  'Rearrange the numbered boxes so that any two neighboring boxes sum to a perfect square. Write your answer in the empty boxes below.',
+    renderFn: renderArrangingBoxes,
+    genFn: genArrangingBoxes,
+  },
+};
+
+async function buildWorkbook(key){
+  const pages=[];
+  let pg=1;
+
+  if(!key){
+    pages.push({html:coverPageHTML(),    label:'Cover'});
+    pg++;
+  }
+  pages.push({html:trackingPageHTML(DAY_SCHEDULE,WEEKS), label:'Tracker'});
+  pg++;
+
+  for(let w=0;w<WEEKS;w++){
+    for(let d=0;d<5;d++){
+      await new Promise(r=>setTimeout(r,0));
+      const dy=DAY_SCHEDULE[d];
+      const cyc=w+1;
+      const dayLabel=`Day ${d+1} — ${dy.type==='probe'?'Timed Probe':dy.type==='target'?'Target Skill Practice':PUZ_CONFIG[dy.puzzle]?.label||'Puzzle'}`;
+
+      if(dy.type==='probe'){
+        const probs=genProblems(20);
+        pages.push({html:probePageHTML(probs,key,pg,cyc,dayLabel), label:`Wk${cyc} D${d+1} Probe`});
+      } else if(dy.type==='target'){
+        const probs=genProblems(20);
+        pages.push({html:targetPageHTML(probs,key,pg,cyc,dayLabel), label:`Wk${cyc} D${d+1} Target`});
+      } else if(dy.type==='puzzle'){
+        const cfg=PUZ_CONFIG[dy.puzzle];
+        if(cfg){
+          const diff=PUZZLE_DIFFS[dy.puzzle]||0;
+          const puzzles=[];
+          for(let i=0;i<4;i++){
+            const p=cfg.genFn(diff);
+            if(p)puzzles.push(p);
+          }
+          if(puzzles.length===4){
+            pages.push({html:puzzlePageHTML(puzzles,cfg.renderFn,cfg.label,cfg.dirs,key,pg,cyc,dayLabel), label:`Wk${cyc} D${d+1} Puzzle`});
+          }
+        }
+      }
+      pg++;
+    }
+  }
+  return pages;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PDF DOWNLOAD
+   ════════════════════════════════════════════════════════════ */
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${src}"]`)){res();return;}
+    const s=document.createElement('script');s.src=src;
+    s.onload=res;s.onerror=()=>rej(new Error('Failed: '+src));
+    document.head.appendChild(s);
+  });
+}
+
+async function downloadBook(key){
+  const btnS=document.getElementById('btn-student');
+  const btnK=document.getElementById('btn-key');
+  const pWrap=document.getElementById('prog-wrap');
+  const pFill=document.getElementById('prog-fill');
+  const pLbl=document.getElementById('prog-lbl');
+
+  btnS.disabled=true; btnK.disabled=true;
+  pWrap.style.display='';
+  pLbl.textContent='Loading libraries…'; pFill.style.width='5%';
+
+  try{
+    await Promise.all([
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+    ]);
+    pLbl.textContent='Generating pages…'; pFill.style.width='10%';
+
+    const pages=await buildWorkbook(key);
+
+    const target=document.getElementById('render-target');
+    const{jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'pt',format:'letter'});
+    const PW=pdf.internal.pageSize.getWidth();
+    const PH=pdf.internal.pageSize.getHeight();
+
+    for(let i=0;i<pages.length;i++){
+      pLbl.textContent=`Rendering page ${i+1} of ${pages.length} (${pages[i].label})…`;
+      pFill.style.width=`${10+Math.round(85*(i+1)/pages.length)}%`;
+      await new Promise(r=>setTimeout(r,0));
+
+      target.innerHTML=pages[i].html;
+      // Give fonts/layout time to settle
+      await new Promise(r=>setTimeout(r,200));
+
+      const canvas=await html2canvas(target,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});
+      if(i>0)pdf.addPage();
+      const scale=Math.min(PW/canvas.width,PH/canvas.height);
+      const iw=canvas.width*scale, ih=canvas.height*scale;
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.93),'JPEG',(PW-iw)/2,(PH-ih)/2,iw,ih);
+    }
+
+    target.innerHTML='';
+    pFill.style.width='100%';
+    pLbl.textContent=`✅ Done! ${pages.length} pages saved.`;
+
+    const suffix=key?'-teacher-key':'-student-book';
+    pdf.save(`perfect-squares-roots${suffix}.pdf`);
+
+  }catch(err){
+    pLbl.textContent='Error: '+err.message;
+    console.error(err);
+  }finally{
+    btnS.disabled=false; btnK.disabled=false;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PREVIEW
+   ════════════════════════════════════════════════════════════ */
+let _previewZoom=0.7;
+let _previewPages=[];
+
+function applyWrapStyle(el,zoom){
+  const mb=Math.round((zoom-1)*1056+20);
+  el.style.cssText=`background:#fff;box-shadow:0 2px 20px rgba(0,0,0,.5);`+
+    `transform:scale(${zoom});transform-origin:top center;margin-bottom:${mb}px;width:816px;`;
+}
+
+async function renderPreviewProgressive(pages,zoom){
+  const cont=document.getElementById('preview-pages');
+  const strip=document.getElementById('preview-strip');
+  cont.innerHTML=''; strip.innerHTML='';
+
+  for(let i=0;i<pages.length;i++){
+    await new Promise(r=>setTimeout(r,0));
+    // Main view
+    const wrap=document.createElement('div');
+    wrap.id='pvp-'+i;
+    applyWrapStyle(wrap,zoom);
+    wrap.innerHTML=pages[i].html;
+    wrap.querySelectorAll('.wb-page').forEach(p=>{p.style.minHeight='1056px';p.style.width='816px';});
+    cont.appendChild(wrap);
+    // Strip thumbnail
+    const thumb=document.createElement('div');
+    thumb.style.cssText='flex-shrink:0;width:50px;height:68px;background:#fff;cursor:pointer;border-right:1px solid #555;position:relative;overflow:hidden';
+    thumb.title=pages[i].label||('Page '+(i+1));
+    thumb.onclick=(idx=>()=>document.getElementById('pvp-'+idx).scrollIntoView({behavior:'smooth',block:'start'}))(i);
+    const mini=document.createElement('div');
+    mini.style.cssText='transform:scale(0.055);transform-origin:top left;width:816px;height:1056px;position:absolute;top:0;left:0;pointer-events:none;overflow:hidden';
+    mini.innerHTML=pages[i].html;
+    thumb.appendChild(mini);
+    const lbl=document.createElement('div');
+    lbl.style.cssText='position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:#555;background:rgba(255,255,255,.85);padding:1px 0';
+    lbl.textContent=i+1;
+    thumb.appendChild(lbl);
+    strip.appendChild(thumb);
+  }
+}
+
+function setPreviewZoom(val){
+  _previewZoom=parseFloat(val);
+  document.querySelectorAll('[id^="pvp-"]').forEach(el=>applyWrapStyle(el,_previewZoom));
+}
+function closePreview(){
+  document.getElementById('preview-modal').style.display='none';
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePreview();});
+
+/* ════════════════════════════════════════════════════════════
+   WIZARD LOGIC
+   ════════════════════════════════════════════════════════════ */
+function selectSkill(){
+  document.getElementById('skill-card').classList.add('selected');
+}
+
+function changeWeeks(delta){
+  WEEKS=Math.max(1,Math.min(8,WEEKS+delta));
+  document.getElementById('weeks-display').textContent=WEEKS;
+}
+
+function rebuildScheduleTable(){
+  const tbody=document.getElementById('sched-body');
+  const typeOpts=[
+    {val:'probe',  label:'Timed Probe'},
+    {val:'target', label:'Target Skill Practice'},
+    {val:'puzzle', label:'Puzzle'},
+  ];
+  const puzOpts=[
+    {val:'mazeescape',     label:'Maze Escape'},
+    {val:'arrangingboxes', label:'Arranging Boxes'},
+  ];
+
+  let html='';
+  for(let d=0;d<5;d++){
+    const cur=DAY_SCHEDULE[d];
+    const tOpts=typeOpts.map(o=>`<option value="${o.val}"${cur.type===o.val?' selected':''}>${o.label}</option>`).join('');
+    const pOpts=puzOpts.map(o=>`<option value="${o.val}"${cur.puzzle===o.val?' selected':''}>${o.label}</option>`).join('');
+    const isPuz=cur.type==='puzzle';
+    html+=`<tr>
+      <td><span class="day-label">Day ${d+1}</span></td>
+      <td><select class="day-sel" onchange="onTypeChange(${d},this.value)">${tOpts}</select></td>
+      <td>
+        <select class="puzzle-sel" id="pp-${d}" ${!isPuz?'disabled':''}
+          style="display:${isPuz?'inline-block':'none'}"
+          onchange="onPuzChange(${d},this.value)">${pOpts}</select>
+        <span id="np-${d}" style="display:${!isPuz?'inline-block':'none'};font-size:12px;color:var(--muted)">—</span>
+      </td>
+    </tr>`;
+  }
+  tbody.innerHTML=html;
+}
+
+function onTypeChange(d,val){
+  DAY_SCHEDULE[d].type=val;
+  if(val!=='puzzle')DAY_SCHEDULE[d].puzzle=null;
+  else if(!DAY_SCHEDULE[d].puzzle)DAY_SCHEDULE[d].puzzle='mazeescape';
+  const pp=document.getElementById('pp-'+d);
+  const np=document.getElementById('np-'+d);
+  if(pp){pp.disabled=val!=='puzzle';pp.style.display=val==='puzzle'?'inline-block':'none';}
+  if(np){np.style.display=val!=='puzzle'?'inline-block':'none';}
+}
+function onPuzChange(d,val){DAY_SCHEDULE[d].puzzle=val;}
+
+function buildRefinePanel(){
+  const body=document.getElementById('refine-body');
+  const puzDays=DAY_SCHEDULE.map((d,i)=>({...d,dayNum:i+1})).filter(d=>d.type==='puzzle');
+  if(!puzDays.length){
+    body.innerHTML='<p class="refine-skip">No puzzle days are scheduled. You can add puzzle days in Step 2.</p>';
+    return;
+  }
+
+  const byType={};
+  for(const d of puzDays){
+    const p=d.puzzle||'mazeescape';
+    if(!byType[p])byType[p]=[];
+    byType[p].push(d.dayNum);
+  }
+
+  const META={
+    mazeescape:{
+      name:'Maze Escape',
+      desc:'Navigate a 5×5 grid by stepping through perfect squares. Higher difficulty adds more dead-end decoys and longer required paths.',
+    },
+    arrangingboxes:{
+      name:'Arranging Boxes',
+      desc:'Rearrange numbered boxes so neighboring pairs sum to a perfect square. Higher difficulty increases the number of boxes.',
+    },
+  };
+
+  let html='';
+  for(const[pId,days] of Object.entries(byType)){
+    const m=META[pId]||{name:pId,desc:''};
+    const curDiff=PUZZLE_DIFFS[pId]||0;
+    html+=`<div class="refine-card">
+      <div class="rc-lbl">
+        <div class="rc-name">${m.name}</div>
+        <div class="rc-days">Days: ${days.join(', ')}</div>
+        <div class="rc-desc">${m.desc}</div>
+      </div>
+      <div class="refine-params">
+        <div class="rp-group">
+          <span class="rp-lbl">Difficulty</span>
+          <select class="rp-sel" onchange="onDiffChange('${pId}',+this.value)">
+            <option value="0"${curDiff===0?' selected':''}>Beginner</option>
+            <option value="1"${curDiff===1?' selected':''}>Intermediate</option>
+            <option value="2"${curDiff===2?' selected':''}>Challenge</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
+  }
+  body.innerHTML=html;
+}
+
+function onDiffChange(puzId,val){PUZZLE_DIFFS[puzId]=val;}
+
+function buildSummary(){
+  const probeDays=DAY_SCHEDULE.filter(d=>d.type==='probe').length;
+  const targetDays=DAY_SCHEDULE.filter(d=>d.type==='target').length;
+  const puzDays=DAY_SCHEDULE.filter(d=>d.type==='puzzle').length;
+  const studentPages=2+WEEKS*5;
+  const keyPages=1+WEEKS*5;
+  document.getElementById('gen-summary').innerHTML=`<h3>Book Summary</h3>
+    <div class="gen-row"><span class="gen-lbl">Skill</span><span class="gen-val">${SKILL_TITLE}</span></div>
+    <div class="gen-row"><span class="gen-lbl">Cycles (Weeks)</span><span class="gen-val">${WEEKS}</span></div>
+    <div class="gen-row"><span class="gen-lbl">Probe days / week</span><span class="gen-val">${probeDays}</span></div>
+    <div class="gen-row"><span class="gen-lbl">Target days / week</span><span class="gen-val">${targetDays}</span></div>
+    <div class="gen-row"><span class="gen-lbl">Puzzle days / week</span><span class="gen-val">${puzDays}</span></div>
+    <div class="gen-row"><span class="gen-lbl">Student book pages</span><span class="gen-val">${studentPages}</span></div>
+    <div class="gen-row"><span class="gen-lbl">Teacher key pages</span><span class="gen-val">${keyPages}</span></div>`;
+  document.getElementById('gen-note').textContent=
+    `PDF generation renders each page at 2× resolution. A ${studentPages}-page student book typically takes 60–90 seconds.`;
+}
+
+function goStep(n){
+  if(n===3)setTimeout(buildRefinePanel,0);
+  if(n===4)buildSummary();
+  [1,2,3,4].forEach(i=>{
+    document.getElementById(`panel-${i}`).classList.toggle('active',i===n);
+    const ind=document.getElementById(`step-ind-${i}`);
+    ind.classList.toggle('active',i===n);
+    ind.classList.toggle('done',i<n);
+  });
+  if(n===2)rebuildScheduleTable();
+}
+
+// Init
+rebuildScheduleTable();
+</script>
+</body>
+</html>

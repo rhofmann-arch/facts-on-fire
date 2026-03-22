@@ -92,8 +92,29 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .gen-msg .spin{display:inline-block;animation:spin .8s linear infinite;font-size:28px;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── Print ── */
-@media print{
+/* ── Maze Escape (matches elementary Multiple Maze) ── */
+.maze-grid{display:inline-grid;gap:3px;background:#b0b4b8;padding:3px;border:2px solid #444;border-radius:3px}
+.mc{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;background:#f5f5f5;border-radius:2px;color:#1a1a1a}
+.mc.mc-s{background:#D0F0DB;outline:2.5px solid #1A7A3A;outline-offset:-1px;z-index:1}
+.mc.mc-f{background:#FFE2D0;outline:2.5px solid #FF4F00;outline-offset:-1px;z-index:1}
+.mc.mc-p{background:#FFF0E0;outline:2px solid #FF9000;outline-offset:-1px}
+.mc.mc-d{background:#E8EEFF;outline:1.5px solid #9AAAE0;outline-offset:-1px}
+.mc.mc-trap{color:#888}
+.me-outer{display:flex;flex-direction:column;align-items:center;gap:2px}
+.mleg{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:9px;font-weight:700;font-family:'Archivo',sans-serif;color:#555;margin-top:4px}
+.mli{display:flex;align-items:center;gap:3px}
+.msw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+/* Arranging Boxes */
+.ab-wrap{display:flex;flex-direction:column;align-items:center;gap:7px}
+.ab-lbl{font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#888;font-family:'Archivo',sans-serif;text-align:center}
+.ab-row{display:flex;gap:5px;justify-content:center}
+.ab-box{width:46px;height:42px;border:2px solid #1a1a1a;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-size:17px;font-weight:800;color:#1a1a1a;background:#f5f5f5;box-shadow:2px 2px 0 #aaa}
+.ab-empty{background:#e0e0e0;color:transparent;border-color:#bbb;box-shadow:2px 2px 0 #ccc}
+.ab-sol{border-color:#b83000;color:#b83000;box-shadow:2px 2px 0 #e8b0a0;background:#fff}
+.ab-sol-row{display:flex;gap:0;justify-content:center;align-items:flex-start}
+.ab-slot{display:flex;flex-direction:column;align-items:center}
+.ab-conn{width:18px;padding-top:6px;text-align:center;font-size:9px;font-weight:800;font-family:'Archivo',sans-serif;color:#0F6E56}
+</style>
   header,.sb,.pv-top,.pv-body{display:none!important}
   .wrap{display:block;padding:0}
   .preview{border:none;border-radius:0}
@@ -131,6 +152,12 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
         </button>
         <button class="tbtn" id="tbtn-zukei" onclick="selType('zukei',this)">
           <span class="ico">◇</span><span class="lbl">Zukei</span>
+        </button>
+        <button class="tbtn" id="tbtn-mazeescape" onclick="selType('mazeescape',this)">
+          <span class="ico">⊞</span><span class="lbl">Maze Escape</span>
+        </button>
+        <button class="tbtn" id="tbtn-arrangingboxes" onclick="selType('arrangingboxes',this)">
+          <span class="ico">▣</span><span class="lbl">Arranging Boxes</span>
         </button>
       </div>
     </div>
@@ -195,7 +222,7 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 // SHARED STATE & UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-let TYPE = 'sixlegs';   // 'sixlegs' | 'sankaku' | 'zukei'
+let TYPE = 'sixlegs';   // 'sixlegs' | 'sankaku' | 'zukei' | 'mazeescape' | 'arrangingboxes'
 let DIFF = 0;
 let VIEW = 'student';
 
@@ -207,6 +234,12 @@ let SK_PUZZLES = [];
 
 // Zukei state
 let ZK_PUZZLES = [];
+
+// Maze Escape state
+let ME_PUZZLES = [];
+
+// Arranging Boxes state
+let AB_PUZZLES = [];
 
 const ri       = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const f        = n => n.toFixed(1);
@@ -235,6 +268,16 @@ const DIFF_OPTS = {
     { l:'Intermediate', d:'Triangles & trapezoids · 4×4 grid' },
     { l:'Advanced',     d:'Mixed shapes · 5×5 grid' },
   ],
+  mazeescape: [
+    { l:'Beginner',     d:'5×5 grid · short path · 2–3 dead ends' },
+    { l:'Intermediate', d:'5×5 grid · longer path · 3–5 dead ends' },
+    { l:'Challenge',    d:'5×5 grid · long path · 4–7 dead ends' },
+  ],
+  arrangingboxes: [
+    { l:'Beginner',     d:'3 boxes to arrange' },
+    { l:'Intermediate', d:'4 boxes to arrange' },
+    { l:'Challenge',    d:'5 boxes to arrange' },
+  ],
 };
 
 // ── UI wiring ─────────────────────────────────────────────────────────────────
@@ -243,9 +286,9 @@ function selType(type, btn) {
   DIFF = 0;
   document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator' };
-  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1' };
-  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles' };
+  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator', mazeescape:'Maze Escape Generator', arrangingboxes:'Arranging Boxes Generator' };
+  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1', mazeescape:'e.g. Maze Escape #1', arrangingboxes:'e.g. Arranging Boxes #1' };
+  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles', mazeescape:'↻\u2005Generate New Puzzles', arrangingboxes:'↻\u2005Generate New Puzzles' };
   document.getElementById('hdr-type-label').textContent    = labels[type];
   document.getElementById('pg-title').placeholder          = placeholders[type];
   document.getElementById('btn-gen').textContent           = genLabels[type];
@@ -283,6 +326,12 @@ function refresh() {
   } else if (TYPE === 'sankaku') {
     if (!SK_PUZZLES.length) return;
     out.innerHTML = sk_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'mazeescape') {
+    if (!ME_PUZZLES.length) return;
+    out.innerHTML = me_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'arrangingboxes') {
+    if (!AB_PUZZLES.length) return;
+    out.innerHTML = ab_buildSheet(VIEW === 'key');
   } else {
     if (!ZK_PUZZLES.length) return;
     out.innerHTML = zk_buildSheet(VIEW === 'key');
@@ -291,7 +340,7 @@ function refresh() {
 
 function generate() {
   DIFF = parseInt(document.querySelector('input[name="diff"]:checked')?.value ?? '0');
-  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : '◇';
+  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : TYPE === 'mazeescape' ? '⊞' : TYPE === 'arrangingboxes' ? '▣' : '◇';
   document.getElementById('out').innerHTML =
     `<div class="gen-msg"><div class="spin">${ico}</div><br>Generating…</div>`;
   requestAnimationFrame(() => setTimeout(() => {
@@ -309,6 +358,28 @@ function generate() {
       SK_PUZZLES  = areas.map(area => sk_genPuzzle(cfg.gridSize, area, cfg.numDots) || {
         dots:[], solution:null, targetArea:area, gridSize:cfg.gridSize
       });
+    } else if (TYPE === 'mazeescape') {
+      ME_PUZZLES = [];
+      for (let i = 0; i < 4; i++) {
+        const p = me_gen(DIFF);
+        if (p) ME_PUZZLES.push(p);
+      }
+      if (!ME_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
+    } else if (TYPE === 'arrangingboxes') {
+      AB_PUZZLES = [];
+      for (let i = 0; i < 4; i++) {
+        const p = ab_gen(DIFF);
+        if (p) AB_PUZZLES.push(p);
+      }
+      if (!AB_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
     } else {
       const cfg = ZK_CONFIGS[DIFF];
       const pool = []; while (pool.length < 6) pool.push(...cfg.shapes);
@@ -340,15 +411,25 @@ const PRINT_CSS_BASE = `
 function downloadPDF(mode) {
   const ready = TYPE === 'sixlegs' ? !!SL_PUZZLE :
                 TYPE === 'sankaku' ? SK_PUZZLES.length > 0 :
+                TYPE === 'mazeescape' ? ME_PUZZLES.length > 0 :
+                TYPE === 'arrangingboxes' ? AB_PUZZLES.length > 0 :
                 ZK_PUZZLES.length > 0;
   if (!ready) { alert('Generate a puzzle first.'); return; }
 
   const title  = document.getElementById('pg-title').value.trim() ||
-    (TYPE === 'sixlegs' ? SL_TITLES[DIFF] : TYPE === 'sankaku' ? SK_TITLES[DIFF] : ZK_TITLES[DIFF]);
+    (TYPE === 'sixlegs' ? SL_TITLES[DIFF] :
+     TYPE === 'sankaku' ? SK_TITLES[DIFF] :
+     TYPE === 'mazeescape' ? ME_TITLES[DIFF] :
+     TYPE === 'arrangingboxes' ? AB_TITLES[DIFF] :
+     ZK_TITLES[DIFF]);
   const sheets = TYPE === 'sixlegs'
     ? { s: sl_printSheet(false, title), k: sl_printSheet(true, title) }
     : TYPE === 'sankaku'
     ? { s: sk_printSheet(false, title), k: sk_printSheet(true, title) }
+    : TYPE === 'mazeescape'
+    ? { s: me_printSheet(false, title), k: me_printSheet(true, title) }
+    : TYPE === 'arrangingboxes'
+    ? { s: ab_printSheet(false, title), k: ab_printSheet(true, title) }
     : { s: zk_printSheet(false, title), k: zk_printSheet(true, title) };
   const typeCSS = TYPE === 'sixlegs'
     ? `.sheet{padding:18px 32px 28px;max-width:860px;margin:0 auto}`
@@ -990,6 +1071,397 @@ function zk_buildSheet(isKey) {
 function zk_printSheet(isKey, title) { return zk_sheetHTML(isKey, title); }
 
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAZE ESCAPE  (Perfect Squares — 4-direction, matches elementary Multiple Maze)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ME_TITLES = [
+  'Perfect Squares Maze Escape — Beginner',
+  'Perfect Squares Maze Escape — Intermediate',
+  'Perfect Squares Maze Escape — Challenge',
+];
+const ME_DIRS = [
+  'Start at <b style="color:#1A7A3A">GO</b> (the cell containing 1). Move <strong>up, down, left, or right</strong> through perfect squares to reach <b style="color:#FF4F00">END</b>. There is exactly one correct path!',
+  'Start at <b style="color:#1A7A3A">GO</b> (the cell containing 1). Move <strong>up, down, left, or right</strong> through perfect squares to reach <b style="color:#FF4F00">END</b>. Watch out for dead ends!',
+  'Start at <b style="color:#1A7A3A">GO</b> (the cell containing 1). Move <strong>up, down, left, or right</strong> through perfect squares to reach <b style="color:#FF4F00">END</b>. Watch out for dead ends!',
+];
+
+function me_4nbrs(r,c,R,C){
+  const o=[];
+  if(r>0)   o.push([r-1,c]);
+  if(r<R-1) o.push([r+1,c]);
+  if(c>0)   o.push([r,c-1]);
+  if(c<C-1) o.push([r,c+1]);
+  return o;
+}
+function me_borderCells(R,C){
+  const b=[];
+  for(let c=0;c<C;c++){b.push([0,c]);b.push([R-1,c]);}
+  for(let r=1;r<R-1;r++){b.push([r,0]);b.push([r,C-1]);}
+  return b;
+}
+function me_edge(r,c,R,C){
+  if(r===0)return'top';if(r===R-1)return'bottom';
+  if(c===0)return'left';return'right';
+}
+
+// Returns all border cells reachable from (sr,sc) through isMult cells (≠ start).
+// Border cells are treated as terminals — BFS does not continue THROUGH them.
+function me_borderExits(isMult,sr,sc,R,C){
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  const q=[[sr,sc]];const exits=[];
+  while(q.length){
+    const[r,c]=q.shift();
+    for(const[nr,nc] of me_4nbrs(r,c,R,C)){
+      if(vis[nr][nc]||!isMult[nr][nc])continue;
+      vis[nr][nc]=true;
+      const isBorder=(nr===0||nr===R-1||nc===0||nc===C-1);
+      if(isBorder)exits.push([nr,nc]);
+      else q.push([nr,nc]);
+    }
+  }
+  return exits;
+}
+
+// Count all distinct simple paths from (sr,sc) to (er,ec) through isMult cells.
+// Stops counting at 2 (we only care whether the answer is exactly 1).
+function me_pathCount(isMult,sr,sc,er,ec,R,C){
+  let count=0;
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  function dfs(r,c){
+    if(count>=2)return;
+    for(const[nr,nc] of me_4nbrs(r,c,R,C)){
+      if(!isMult[nr][nc]||vis[nr][nc])continue;
+      if(nr===er&&nc===ec){count++;continue;}
+      vis[nr][nc]=true;
+      dfs(nr,nc);
+      vis[nr][nc]=false;
+      if(count>=2)return;
+    }
+  }
+  dfs(sr,sc);
+  return count;
+}
+
+// BFS shortest-path length (in cells) from (sr,sc) to (er,ec) through isMult cells.
+function me_shortestLen(isMult,sr,sc,er,ec,R,C){
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  const q=[[sr,sc,1]];
+  while(q.length){
+    const[r,c,len]=q.shift();
+    for(const[nr,nc] of me_4nbrs(r,c,R,C)){
+      if(!isMult[nr][nc]||vis[nr][nc])continue;
+      if(nr===er&&nc===ec)return len+1;
+      vis[nr][nc]=true;
+      q.push([nr,nc,len+1]);
+    }
+  }
+  return Infinity;
+}
+
+// DFS that finds one simple path from (sr,sc) to (er,ec) whose length is in [minLen,maxLen].
+function me_buildPath(sr,sc,er,ec,R,C,minLen,maxLen){
+  const vis=Array.from({length:R},()=>Array(C).fill(false));
+  vis[sr][sc]=true;
+  const path=[[sr,sc]];
+  const stack=[{nbs:shuffle(me_4nbrs(sr,sc,R,C)),ni:0}];
+  while(stack.length){
+    const[cr,cc]=path[path.length-1];
+    if(cr===er&&cc===ec){
+      if(path.length>=minLen)return path;
+      vis[cr][cc]=false;path.pop();stack.pop();continue;
+    }
+    if(path.length>=maxLen){vis[cr][cc]=false;path.pop();stack.pop();continue;}
+    const fr=stack[stack.length-1];let pushed=false;
+    while(fr.ni<fr.nbs.length){
+      const[nr,nc]=fr.nbs[fr.ni++];
+      if(vis[nr][nc])continue;
+      vis[nr][nc]=true;path.push([nr,nc]);
+      stack.push({nbs:shuffle(me_4nbrs(nr,nc,R,C)),ni:0});
+      pushed=true;break;
+    }
+    if(!pushed){vis[cr][cc]=false;path.pop();stack.pop();}
+  }
+  return null;
+}
+
+function me_gen(diff){
+  const R=5,C=5;
+  const sqArr=[4,9,16,25,36,49,64,81,100,121,144];
+  const nonSq=[];
+  for(let n=2;n<=150;n++){const s=Math.round(Math.sqrt(n));if(s*s!==n)nonSq.push(n);}
+  const cfg=[
+    {minLen:5,maxLen:9, deadMin:1,deadMax:2},
+    {minLen:7,maxLen:12,deadMin:2,deadMax:4},
+    {minLen:9,maxLen:15,deadMin:3,deadMax:5},
+  ][Math.min(diff,2)];
+  const borderCells=me_borderCells(R,C);
+
+  for(let att=0;att<8000;att++){
+    // ── Pick GO and END on different edges, min distance 4 apart ──
+    const[sr,sc]=borderCells[ri(0,borderCells.length-1)];
+    const startEdge=me_edge(sr,sc,R,C);
+    const endCands=borderCells.filter(([r,c])=>{
+      if(r===sr&&c===sc)return false;
+      if(me_edge(r,c,R,C)===startEdge)return false;
+      return Math.abs(r-sr)+Math.abs(c-sc)>=4;
+    });
+    if(!endCands.length)continue;
+    const[er,ec]=endCands[ri(0,endCands.length-1)];
+
+    // ── Build a path of the right length ──
+    const path=me_buildPath(sr,sc,er,ec,R,C,cfg.minLen,cfg.maxLen);
+    if(!path||path.length<cfg.minLen)continue;
+
+    // ── Assign perfect-square values to path cells ──
+    const grid=Array.from({length:R},()=>Array(C).fill(0));
+    const isMult=Array.from({length:R},()=>Array(C).fill(false));
+    const isPath=Array.from({length:R},()=>Array(C).fill(false));
+    const ps=new Set(path.map(([r,c])=>r+','+c));
+    const sqP=shuffle([...sqArr]);
+    grid[sr][sc]=1;isMult[sr][sc]=true;isPath[sr][sc]=true;
+    for(let i=1;i<path.length;i++){
+      const[r,c]=path[i];grid[r][c]=sqP[i-1];isMult[r][c]=true;isPath[r][c]=true;
+    }
+    if(path.some(([r,c])=>!grid[r][c]))continue;
+
+    // ── Baseline checks (path squares only) ──
+    // 1. END is the only reachable border cell
+    {const exits=me_borderExits(isMult,sr,sc,R,C);
+    if(exits.length!==1||exits[0][0]!==er||exits[0][1]!==ec)continue;}
+    // 2. Exactly one simple path GO→END (no shortcut through grid-adjacent path cells)
+    if(me_pathCount(isMult,sr,sc,er,ec,R,C)!==1)continue;
+    // 3. Shortest path ≥ 5 cells (GO counts as cell 1)
+    if(me_shortestLen(isMult,sr,sc,er,ec,R,C)<5)continue;
+
+    // ── Add dead-end perfect squares (interior cells only) ──
+    // Each candidate must keep: (a) END as only border exit, (b) unique path, (c) len ≥ 5
+    const usedSq=new Set(path.map((_,i)=>i===0?1:sqP[i-1]));
+    const availSq=shuffle(sqArr.filter(s=>!usedSq.has(s)));
+    let dIdx=0,deadAdded=0;
+    const adjPath=[];
+    for(const[pr,pc] of path)
+      for(const[nr,nc] of me_4nbrs(pr,pc,R,C))
+        if(!isPath[nr][nc]&&!isMult[nr][nc]&&
+           !(nr===0||nr===R-1||nc===0||nc===C-1)) // interior only
+          adjPath.push([nr,nc]);
+    shuffle(adjPath);
+    for(const[r,c] of adjPath){
+      if(deadAdded>=cfg.deadMax||dIdx>=availSq.length)break;
+      grid[r][c]=availSq[dIdx];isMult[r][c]=true;
+      const exits=me_borderExits(isMult,sr,sc,R,C);
+      const stillUnique=me_pathCount(isMult,sr,sc,er,ec,R,C)===1;
+      const stillLong=me_shortestLen(isMult,sr,sc,er,ec,R,C)>=5;
+      if(exits.length===1&&exits[0][0]===er&&exits[0][1]===ec&&stillUnique&&stillLong){
+        deadAdded++;dIdx++;
+      } else {
+        isMult[r][c]=false;grid[r][c]=0;
+      }
+    }
+    if(deadAdded<cfg.deadMin)continue;
+
+    // ── Fill remaining cells with non-squares ──
+    const nsP=shuffle([...nonSq]);let ni=0;
+    for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(!grid[r][c])grid[r][c]=nsP[ni++];
+
+    // ── Final verification ──
+    const finalExits=me_borderExits(isMult,sr,sc,R,C);
+    if(finalExits.length!==1||finalExits[0][0]!==er||finalExits[0][1]!==ec)continue;
+    if(me_pathCount(isMult,sr,sc,er,ec,R,C)!==1)continue;
+    if(me_shortestLen(isMult,sr,sc,er,ec,R,C)<5)continue;
+
+    return{grid,sr,sc,er,ec,pathSet:ps,isMult,isPath,R,C};
+  }
+  return null;
+}
+
+function me_renderOne(puz, isKey){
+  if(!puz)return'<div style="font-size:11px;color:#c00;padding:8px">⚠ Generation failed</div>';
+  const{grid,sr,sc,er,ec,isMult,isPath,R,C}=puz;
+  const csz=46,gap=3;
+  const colT=`grid-template-columns:repeat(${C},${csz}px)`;
+  const lStyle=(col)=>`height:${csz}px;display:flex;align-items:center;font-size:8px;font-weight:800;font-family:'Archivo',sans-serif;color:${col};white-space:nowrap`;
+  const wStyle=`width:${csz}px;text-align:center;font-size:8px;font-weight:800;font-family:'Archivo',sans-serif`;
+
+  // Build label rows/cols — GO and END always shown (needed to solve the puzzle)
+  let topCells='';
+  for(let c=0;c<C;c++){
+    const isGO=(sr===0&&sc===c), isEND=(er===0&&ec===c);
+    topCells+= isGO ? `<div style="${wStyle};color:#1A7A3A">&#9660; GO</div>`
+             : isEND? `<div style="${wStyle};color:#FF4F00">&#9660; END</div>`
+             :         `<div style="${wStyle}"></div>`;
+  }
+  let botCells='';
+  for(let c=0;c<C;c++){
+    const isGO=(sr===R-1&&sc===c), isEND=(er===R-1&&ec===c);
+    botCells+= isGO ? `<div style="${wStyle};color:#1A7A3A">&#9650; GO</div>`
+             : isEND? `<div style="${wStyle};color:#FF4F00">&#9650; END</div>`
+             :         `<div style="${wStyle}"></div>`;
+  }
+  let leftCells='',rightCells='';
+  for(let r=0;r<R;r++){
+    const isGoL=(sc===0&&sr===r), isEndL=(ec===0&&er===r);
+    const isGoR=(sc===C-1&&sr===r), isEndR=(ec===C-1&&er===r);
+    leftCells += isGoL ?`<div style="${lStyle('#1A7A3A')}">GO&#9658;</div>`
+               : isEndL?`<div style="${lStyle('#FF4F00')}">END&#9658;</div>`
+               :         `<div style="height:${csz}px"></div>`;
+    rightCells+= isGoR ?`<div style="${lStyle('#1A7A3A')}">&#9668;GO</div>`
+               : isEndR?`<div style="${lStyle('#FF4F00')}">&#9668;END</div>`
+               :         `<div style="height:${csz}px"></div>`;
+  }
+
+  // Grid cells
+  let cells='';
+  for(let r=0;r<R;r++){
+    for(let c=0;c<C;c++){
+      const v=grid[r][c];
+      const isGO=r===sr&&c===sc;
+      const isEND=r===er&&c===ec;
+      const onPath=isPath[r][c]&&!isGO&&!isEND;
+      const isDead=isMult[r][c]&&!isPath[r][c]&&!isGO&&!isEND;
+      let cls='mc';
+      if(isGO)                   cls+=' mc-s';
+      else if(isEND)             cls+=' mc-f';
+      else if(isKey&&onPath)     cls+=' mc-p';
+      else if(isKey&&isDead)     cls+=' mc-d';
+      // no mc-trap — all cells same color so perfect squares aren't visually obvious
+      cells+=`<div class="${cls}" style="font-size:${v>=100?12:14}px">${v}</div>`;
+    }
+  }
+
+  const keyLeg=isKey?`<div class="mleg">
+    <div class="mli"><div class="msw" style="background:#D0F0DB;outline:2px solid #1A7A3A"></div>GO (start)</div>
+    <div class="mli"><div class="msw" style="background:#FFF0E0;outline:2px solid #FF9000"></div>Path</div>
+    <div class="mli"><div class="msw" style="background:#FFE2D0;outline:2px solid #FF4F00"></div>END (exit)</div>
+    <div class="mli"><div class="msw" style="background:#E8EEFF;outline:1.5px solid #9AAAE0"></div>Dead end</div>
+  </div>`:'';
+
+  return`<div class="me-outer">
+    <div style="display:flex;gap:${gap}px;margin-left:26px;margin-right:26px">${topCells}</div>
+    <div style="display:flex;align-items:center;gap:0">
+      <div style="display:flex;flex-direction:column;gap:${gap}px;width:26px;align-items:flex-end;padding-right:3px">${leftCells}</div>
+      <div class="maze-grid" style="--mcsz:${csz}px;--mgap:${gap}px;${colT}">${cells}</div>
+      <div style="display:flex;flex-direction:column;gap:${gap}px;width:26px;align-items:flex-start;padding-left:3px">${rightCells}</div>
+    </div>
+    <div style="display:flex;gap:${gap}px;margin-left:26px;margin-right:26px">${botCells}</div>
+    ${keyLeg}
+  </div>`;
+}
+
+function me_sheetHTML(isKey, title){
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  const puzzles = ME_PUZZLES.slice(0,4);
+  const gridCols = puzzles.length <= 2 ? 'repeat(2,1fr)' : 'repeat(2,1fr)';
+  const cells = puzzles.map((p,i) => `
+    <div class="pc" style="min-height:0;padding:14px 10px">
+      <div class="pc-n">${i+1}</div>
+      ${me_renderOne(p, isKey)}
+    </div>`).join('');
+  return `<div class="sheet wide">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${ME_DIRS[DIFF]}</div>
+    <div class="pgrid" style="display:grid;grid-template-columns:${gridCols};gap:10px">${cells}</div>
+  </div>`;
+}
+function me_buildSheet(isKey){
+  const title = document.getElementById('pg-title').value.trim() || ME_TITLES[DIFF];
+  return me_sheetHTML(isKey, title);
+}
+function me_printSheet(isKey, title){ return me_sheetHTML(isKey, title); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ARRANGING BOXES  (Perfect Squares)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const AB_TITLES = [
+  'Arranging Boxes — Beginner',
+  'Arranging Boxes — Intermediate',
+  'Arranging Boxes — Challenge',
+];
+const AB_DIRS = [
+  'Rearrange the <strong>3 boxes</strong> so that every pair of neighboring boxes sums to a perfect square. Write your answer in the empty boxes.',
+  'Rearrange the <strong>4 boxes</strong> so that every pair of neighboring boxes sums to a perfect square. Write your answer in the empty boxes.',
+  'Rearrange the <strong>5 boxes</strong> so that every pair of neighboring boxes sums to a perfect square. Write your answer in the empty boxes.',
+];
+
+function ab_gen(diff){
+  const cfg=[{num:3,max:20},{num:4,max:25},{num:5,max:30}][Math.min(diff,2)];
+  const PSUMS=new Set([4,9,16,25,36,49,64,81,100]);
+  for(let att=0;att<300000;att++){
+    const start=ri(1,cfg.max);const chain=[start];const used=new Set([start]);let ok=true;
+    for(let i=1;i<cfg.num;i++){
+      const prev=chain[chain.length-1];
+      const cands=[];for(let n=1;n<=cfg.max;n++){if(!used.has(n)&&PSUMS.has(prev+n))cands.push(n);}
+      if(!cands.length){ok=false;break;}
+      const next=cands[ri(0,cands.length-1)];chain.push(next);used.add(next);
+    }
+    if(ok&&chain.length===cfg.num)return{numbers:shuffle([...chain]),solution:chain};
+  }
+  return null;
+}
+
+function ab_renderOne(puz, isKey){
+  if(!puz)return'<div style="font-size:11px;color:#c00;padding:8px">⚠ Generation failed</div>';
+  const{numbers,solution}=puz;
+  const given=numbers.map(n=>`<div class="ab-box">${n}</div>`).join('');
+  let ansHTML;
+  if(isKey){
+    const parts=[];
+    for(let i=0;i<solution.length;i++){
+      parts.push(`<div class="ab-slot"><div class="ab-box ab-sol">${solution[i]}</div></div>`);
+      if(i<solution.length-1){
+        const s=solution[i]+solution[i+1];
+        parts.push(`<div class="ab-conn">${s}</div>`);
+      }
+    }
+    ansHTML=`<div class="ab-sol-row">${parts.join('')}</div>`;
+  }else{
+    ansHTML=`<div class="ab-row">${solution.map(()=>`<div class="ab-box ab-empty"></div>`).join('')}</div>`;
+  }
+  return`<div class="ab-wrap">
+    <div class="ab-lbl">Given</div>
+    <div class="ab-row">${given}</div>
+    <div style="text-align:center;font-size:13px;color:#bbb;line-height:1.2">&#8595;</div>
+    <div class="ab-lbl">Arrange</div>
+    ${ansHTML}
+  </div>`;
+}
+
+function ab_sheetHTML(isKey, title){
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  const puzzles = AB_PUZZLES.slice(0,4);
+  const cells = puzzles.map((p,i) => `
+    <div class="pc" style="min-height:0;padding:14px 10px">
+      <div class="pc-n">${i+1}</div>
+      ${ab_renderOne(p, isKey)}
+    </div>`).join('');
+  return `<div class="sheet narrow">
+    <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+    <div class="sh-meta">Name: ____________________________ &nbsp;&nbsp; Date: ____________</div>
+    <div class="sh-dir">${AB_DIRS[DIFF]}</div>
+    <div class="pgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">${cells}</div>
+  </div>`;
+}
+function ab_buildSheet(isKey){
+  const title = document.getElementById('pg-title').value.trim() || AB_TITLES[DIFF];
+  return ab_sheetHTML(isKey, title);
+}
+function ab_printSheet(isKey, title){ return ab_sheetHTML(isKey, title); }
+
+// ── also need .pc and .pc-n from the elementary sheet layout ─────────────────
+// (add inline if not already defined — harmless duplicate)
+(function(){
+  if(!document.querySelector('style#pc-fix')){
+    const s=document.createElement('style');s.id='pc-fix';
+    s.textContent=`.pc{background:#fff;border:1px solid #ddd;border-radius:8px;position:relative}.pc-n{position:absolute;top:6px;left:8px;font-size:9px;font-weight:800;color:#ccc;font-family:'Archivo',sans-serif}`;
+    document.head.appendChild(s);
+  }
+})();
 
 renderDiffOpts();
 generate();
