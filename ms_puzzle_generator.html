@@ -114,6 +114,14 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .ab-sol-row{display:flex;gap:0;justify-content:center;align-items:flex-start}
 .ab-slot{display:flex;flex-direction:column;align-items:center}
 .ab-conn{width:18px;padding-top:6px;text-align:center;font-size:9px;font-weight:800;font-family:'Archivo',sans-serif;color:#0F6E56}
+/* Two Step */
+.ts-steps-area{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ts-steps-label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;white-space:nowrap}
+.ts-steps-box{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#f5f5f2;border:2px solid #2a2a2a;border-radius:8px;padding:7px 14px}
+.ts-step-chip{background:#fff;border:1.5px solid #ccc;border-radius:6px;padding:4px 13px;font-size:14px;font-family:'Archivo Black',sans-serif;color:#1a1a1a;white-space:nowrap}
+/* Puzzle cell grid (shared by Two Step and other types) */
+.pc{background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 8px;display:flex;align-items:center;justify-content:center;position:relative;min-height:148px}
+.pc-n{position:absolute;top:6px;left:8px;font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif}
 @media print{
   header,.sb,.pv-top,.pv-body{display:none!important}
   .wrap{display:block;padding:0}
@@ -597,6 +605,13 @@ const PRINT_CSS_BASE = `
   .sh-meta{font-size:9.5px;font-weight:600;color:#444;margin-bottom:3px}
   .sh-dir{font-size:9.5px;font-weight:700;color:#333;padding-bottom:7px;border-bottom:2px solid #e0e0e0;margin-bottom:10px}
   .sh-svg svg{width:100%;height:auto;display:block}
+  .ts-steps-area{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .ts-steps-label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;white-space:nowrap}
+  .ts-steps-box{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#f5f5f2;border:2px solid #2a2a2a;border-radius:8px;padding:7px 14px}
+  .ts-step-chip{background:#fff;border:1.5px solid #ccc;border-radius:6px;padding:4px 13px;font-size:14px;font-family:'Archivo Black',sans-serif;color:#1a1a1a;white-space:nowrap}
+  .pgrid{display:grid;gap:12px}
+  .pc{background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 8px;display:flex;align-items:center;justify-content:center;position:relative;min-height:148px}
+  .pc-n{position:absolute;top:6px;left:8px;font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif}
   @page{size:letter;margin:.55in .7in}
   @media print{.page-break{page-break-after:always}}`;
 
@@ -3230,9 +3245,9 @@ function ts_stepsHTML(steps,nt){
 
 function ts_renderPage(tsSet,isKey){
   const{steps,puzzles,nt}=tsSet;
-  const cells=puzzles.map((p,i)=>`<div class="pc" style="min-height:148px;padding:12px 8px"><div class="pc-n">(${i+1})</div>${ts_renderOne(p,isKey,nt)}</div>`).join('');
+  const cells=puzzles.map((p,i)=>`<div class="pc"><div class="pc-n">(${i+1})</div>${ts_renderOne(p,isKey,nt)}</div>`).join('');
   return ts_stepsHTML(steps,nt)
-    +`<div class="pg" style="grid-template-columns:repeat(2,1fr)">${cells}</div>`;
+    +`<div class="pgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">${cells}</div>`;
 }
 
 // ── Sheet builders ────────────────────────────────────────────────────────────
