@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Resource Manager — MS Automaticity</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fire: #FF4F00;
+  --ember: #FFF0EB;
+  --ink: #1A1A1A;
+  --muted: #6B7280;
+  --surf: #FFFFFF;
+  --bg: #F5F4F1;
+  --border: #E2E0DB;
+  --puz-color: #7C3AED;
+  --puz-bg: #F5F3FF;
+  --game-color: #065F46;
+  --game-bg: #ECFDF5;
+  --int-color: #92400E;
+  --int-bg: #FFFBEB;
+  --font-head: 'Archivo Black', sans-serif;
+  --font-body: 'Archivo', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: var(--font-body); color: var(--ink); min-height: 100vh; }
+
+/* TOP BAR */
+.topbar {
+  background: var(--ink); color: #fff; padding: 14px 24px;
+  display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.topbar-title { font-family: var(--font-head); font-size: 16px; }
+.topbar-sub { font-size: 12px; color: #aaa; font-weight: 500; }
+.topbar-spacer { flex: 1; }
+.btn-export {
+  background: var(--fire); color: #fff; border: none;
+  padding: 8px 16px; border-radius: 7px;
+  font-family: var(--font-body); font-size: 12px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.btn-export:hover { background: #e04400; }
+
+/* STATS BAR */
+.statsbar {
+  background: var(--surf); border-bottom: 1px solid var(--border);
+  padding: 10px 24px; display: flex; gap: 28px; align-items: center; flex-wrap: wrap;
+}
+.stat { display: flex; align-items: center; gap: 8px; }
+.stat-val { font-family: var(--font-head); font-size: 22px; color: var(--ink); }
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); line-height: 1.2; }
+.stat-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* CONTROLS */
+.controls {
+  padding: 10px 24px; display: flex; gap: 10px; align-items: center;
+  flex-wrap: wrap; background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.filter-group { display: flex; gap: 4px; }
+.fbtn {
+  padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surf); font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  cursor: pointer; color: var(--muted); transition: .12s;
+}
+.fbtn.active, .fbtn:hover { border-color: var(--fire); color: var(--fire); background: var(--ember); }
+.sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+.search-box {
+  padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 6px;
+  font-family: var(--font-body); font-size: 12px; background: var(--surf);
+  color: var(--ink); width: 200px;
+}
+.search-box:focus { outline: none; border-color: var(--fire); }
+
+/* LEGEND */
+.legend { display: flex; gap: 14px; align-items: center; margin-left: auto; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.leg-chip { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+
+/* GRADE SECTIONS */
+.grade-section { margin: 0; }
+.grade-header {
+  padding: 10px 24px 8px;
+  font-family: var(--font-head); font-size: 13px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 57px; z-index: 50;
+  border-bottom: 2px solid;
+}
+.grade-5-hdr { background: #1E40AF; color: #fff; border-color: #1E40AF; }
+.grade-6-hdr { background: #065F46; color: #fff; border-color: #065F46; }
+.grade-7-hdr { background: #92400E; color: #fff; border-color: #92400E; }
+.grade-8-hdr { background: #831843; color: #fff; border-color: #831843; }
+.grade-badge-count { font-family: var(--font-body); font-size: 11px; font-weight: 600; opacity: .75; }
+
+/* SKILL ROWS */
+.skills-table { width: 100%; border-collapse: collapse; }
+.skill-row { border-bottom: 1px solid var(--border); background: var(--surf); transition: background .1s; }
+.skill-row:hover { background: #FAFAF9; }
+.skill-row.has-resources { background: #FDFCFB; }
+.skill-row td { padding: 9px 12px; vertical-align: middle; }
+.wk-cell {
+  width: 44px; text-align: center;
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  font-family: 'Courier New', monospace;
+}
+.skill-cell { min-width: 220px; font-size: 13px; font-weight: 500; color: var(--ink); }
+.skill-key { font-family: 'Courier New', monospace; font-size: 10px; color: #bbb; display: block; }
+.res-cell { vertical-align: middle; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; padding: 2px 8px 2px 6px;
+  border-radius: 4px; cursor: pointer; transition: .12s;
+  border: 1.5px solid transparent;
+}
+.chip-puz { background: var(--puz-bg); color: var(--puz-color); border-color: #DDD6FE; }
+.chip-puz:hover { border-color: var(--puz-color); }
+.chip-game { background: var(--game-bg); color: var(--game-color); border-color: #A7F3D0; }
+.chip-game:hover { border-color: var(--game-color); }
+.chip-int { background: var(--int-bg); color: var(--int-color); border-color: #FDE68A; }
+.chip-int:hover { border-color: var(--int-color); }
+.chip-remove {
+  width: 12px; height: 12px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; opacity: .5; font-weight: 900; line-height: 1;
+}
+.chip-remove:hover { opacity: 1; }
+.add-btn {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  background: none; border: 1.5px dashed var(--border);
+  padding: 2px 8px; border-radius: 4px; cursor: pointer; transition: .12s;
+}
+.add-btn:hover { border-color: var(--fire); color: var(--fire); background: var(--ember); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: var(--surf); border-radius: 12px; padding: 24px;
+  max-width: 460px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,.2);
+}
+.modal-title { font-family: var(--font-head); font-size: 16px; margin-bottom: 3px; }
+.modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted); margin-bottom: 5px;
+}
+.form-select, .form-input {
+  width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
+  border-radius: 7px; font-family: var(--font-body); font-size: 13px;
+  background: var(--surf); color: var(--ink);
+}
+.form-select:focus, .form-input:focus { outline: none; border-color: var(--fire); }
+.modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.btn-primary {
+  flex: 1; padding: 9px; background: var(--fire); color: #fff; border: none;
+  border-radius: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-primary:hover { background: #e04400; }
+.btn-secondary {
+  padding: 9px 16px; background: transparent; color: var(--muted);
+  border: 1.5px solid var(--border); border-radius: 7px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-secondary:hover { border-color: var(--muted); color: var(--ink); }
+.type-selector { display: flex; gap: 8px; margin-bottom: 4px; }
+.type-opt {
+  flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 7px;
+  text-align: center; cursor: pointer; font-size: 12px; font-weight: 700; transition: .12s;
+  color: var(--muted);
+}
+.type-opt:hover { border-color: var(--muted); }
+.type-opt.sel-puz { border-color: var(--puz-color); background: var(--puz-bg); color: var(--puz-color); }
+.type-opt.sel-game { border-color: var(--game-color); background: var(--game-bg); color: var(--game-color); }
+.type-opt.sel-int { border-color: var(--int-color); background: var(--int-bg); color: var(--int-color); }
+
+/* EXPORT PANEL */
+.export-panel {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 300;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.export-panel.hidden { display: none; }
+.export-box {
+  background: var(--ink); border-radius: 12px; padding: 24px;
+  max-width: 700px; width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,.5);
+}
+.export-title { font-family: var(--font-head); font-size: 15px; color: #fff; margin-bottom: 4px; }
+.export-sub { font-size: 12px; color: #aaa; margin-bottom: 14px; }
+.export-code {
+  background: #0D0D0D; border-radius: 8px; padding: 14px;
+  font-family: 'Courier New', monospace; font-size: 11px; color: #7DD3FC;
+  max-height: 340px; overflow-y: auto; white-space: pre; line-height: 1.6;
+  border: 1px solid #333;
+}
+.export-actions { display: flex; gap: 10px; margin-top: 14px; }
+.btn-copy {
+  flex: 1; padding: 9px; background: var(--fire); color: #fff; border: none;
+  border-radius: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-copy:hover { background: #e04400; }
+.btn-close-export {
+  padding: 9px 16px; background: transparent; color: #aaa;
+  border: 1.5px solid #444; border-radius: 7px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-close-export:hover { border-color: #aaa; color: #fff; }
+.hidden { display: none !important; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+  padding: 10px 20px; border-radius: 8px; z-index: 500;
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">Skill Resource Manager</div>
+    <div class="topbar-sub">MS Automaticity — Facts on Fire / M.I.N.D. 2.0</div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <button class="btn-export" onclick="openExport()">⬆ Export skill_resources.js</button>
+</div>
+
+<!-- Stats Bar -->
+<div class="statsbar" id="statsbar"></div>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="filter-group" id="grade-filters">
+    <button class="fbtn active" data-grade="all" onclick="setGrade('all',this)">All grades</button>
+    <button class="fbtn" data-grade="5" onclick="setGrade('5',this)">Grade 5</button>
+    <button class="fbtn" data-grade="6" onclick="setGrade('6',this)">Grade 6</button>
+    <button class="fbtn" data-grade="7" onclick="setGrade('7',this)">Grade 7</button>
+    <button class="fbtn" data-grade="8" onclick="setGrade('8',this)">Grade 8</button>
+  </div>
+  <div class="sep"></div>
+  <div class="filter-group" id="type-filters">
+    <button class="fbtn active" data-type="all" onclick="setType('all',this)">All types</button>
+    <button class="fbtn" data-type="puzzles" onclick="setType('puzzles',this)">Puzzles</button>
+    <button class="fbtn" data-type="games" onclick="setType('games',this)">Games</button>
+    <button class="fbtn" data-type="interventions" onclick="setType('interventions',this)">Interventions</button>
+    <button class="fbtn" data-type="linked" onclick="setType('linked',this)">Linked only</button>
+    <button class="fbtn" data-type="unlinked" onclick="setType('unlinked',this)">Unlinked only</button>
+  </div>
+  <div class="sep"></div>
+  <input class="search-box" type="text" placeholder="Search skills…" id="search-input" oninput="renderTable()">
+  <div class="legend" style="margin-left:auto">
+    <div class="leg"><span class="leg-chip chip-puz">PUZ</span> Puzzle</div>
+    <div class="leg"><span class="leg-chip chip-game">GAME</span> Game/Tool</div>
+    <div class="leg"><span class="leg-chip chip-int">INT</span> Intervention</div>
+  </div>
+</div>
+
+<!-- Main Table -->
+<div id="main-content"></div>
+
+<!-- Add/Edit Resource Modal -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-skill-name">Add Resource</div>
+    <div class="modal-sub" id="modal-skill-sub"></div>
+    <div class="form-group">
+      <div class="form-label">Resource Type</div>
+      <div class="type-selector">
+        <div class="type-opt" id="opt-puz" onclick="selectType('puzzles')">🧩 Puzzle</div>
+        <div class="type-opt" id="opt-game" onclick="selectType('games')">🎮 Game / Tool</div>
+        <div class="type-opt" id="opt-int" onclick="selectType('interventions')">🎯 Intervention</div>
+      </div>
+    </div>
+    <div class="form-group" id="id-group">
+      <label class="form-label" id="id-label">Puzzle Type</label>
+      <select class="form-select" id="res-id-select" onchange="onIdChange()">
+        <option value="">— select —</option>
+      </select>
+      <input class="form-input" id="res-id-text" placeholder="Resource ID (e.g. myGame)" style="display:none;margin-top:6px">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Label (display name)</label>
+      <input class="form-input" id="res-label" placeholder="e.g. TTT Winning Move">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="res-notes" placeholder="e.g. Beast Academy 4C, target first-time exposure">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveResource()">Add Resource</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export Panel -->
+<div class="export-panel hidden" id="export-panel">
+  <div class="export-box">
+    <div class="export-title">Export — skill_resources.js</div>
+    <div class="export-sub">Copy the block below and replace SKILL_RESOURCES in skill_resources.js</div>
+    <div class="export-code" id="export-code"></div>
+    <div class="export-actions">
+      <button class="btn-copy" onclick="copyExport()">Copy to clipboard</button>
+      <button class="btn-close-export" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SKILL LIST ────────────────────────────────────────────────────────────────
+// [grade, week, canonicalName]
+const SKILLS_RAW = [
+  ['5', 1,  'Multidigit addition'],
+  ['5', 2,  'Multidigit subtraction'],
+  ['5', 3,  'Multiplication facts (to 36)'],
+  ['5', 4,  'Multiplication facts (to 81)'],
+  ['5', 5,  'Division facts'],
+  ['5', 6,  'Division facts (continued)'],
+  ['5', 7,  'Long multiplication'],
+  ['5', 8,  'Long division'],
+  ['5', 9,  'Perfect squares (to 100)'],
+  ['5', 10, 'Area of a rectangle'],
+  ['5', 11, 'Area vs. perimeter'],
+  ['5', 12, 'Area of parallelograms'],
+  ['5', 13, 'Area of triangle — right triangles'],
+  ['5', 14, 'Area of a triangle — all triangles'],
+  ['5', 15, 'Decimal addition ($)'],
+  ['5', 16, 'Decimal subtraction ($)'],
+  ['5', 17, 'Decimal add/subtract'],
+  ['5', 18, 'Decimal multiplication'],
+  ['5', 19, 'Decimal multiplication (continued)'],
+  ['5', 20, 'Decimal division'],
+  ['5', 21, 'Decimal division (continued)'],
+  ['5', 22, 'Equivalent fractions'],
+  ['5', 23, 'Mixed/improper fractions'],
+  ['5', 24, 'Fraction addition — like denominators'],
+  ['5', 25, 'Fraction subtraction — like denominators'],
+  ['5', 26, 'Fraction addition — level 1 unlike'],
+  ['5', 27, 'Fraction subtraction — level 1 unlike'],
+  ['5', 28, 'Fraction multiplication'],
+  ['5', 29, 'Fraction division'],
+  ['5', 30, 'Fraction division (continued)'],
+  ['6', 1,  'Perfect squares (to 144)'],
+  ['6', 2,  'Evaluating exponents'],
+  ['6', 3,  'Factor trees / prime factorization'],
+  ['6', 4,  'Order of operations with parentheses'],
+  ['6', 5,  'Order of operations with exponents'],
+  ['6', 6,  'Decimal computation +/−'],
+  ['6', 7,  'Decimal computation ×/÷'],
+  ['6', 8,  'Fraction computation +/−'],
+  ['6', 9,  'Fraction computation ×/÷'],
+  ['6', 10, 'Fractions to percents'],
+  ['6', 11, 'Decimals to percents'],
+  ['6', 12, 'Benchmark percents (1, 5, 10, 20)'],
+  ['6', 13, 'Benchmark percents (25, 40, 50, 60, 75, 80)'],
+  ['6', 14, 'Order of operations — four operations'],
+  ['6', 15, 'Integer addition'],
+  ['6', 16, 'Integer addition (beat score)'],
+  ['6', 17, 'Integer subtraction'],
+  ['6', 18, 'Integer subtraction (beat score)'],
+  ['6', 19, 'Integer addition/subtraction mixed'],
+  ['6', 20, 'Integer multiplication'],
+  ['6', 21, 'Integer multiplication (beat score)'],
+  ['6', 22, 'Integer division'],
+  ['6', 23, 'Integer division (beat score)'],
+  ['6', 24, 'Coordinate plane — graph points'],
+  ['6', 25, 'Expressions — evaluate'],
+  ['6', 26, 'Expressions — add/sub like terms'],
+  ['6', 27, 'Expressions — scale an expression'],
+  ['6', 28, 'One-step equations (whole numbers)'],
+  ['6', 29, 'One-step equations (all)'],
+  ['6', 30, 'Two-step equations (easy)'],
+  ['7', 1,  'Integer add/sub'],
+  ['7', 2,  'Integer ×/÷'],
+  ['7', 3,  'Fraction add/sub'],
+  ['7', 4,  'Fraction ×/÷'],
+  ['7', 5,  'Decimal computation'],
+  ['7', 6,  'Expressions'],
+  ['7', 7,  'Two-step equations (easy)'],
+  ['7', 8,  'Two-step equations'],
+  ['7', 9,  'Ratio tables'],
+  ['7', 10, 'Ratios — part:whole'],
+  ['7', 11, 'Unit rate (how much for one)'],
+  ['7', 12, 'Classifying quadrilaterals'],
+  ['7', 13, 'Area — rect, parallelogram, triangle, trapezoid'],
+  ['7', 14, 'Area / compound shapes'],
+  ['7', 15, 'Area / negative space'],
+  ['7', 16, 'Area of circles (in terms of π)'],
+  ['7', 17, 'Area of circles/sectors (in terms of π)'],
+  ['7', 18, 'Circumference of circles (in terms of π)'],
+  ['7', 19, 'Circumference of sectors (in terms of π)'],
+  ['7', 20, 'Complementary/supplementary angles'],
+  ['7', 21, 'Angles in triangles'],
+  ['7', 22, 'Triangle inequality theorem'],
+  ['7', 23, 'Fraction/decimal benchmark percents'],
+  ['7', 24, 'Percent of a number (1, 10, 5, 25, 50)'],
+  ['7', 25, 'Percent of a number (40, 60, 75, 80, 150, 200)'],
+  ['7', 26, 'Percent formula'],
+  ['7', 27, 'Percent change (benchmark)'],
+  ['7', 28, 'Percent change (any)'],
+  ['7', 29, 'Simple probability'],
+  ['7', 30, 'Compound probability'],
+  ['8', 1,  'Integer computation'],
+  ['8', 2,  'Fraction computation'],
+  ['8', 3,  'Decimal computation'],
+  ['8', 4,  'Ratios and rates'],
+  ['8', 5,  'Expressions'],
+  ['8', 6,  'Two-step equations'],
+  ['8', 7,  'Distance, rate, time'],
+  ['8', 8,  'Equations — variables both sides'],
+  ['8', 9,  'Equations — clearing fractions'],
+  ['8', 10, 'Equations — clearing fractions (continued)'],
+  ['8', 11, 'Simple inequalities'],
+  ['8', 12, 'Inequalities — two step'],
+  ['8', 13, 'Evaluate absolute value'],
+  ['8', 14, 'Slope between two points'],
+  ['8', 15, 'Slope from a graph'],
+  ['8', 16, 'Slope-intercept form from a graph'],
+  ['8', 17, 'Graph y = mx + b'],
+  ['8', 18, 'Graph y = mx + b (continued)'],
+  ['8', 19, 'Perfect squares and roots'],
+  ['8', 20, 'Evaluate exponents'],
+  ['8', 21, 'Exponent rules — ×/÷'],
+  ['8', 22, 'Order of operations with exponents'],
+  ['8', 23, 'Solve simple quadratics (x² = 25)'],
+  ['8', 24, 'Pythagorean theorem — solve for hypotenuse'],
+  ['8', 25, 'Pythagorean theorem — solve for leg'],
+  ['8', 26, 'Scientific notation — convert to/from'],
+  ['8', 27, 'Recognize/classify transformations'],
+  ['8', 28, 'Volume — rectangular prisms'],
+  ['8', 29, 'Volume — cylinders'],
+  ['8', 30, 'Volume — cones and spheres (formula match)'],
+];
+
+const PUZZLE_REGISTRY = {
+  sixlegs:        { label: 'Six Legs',            category: 'algebra/expressions' },
+  sankaku:        { label: 'Sankaku',              category: 'geometry/area' },
+  zukei:          { label: 'Zukei',               category: 'geometry/classification' },
+  mazeescape:     { label: 'Maze Escape',          category: 'perfect squares' },
+  arrangingboxes: { label: 'Arranging Boxes',      category: 'perfect squares' },
+  fourthpoint:    { label: 'Fourth Point',         category: 'geometry' },
+  digitdiv:       { label: 'Digit Division',       category: 'division' },
+  divpyramid:     { label: 'Division Pyramid',     category: 'division' },
+  fracpyramid:    { label: 'Fraction Pyramids',    category: 'fractions' },
+  placedecimal:   { label: 'Place Decimal',        category: 'decimals' },
+  frackenken:     { label: 'Fraction KenKen',      category: 'fractions' },
+  twostep:        { label: 'Two-Step',             category: 'mixed/review' },
+  intblobs:       { label: 'Integer Blobs',        category: 'integers/multiplication' },
+  sumsquares:     { label: 'Sum Squares',          category: 'integers/add-sub' },
+  tttwin:         { label: 'TTT Winning Move',     category: 'integers/all-ops' },
+};
+
+// ── SEED DATA (from spreadsheet + session notes) ──────────────────────────────
+const SEED_RESOURCES = {
+  g5w6:  { puzzles:[{id:'divpyramid',label:'Division Pyramid',notes:''}], games:[], interventions:[] },
+  g5w8:  { puzzles:[{id:'digitdiv',label:'Digit Division',notes:''}], games:[], interventions:[] },
+  g5w9:  { puzzles:[{id:'mazeescape',label:'Maze Escape',notes:''},{id:'arrangingboxes',label:'Arranging Boxes',notes:''}], games:[], interventions:[] },
+  g5w14: { puzzles:[{id:'sankaku',label:'Sankaku',notes:''}], games:[], interventions:[] },
+  g5w15: { puzzles:[{id:'placedecimal',label:'Place Decimal',notes:''}], games:[], interventions:[] },
+  g5w16: { puzzles:[{id:'placedecimal',label:'Place Decimal',notes:''}], games:[], interventions:[] },
+  g5w26: { puzzles:[{id:'fracpyramid',label:'Fraction Pyramids',notes:''}], games:[], interventions:[] },
+  g5w27: { puzzles:[{id:'frackenken',label:'Fraction KenKen',notes:''},{id:'fracpyramid',label:'Fraction Pyramids',notes:''}], games:[], interventions:[] },
+  g5w28: { puzzles:[{id:'frackenken',label:'Fraction KenKen',notes:''}], games:[], interventions:[] },
+  g5w29: { puzzles:[{id:'frackenken',label:'Fraction KenKen',notes:''}], games:[], interventions:[] },
+  g5w30: { puzzles:[{id:'twostep',label:'Two-Step (fractions)',notes:''}], games:[], interventions:[] },
+  g6w1:  { puzzles:[{id:'mazeescape',label:'Maze Escape',notes:''},{id:'arrangingboxes',label:'Arranging Boxes',notes:''}], games:[], interventions:[] },
+  g6w8:  { puzzles:[{id:'fracpyramid',label:'Fraction Pyramids',notes:''}], games:[], interventions:[] },
+  g6w15: { puzzles:[{id:'tttwin',label:'TTT Winning Move',notes:''}], games:[], interventions:[] },
+  g6w16: { puzzles:[{id:'tttwin',label:'TTT Winning Move',notes:''}], games:[], interventions:[] },
+  g6w17: { puzzles:[{id:'sumsquares',label:'Sum Squares',notes:'Beast Academy 4C'}], games:[], interventions:[] },
+  g6w18: { puzzles:[{id:'sumsquares',label:'Sum Squares',notes:'Beast Academy 4C'}], games:[], interventions:[] },
+  g6w19: { puzzles:[{id:'sumsquares',label:'Sum Squares',notes:'Beast Academy 4C'}], games:[], interventions:[] },
+  g6w20: { puzzles:[{id:'intblobs',label:'Integer Blobs',notes:'Beast Academy 5A'}], games:[], interventions:[] },
+  g6w21: { puzzles:[{id:'intblobs',label:'Integer Blobs',notes:'Beast Academy 5A'}], games:[], interventions:[] },
+  g6w23: { puzzles:[{id:'twostep',label:'Two-Step (integers)',notes:''}], games:[], interventions:[] },
+  g6w27: { puzzles:[{id:'sixlegs',label:'Six Legs',notes:''}], games:[], interventions:[] },
+  g7w12: { puzzles:[{id:'zukei',label:'Zukei',notes:''}], games:[], interventions:[] },
+  g8w1:  { puzzles:[{id:'twostep',label:'Two-Step',notes:''},{id:'sumsquares',label:'Sum Squares',notes:''},{id:'intblobs',label:'Integer Blobs',notes:''}], games:[], interventions:[] },
+  g8w2:  { puzzles:[{id:'twostep',label:'Two-Step',notes:''},{id:'frackenken',label:'Fraction KenKen',notes:''}], games:[], interventions:[] },
+  g8w3:  { puzzles:[{id:'twostep',label:'Two-Step',notes:''}], games:[], interventions:[] },
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let resources = {}; // keyed g{grade}w{week}
+let filterGrade = 'all';
+let filterType  = 'all';
+let modalSkillKey = null;
+let modalResType  = null;
+
+function skillKey(g, w) { return `g${g}w${w}`; }
+
+function ensureKey(key) {
+  if (!resources[key]) resources[key] = { puzzles:[], games:[], interventions:[] };
+}
+
+function hasAnyResource(key) {
+  const r = resources[key];
+  return r && (r.puzzles.length || r.games.length || r.interventions.length);
+}
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+async function loadState() {
+  try {
+    const r = await window.storage.get('skill_resources_v1');
+    if (r && r.value) {
+      resources = JSON.parse(r.value);
+    } else {
+      resources = JSON.parse(JSON.stringify(SEED_RESOURCES));
+    }
+  } catch(e) {
+    resources = JSON.parse(JSON.stringify(SEED_RESOURCES));
+  }
+}
+
+async function saveState() {
+  try { await window.storage.set('skill_resources_v1', JSON.stringify(resources)); } catch(e) {}
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function setGrade(g, btn) {
+  filterGrade = g;
+  document.querySelectorAll('[data-grade]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+function setType(t, btn) {
+  filterType = t;
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const total = SKILLS_RAW.length;
+  let withPuz = 0, withGame = 0, withInt = 0, withAny = 0;
+  SKILLS_RAW.forEach(([g, w]) => {
+    const k = skillKey(g, w);
+    const r = resources[k] || {};
+    const p = (r.puzzles||[]).length > 0;
+    const gm = (r.games||[]).length > 0;
+    const iv = (r.interventions||[]).length > 0;
+    if (p) withPuz++;
+    if (gm) withGame++;
+    if (iv) withInt++;
+    if (p || gm || iv) withAny++;
+  });
+  document.getElementById('statsbar').innerHTML = `
+    <div class="stat"><div class="stat-val">${total}</div><div class="stat-label">Total<br>Skills</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--fire)">${withAny}</div><div class="stat-label">Skills<br>Linked</div></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--puz-color)"></div>
+      <div class="stat-val" style="color:var(--puz-color)">${withPuz}</div><div class="stat-label">Have<br>Puzzle</div></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--game-color)"></div>
+      <div class="stat-val" style="color:var(--game-color)">${withGame}</div><div class="stat-label">Have<br>Game</div></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--int-color)"></div>
+      <div class="stat-val" style="color:var(--int-color)">${withInt}</div><div class="stat-label">Have<br>Intervention</div></div>
+    <div class="stat" style="margin-left:auto;font-size:11px;color:var(--muted);font-weight:600">
+      Last saved: ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+  `;
+}
+
+function rowVisible(grade, week) {
+  const k = skillKey(grade, week);
+  const r = resources[k] || {};
+  if (filterGrade !== 'all' && grade !== filterGrade) return false;
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  if (q) {
+    const skill = SKILLS_RAW.find(s => s[0] === grade && s[1] === week);
+    if (!skill || !skill[2].toLowerCase().includes(q)) return false;
+  }
+  if (filterType === 'puzzles') return (r.puzzles||[]).length > 0;
+  if (filterType === 'games') return (r.games||[]).length > 0;
+  if (filterType === 'interventions') return (r.interventions||[]).length > 0;
+  if (filterType === 'linked') return hasAnyResource(k);
+  if (filterType === 'unlinked') return !hasAnyResource(k);
+  return true;
+}
+
+const GRADE_HDR_CLASS = { '5':'grade-5-hdr','6':'grade-6-hdr','7':'grade-7-hdr','8':'grade-8-hdr' };
+const GRADE_LABEL = { '5':'Grade 5','6':'Grade 6','7':'Grade 7','8':'Grade 8' };
+
+function renderTable() {
+  const container = document.getElementById('main-content');
+  const grades = ['5','6','7','8'];
+  let html = '';
+
+  grades.forEach(grade => {
+    const rows = SKILLS_RAW.filter(([g,w]) => rowVisible(g, w) && g === grade);
+    if (rows.length === 0) return;
+
+    // count linked in this grade
+    const gradeAll = SKILLS_RAW.filter(s => s[0] === grade);
+    const linkedCount = gradeAll.filter(([g,w]) => hasAnyResource(skillKey(g,w))).length;
+
+    html += `<div class="grade-section">
+      <div class="grade-header ${GRADE_HDR_CLASS[grade]}">
+        ${GRADE_LABEL[grade]}
+        <span class="grade-badge-count">${linkedCount} / ${gradeAll.length} skills linked</span>
+      </div>
+      <table class="skills-table">`;
+
+    rows.forEach(([g, w, name]) => {
+      const k = skillKey(g, w);
+      const r = resources[k] || { puzzles:[], games:[], interventions:[] };
+      const anyRes = r.puzzles.length || r.games.length || r.interventions.length;
+
+      const puzzleChips = r.puzzles.map((p, i) =>
+        `<span class="chip chip-puz" title="${p.notes||''}">🧩 ${p.label}
+          <span class="chip-remove" onclick="removeResource('${k}','puzzles',${i},event)">✕</span>
+        </span>`
+      ).join('');
+
+      const gameChips = r.games.map((p, i) =>
+        `<span class="chip chip-game" title="${p.notes||''}">🎮 ${p.label}
+          <span class="chip-remove" onclick="removeResource('${k}','games',${i},event)">✕</span>
+        </span>`
+      ).join('');
+
+      const intChips = r.interventions.map((p, i) =>
+        `<span class="chip chip-int" title="${p.notes||''}">🎯 ${p.label}
+          <span class="chip-remove" onclick="removeResource('${k}','interventions',${i},event)">✕</span>
+        </span>`
+      ).join('');
+
+      html += `<tr class="skill-row${anyRes?' has-resources':''}">
+        <td class="wk-cell">W${w}</td>
+        <td class="skill-cell">
+          ${name}
+          <span class="skill-key">${k}</span>
+        </td>
+        <td class="res-cell">
+          <div class="chips">
+            ${puzzleChips}${gameChips}${intChips}
+            <button class="add-btn" onclick="openModal('${k}','${name}')">+ Add</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+
+    html += `</table></div>`;
+  });
+
+  if (!html) html = `<div style="padding:40px;text-align:center;color:var(--muted);font-size:14px">No skills match the current filters.</div>`;
+  container.innerHTML = html;
+}
+
+// ── REMOVE RESOURCE ───────────────────────────────────────────────────────────
+function removeResource(key, type, idx, evt) {
+  evt.stopPropagation();
+  ensureKey(key);
+  resources[key][type].splice(idx, 1);
+  saveState();
+  renderTable();
+  renderStats();
+  toast('Resource removed');
+}
+
+// ── ADD MODAL ─────────────────────────────────────────────────────────────────
+function openModal(key, name) {
+  modalSkillKey = key;
+  const g = key.replace(/g(\d+)w\d+/, '$1');
+  const w = key.replace(/g\d+w(\d+)/, '$1');
+  document.getElementById('modal-skill-name').textContent = name;
+  document.getElementById('modal-skill-sub').textContent = `Grade ${g} · Week ${w} · ${key}`;
+  document.getElementById('res-label').value = '';
+  document.getElementById('res-notes').value = '';
+  document.getElementById('res-id-text').value = '';
+  selectType('puzzles');
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal(evt) {
+  if (evt && evt.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.add('hidden');
+  modalSkillKey = null;
+}
+
+function selectType(type) {
+  modalResType = type;
+  ['puz','game','int'].forEach(k => document.getElementById('opt-'+k).className = 'type-opt');
+  const map = { puzzles:'puz', games:'game', interventions:'int' };
+  document.getElementById('opt-'+map[type]).className = `type-opt sel-${map[type]}`;
+
+  const select = document.getElementById('res-id-select');
+  const textIn = document.getElementById('res-id-text');
+  const idLabel = document.getElementById('id-label');
+
+  if (type === 'puzzles') {
+    idLabel.textContent = 'Puzzle Type';
+    select.style.display = '';
+    textIn.style.display = 'none';
+    select.innerHTML = '<option value="">— select puzzle type —</option>' +
+      Object.entries(PUZZLE_REGISTRY).map(([id, p]) =>
+        `<option value="${id}">${p.label} (${p.category})</option>`
+      ).join('');
+  } else if (type === 'games') {
+    idLabel.textContent = 'Game / Tool ID';
+    select.style.display = 'none';
+    textIn.style.display = '';
+    textIn.placeholder = 'e.g. integerRace';
+  } else {
+    idLabel.textContent = 'Intervention ID';
+    select.style.display = 'none';
+    textIn.style.display = '';
+    textIn.placeholder = 'e.g. numberLineScaffold';
+  }
+  document.getElementById('res-label').value = '';
+}
+
+function onIdChange() {
+  const val = document.getElementById('res-id-select').value;
+  if (val && PUZZLE_REGISTRY[val]) {
+    document.getElementById('res-label').value = PUZZLE_REGISTRY[val].label;
+  }
+}
+
+function saveResource() {
+  if (!modalSkillKey || !modalResType) return;
+  const isSelect = modalResType === 'puzzles';
+  const id = isSelect
+    ? document.getElementById('res-id-select').value
+    : document.getElementById('res-id-text').value.trim();
+  const label = document.getElementById('res-label').value.trim();
+  const notes = document.getElementById('res-notes').value.trim();
+
+  if (!id) { toast('Please select or enter a resource ID'); return; }
+  if (!label) { toast('Please enter a display label'); return; }
+
+  ensureKey(modalSkillKey);
+  resources[modalSkillKey][modalResType].push({ id, label, notes });
+  saveState();
+  renderTable();
+  renderStats();
+  document.getElementById('modal-overlay').classList.add('hidden');
+  toast('Resource added ✓');
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function openExport() {
+  const lines = ['const SKILL_RESOURCES = {'];
+  const gradeOrder = ['5','6','7','8'];
+  gradeOrder.forEach((grade, gi) => {
+    lines.push(`\n  // ── GRADE ${grade} ──`);
+    SKILLS_RAW.filter(s => s[0] === grade).forEach(([g, w, name]) => {
+      const k = skillKey(g, w);
+      const r = resources[k];
+      if (!r || (!r.puzzles.length && !r.games.length && !r.interventions.length)) return;
+      const pArr = JSON.stringify(r.puzzles);
+      const gArr = JSON.stringify(r.games);
+      const iArr = JSON.stringify(r.interventions);
+      lines.push(`  ${k}: {`);
+      lines.push(`    skill: '${name.replace(/'/g,"\\'")}',`);
+      lines.push(`    grade: '${g}', week: ${w},`);
+      lines.push(`    puzzles: ${pArr},`);
+      lines.push(`    games: ${gArr},`);
+      lines.push(`    interventions: ${iArr}`);
+      lines.push(`  },`);
+    });
+  });
+  lines.push('};');
+
+  document.getElementById('export-code').textContent = lines.join('\n');
+  document.getElementById('export-panel').classList.remove('hidden');
+}
+
+function closeExport() {
+  document.getElementById('export-panel').classList.add('hidden');
+}
+
+function copyExport() {
+  const text = document.getElementById('export-code').textContent;
+  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard ✓')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('Copied to clipboard ✓');
+  });
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async function init() {
+  await loadState();
+  renderStats();
+  renderTable();
+})();
+</script>
+</body>
+</html>
