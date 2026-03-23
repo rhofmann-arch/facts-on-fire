@@ -130,6 +130,55 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
 footer a{color:var(--fire2);text-decoration:none}
 footer a:hover{text-decoration:underline}
 
+/* ── DATA PORTAL GATE ── */
+.portal-band {
+  max-width:960px;margin:0 auto 0;padding-top:32px;
+  border-top:2px solid var(--border);
+}
+.portal-band-label {
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+}
+.portal-band-label-text {
+  font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--ink);letter-spacing:-0.01em;white-space:nowrap;
+}
+.portal-band-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+}
+/* Gate overlay */
+.gate-overlay {
+  position:fixed;inset:0;background:rgba(10,10,20,0.72);backdrop-filter:blur(4px);
+  z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.gate-overlay.open{opacity:1;pointer-events:all;}
+.gate-box {
+  background:#fff;border-radius:20px;padding:40px 44px;max-width:420px;width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.3);text-align:center;
+  transform:translateY(16px);transition:transform .22s;
+}
+.gate-overlay.open .gate-box{transform:translateY(0);}
+.gate-icon{font-size:2.8rem;margin-bottom:12px;}
+.gate-title{font-family:'Archivo Black',sans-serif;font-size:1.5rem;color:var(--ink);margin-bottom:6px;}
+.gate-sub{font-size:.88rem;color:var(--muted);line-height:1.6;margin-bottom:24px;}
+.gate-input{
+  width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:10px;
+  font-family:'Archivo',sans-serif;font-size:1rem;color:var(--ink);outline:none;
+  text-align:center;letter-spacing:.12em;font-weight:700;
+  transition:border-color .15s;margin-bottom:14px;
+}
+.gate-input:focus{border-color:var(--fire);}
+.gate-input.error{border-color:#EF4444;animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.gate-btn{
+  width:100%;padding:13px;background:var(--fire);color:#fff;border:none;
+  border-radius:10px;font-family:'Archivo Black',sans-serif;font-size:1rem;
+  cursor:pointer;transition:background .15s;
+}
+.gate-btn:hover{background:#e04400;}
+.gate-error{font-size:.82rem;color:#EF4444;margin-top:8px;min-height:18px;font-weight:600;}
+.gate-footer{font-size:.75rem;color:var(--muted);margin-top:20px;line-height:1.6;}
+.gate-footer strong{color:var(--ink);}
+
 @media(max-width:720px){
   header{padding:0 20px}
   .hero{padding:48px 20px 56px}
@@ -138,6 +187,7 @@ footer a:hover{text-decoration:underline}
   .hub{padding:40px 20px 60px}
   .hub-grid{grid-template-columns:1fr;max-width:100%}
   .panel{padding:32px 20px 80px}
+  .portal-band-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -242,6 +292,39 @@ footer a:hover{text-decoration:underline}
         <div class="hub-desc">Scope &amp; sequence tracker and implementation tools for middle school teachers and coaches.</div>
         <span class="hub-count">Planning &amp; Tracking</span>
       </div>
+    </div>
+  </div>
+
+  <!-- ── DATA PORTAL BAND ── -->
+  <div class="portal-band">
+    <div class="portal-band-label">
+      <div class="portal-band-label-text">🔒 Teacher Data Portal</div>
+      <div style="flex:1;height:2px;background:var(--border);"></div>
+      <div style="font-size:.75rem;font-weight:700;color:var(--muted);white-space:nowrap;padding-left:14px;">School staff only · Password required</div>
+    </div>
+    <div class="portal-band-grid">
+
+      <div class="hub-card hc-lock" onclick="openPortalGate('roster')" style="cursor:pointer;">
+        <div class="hub-ico">👩‍🏫</div>
+        <div class="hub-label">Class Rosters</div>
+        <div class="hub-desc">Manage class rosters, assign skills, track student progress toward mastery, and enter probe scores.</div>
+        <span class="hub-count">Roster Portal · Staff Only</span>
+      </div>
+
+      <div class="hub-card hc-lock" onclick="openPortalGate('probes')" style="cursor:pointer;">
+        <div class="hub-ico">📄</div>
+        <div class="hub-label">Generate Probe Sets</div>
+        <div class="hub-desc">Create differentiated probe and target practice sets for a whole class — one page per skill group, with a cover sheet and score column.</div>
+        <span class="hub-count">Differentiated · Staff Only</span>
+      </div>
+
+      <div class="hub-card hc-lock" style="opacity:.6;cursor:default;">
+        <div class="hub-ico">📊</div>
+        <div class="hub-label">School-Wide Dashboard <span style="font-size:.65rem;background:var(--lock-lt);color:var(--lock);padding:2px 7px;border-radius:10px;font-weight:700;vertical-align:middle;margin-left:4px;">Soon</span></div>
+        <div class="hub-desc">Mastery rates by class, grade, and skill. Coach view with exportable summaries and at-a-glance student flags.</div>
+        <span class="hub-count">Coming after Phase 3</span>
+      </div>
+
     </div>
   </div>
 
@@ -767,11 +850,41 @@ footer a:hover{text-decoration:underline}
   </section>
 </div>
 
+<!-- ── PASSWORD GATE MODAL ── -->
+<div class="gate-overlay" id="gate-overlay" onclick="handleGateBackdrop(event)">
+  <div class="gate-box" id="gate-box">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-title">Teacher Portal</div>
+    <div class="gate-sub">
+      This area contains class rosters and student data.<br>
+      Enter the school access code to continue.
+    </div>
+    <input
+      class="gate-input"
+      id="gate-input"
+      type="password"
+      placeholder="Access code"
+      autocomplete="off"
+      onkeydown="if(event.key==='Enter') submitGate()"
+    >
+    <div class="gate-error" id="gate-error"></div>
+    <button class="gate-btn" onclick="submitGate()">Enter Portal</button>
+    <div class="gate-footer">
+      <strong>For school staff only.</strong><br>
+      Contact your site coordinator for the access code.<br>
+      <span style="margin-top:6px;display:block;font-size:.7rem;color:#bbb;">
+        Phase 2: Google Workspace sign-in will replace this passcode.
+      </span>
+    </div>
+  </div>
+</div>
+
 <footer>
   <p>Facts on Fire is based on the <a href="https://brianponcy.wixsite.com/my-site-2/m-i-n-d-2-0-facts-on-fire" target="_blank">M.I.N.D. 2.0 program</a> by Brian Poncy. All materials free for classroom use.</p>
 </footer>
 
 <script>
+// ── Hub navigation ─────────────────────────────────────────────────────────────
 function showHub(){
   document.getElementById('hub').style.display='';
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -786,6 +899,67 @@ function showPanel(id){
 // Support direct hash links
 const hash=location.hash.replace('#','');
 if(['workbooks','practice','resources','ms-practice','ms-workbooks','ms-resources'].includes(hash))showPanel(hash);
+
+// ── Portal password gate ───────────────────────────────────────────────────────
+// Change PORTAL_CODE to your school's chosen passcode.
+// This is a low-security deterrent — NOT a substitute for proper auth.
+// Replace with Google OAuth domain check when Sheets integration is wired up.
+const PORTAL_CODE = 'facts2025';
+
+// Where to navigate after successful auth
+const PORTAL_DESTINATIONS = {
+  roster: 'class_roster_portal.html',
+  probes: 'differentiated_probe_generator.html',
+};
+
+let pendingDestination = null;
+
+function openPortalGate(destination) {
+  // Check if already authenticated this session
+  if (sessionStorage.getItem('portal_auth') === 'ok') {
+    navigateToPortal(destination);
+    return;
+  }
+  pendingDestination = destination;
+  const overlay = document.getElementById('gate-overlay');
+  const input   = document.getElementById('gate-input');
+  const errEl   = document.getElementById('gate-error');
+  errEl.textContent = '';
+  input.value = '';
+  input.classList.remove('error');
+  overlay.classList.add('open');
+  setTimeout(() => input.focus(), 200);
+}
+
+function submitGate() {
+  const input = document.getElementById('gate-input');
+  const errEl = document.getElementById('gate-error');
+  const entered = input.value.trim();
+
+  if (entered === PORTAL_CODE) {
+    sessionStorage.setItem('portal_auth', 'ok');
+    closeGate();
+    navigateToPortal(pendingDestination);
+  } else {
+    input.classList.add('error');
+    errEl.textContent = 'Incorrect access code. Try again.';
+    input.value = '';
+    setTimeout(() => input.classList.remove('error'), 400);
+  }
+}
+
+function closeGate() {
+  document.getElementById('gate-overlay').classList.remove('open');
+}
+
+function handleGateBackdrop(e) {
+  if (e.target === document.getElementById('gate-overlay')) closeGate();
+}
+
+function navigateToPortal(destination) {
+  const url = PORTAL_DESTINATIONS[destination];
+  if (url) window.location.href = url;
+}
 </script>
 </body>
 </html>
