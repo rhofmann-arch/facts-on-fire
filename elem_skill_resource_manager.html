@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Resource Manager — Elementary Automaticity</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fire: #FF4F00; --ember: #FFF0EB;
+  --ink: #1A1A1A; --muted: #6B7280;
+  --surf: #FFFFFF; --bg: #F5F4F1; --border: #E2E0DB;
+  --puz-color: #7C3AED; --puz-bg: #F5F3FF;
+  --game-color: #065F46; --game-bg: #ECFDF5;
+  --int-color: #92400E; --int-bg: #FFFBEB;
+  --font-head: 'Archivo Black', sans-serif;
+  --font-body: 'Archivo', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: var(--font-body); color: var(--ink); min-height: 100vh; }
+
+/* TOP BAR */
+.topbar {
+  background: var(--ink); color: #fff; padding: 14px 24px;
+  display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.topbar-title { font-family: var(--font-head); font-size: 16px; }
+.topbar-sub { font-size: 12px; color: #aaa; font-weight: 500; }
+.topbar-spacer { flex: 1; }
+.topbar-btns { display: flex; gap: 8px; }
+.btn-topbar {
+  color: #fff; border: 1.5px solid rgba(255,255,255,.25); background: transparent;
+  padding: 7px 14px; border-radius: 7px; font-family: var(--font-body);
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: .15s;
+}
+.btn-topbar:hover { border-color: #fff; background: rgba(255,255,255,.1); }
+.btn-topbar.fire { background: var(--fire); border-color: var(--fire); }
+.btn-topbar.fire:hover { background: #e04400; }
+
+/* STATS BAR */
+.statsbar {
+  background: var(--surf); border-bottom: 1px solid var(--border);
+  padding: 10px 24px; display: flex; gap: 28px; align-items: center; flex-wrap: wrap;
+}
+.stat { display: flex; align-items: center; gap: 8px; }
+.stat-val { font-family: var(--font-head); font-size: 22px; }
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); line-height: 1.2; }
+.stat-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* CONTROLS */
+.controls {
+  padding: 10px 24px; display: flex; gap: 10px; align-items: center;
+  flex-wrap: wrap; background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.filter-group { display: flex; gap: 4px; flex-wrap: wrap; }
+.fbtn {
+  padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surf); font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  cursor: pointer; color: var(--muted); transition: .12s;
+}
+.fbtn.active, .fbtn:hover { border-color: var(--fire); color: var(--fire); background: var(--ember); }
+.sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+.search-box {
+  padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 6px;
+  font-family: var(--font-body); font-size: 12px; background: var(--surf); color: var(--ink); width: 200px;
+}
+.search-box:focus { outline: none; border-color: var(--fire); }
+.legend { display: flex; gap: 14px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.leg-chip { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+
+/* GRADE SECTIONS */
+.grade-section { margin: 0; }
+.grade-header {
+  padding: 10px 24px 8px; font-family: var(--font-head); font-size: 13px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 57px; z-index: 50; border-bottom: 2px solid;
+}
+.grade-K-hdr  { background: #C04000; color: #fff; border-color: #C04000; }
+.grade-1-hdr  { background: #005A52; color: #fff; border-color: #005A52; }
+.grade-2-hdr  { background: #1E40AF; color: #fff; border-color: #1E40AF; }
+.grade-3-hdr  { background: #92400E; color: #fff; border-color: #92400E; }
+.grade-4-hdr  { background: #5B21B6; color: #fff; border-color: #5B21B6; }
+.grade-badge-count { font-family: var(--font-body); font-size: 11px; font-weight: 600; opacity: .75; }
+
+/* SKILLS TABLE */
+.skills-table { width: 100%; border-collapse: collapse; }
+.skill-row { border-bottom: 1px solid var(--border); background: var(--surf); transition: background .1s; }
+.skill-row:hover { background: #FAFAF9; }
+.skill-row.has-resources { background: #FDFCFB; }
+.skill-row td { padding: 9px 12px; vertical-align: middle; }
+.wk-cell { width: 44px; text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); font-family: 'Courier New', monospace; }
+.skill-name-cell { min-width: 220px; font-size: 13px; font-weight: 500; color: var(--ink); }
+.skill-key { font-family: 'Courier New', monospace; font-size: 10px; color: #bbb; display: block; }
+.pool-badge {
+  font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; display: inline-block; margin-top: 2px;
+  background: #F3F4F6; color: var(--muted); border: 1px solid var(--border);
+}
+.res-cell { vertical-align: middle; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; padding: 2px 8px 2px 6px;
+  border-radius: 4px; cursor: default; transition: .12s; border: 1.5px solid transparent;
+}
+.chip-puz { background: var(--puz-bg); color: var(--puz-color); border-color: #DDD6FE; }
+.chip-game { background: var(--game-bg); color: var(--game-color); border-color: #A7F3D0; }
+.chip-int { background: var(--int-bg); color: var(--int-color); border-color: #FDE68A; }
+.chip-remove {
+  width: 13px; height: 13px; border-radius: 50%; display: inline-flex; align-items: center;
+  justify-content: center; font-size: 9px; opacity: .45; font-weight: 900; cursor: pointer;
+}
+.chip-remove:hover { opacity: 1; }
+.add-btn {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  background: none; border: 1.5px dashed var(--border);
+  padding: 2px 8px; border-radius: 4px; cursor: pointer; transition: .12s;
+}
+.add-btn:hover { border-color: var(--fire); color: var(--fire); background: var(--ember); }
+
+/* REGISTRY PANEL (slide-in) */
+.registry-panel {
+  position: fixed; inset: 0 0 0 auto; width: 420px; background: var(--surf);
+  box-shadow: -4px 0 24px rgba(0,0,0,.18); z-index: 150;
+  display: flex; flex-direction: column; transition: transform .25s ease;
+}
+.registry-panel.hidden { transform: translateX(420px); }
+.reg-header {
+  background: var(--ink); color: #fff; padding: 16px 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.reg-title { font-family: var(--font-head); font-size: 14px; flex: 1; }
+.reg-close {
+  background: none; border: none; color: #aaa; font-size: 18px; cursor: pointer; line-height: 1;
+}
+.reg-close:hover { color: #fff; }
+.reg-tabs { display: flex; border-bottom: 2px solid var(--border); }
+.reg-tab {
+  flex: 1; padding: 9px; text-align: center; font-size: 12px; font-weight: 700;
+  cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: .12s;
+}
+.reg-tab.active { color: var(--fire); border-bottom-color: var(--fire); }
+.reg-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.reg-list { list-style: none; margin-bottom: 16px; }
+.reg-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: #FAFAFA; border: 1px solid var(--border); border-radius: 7px; margin-bottom: 6px;
+}
+.reg-item-id { font-family: 'Courier New', monospace; font-size: 10px; color: #bbb; min-width: 80px; }
+.reg-item-label { font-size: 12px; font-weight: 700; color: var(--ink); flex: 1; }
+.reg-item-cat { font-size: 10px; color: var(--muted); }
+.reg-item-del {
+  background: none; border: none; color: #ccc; cursor: pointer; font-size: 14px; line-height: 1;
+}
+.reg-item-del:hover { color: #EF4444; }
+.reg-add-form {
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 14px;
+}
+.reg-add-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 10px; }
+.reg-field { margin-bottom: 10px; }
+.reg-label { display: block; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.reg-input, .reg-select {
+  width: 100%; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px;
+  font-family: var(--font-body); font-size: 12px; background: var(--surf); color: var(--ink);
+}
+.reg-input:focus, .reg-select:focus { outline: none; border-color: var(--fire); }
+.btn-reg-add {
+  width: 100%; padding: 8px; background: var(--fire); color: #fff; border: none;
+  border-radius: 6px; font-family: var(--font-body); font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.btn-reg-add:hover { background: #e04400; }
+.reg-pool-checks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pool-check { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ink); cursor: pointer; }
+.pool-check input { cursor: pointer; }
+
+/* ADD RESOURCE MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: var(--surf); border-radius: 12px; padding: 24px;
+  max-width: 460px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,.2);
+}
+.modal-title { font-family: var(--font-head); font-size: 16px; margin-bottom: 3px; }
+.modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 5px; }
+.form-select, .form-input {
+  width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
+  border-radius: 7px; font-family: var(--font-body); font-size: 13px; background: var(--surf); color: var(--ink);
+}
+.form-select:focus, .form-input:focus { outline: none; border-color: var(--fire); }
+.type-selector { display: flex; gap: 8px; }
+.type-opt {
+  flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 7px;
+  text-align: center; cursor: pointer; font-size: 12px; font-weight: 700; transition: .12s; color: var(--muted);
+}
+.type-opt:hover { border-color: var(--muted); }
+.type-opt.sel-puz  { border-color: var(--puz-color); background: var(--puz-bg); color: var(--puz-color); }
+.type-opt.sel-game { border-color: var(--game-color); background: var(--game-bg); color: var(--game-color); }
+.type-opt.sel-int  { border-color: var(--int-color); background: var(--int-bg); color: var(--int-color); }
+.modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.btn-primary {
+  flex: 1; padding: 9px; background: var(--fire); color: #fff; border: none;
+  border-radius: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-primary:hover { background: #e04400; }
+.btn-secondary {
+  padding: 9px 16px; background: transparent; color: var(--muted);
+  border: 1.5px solid var(--border); border-radius: 7px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-secondary:hover { border-color: var(--muted); color: var(--ink); }
+
+/* EXPORT PANEL */
+.export-panel {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.export-panel.hidden { display: none; }
+.export-box {
+  background: var(--ink); border-radius: 12px; padding: 24px;
+  max-width: 720px; width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,.5);
+}
+.export-title { font-family: var(--font-head); font-size: 15px; color: #fff; margin-bottom: 4px; }
+.export-sub { font-size: 12px; color: #aaa; margin-bottom: 14px; }
+.export-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.exp-tab {
+  padding: 5px 12px; border: 1.5px solid #444; border-radius: 5px;
+  font-size: 11px; font-weight: 700; color: #aaa; cursor: pointer; transition: .12s;
+}
+.exp-tab.active { border-color: var(--fire); color: var(--fire); background: rgba(255,79,0,.1); }
+.export-code {
+  background: #0D0D0D; border-radius: 8px; padding: 14px;
+  font-family: 'Courier New', monospace; font-size: 11px; color: #7DD3FC;
+  max-height: 360px; overflow-y: auto; white-space: pre; line-height: 1.6; border: 1px solid #333;
+}
+.export-actions { display: flex; gap: 10px; margin-top: 14px; }
+.btn-copy {
+  flex: 1; padding: 9px; background: var(--fire); color: #fff; border: none;
+  border-radius: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-copy:hover { background: #e04400; }
+.btn-close-export {
+  padding: 9px 16px; background: transparent; color: #aaa;
+  border: 1.5px solid #444; border-radius: 7px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.btn-close-export:hover { border-color: #aaa; color: #fff; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+  padding: 10px 20px; border-radius: 8px; z-index: 500;
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">Skill Resource Manager</div>
+    <div class="topbar-sub">Elementary Automaticity — Facts on Fire / M.I.N.D. 2.0 · Grades K–4</div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-btns">
+    <button class="btn-topbar" onclick="openRegistry()">⚙ Manage Registries</button>
+    <button class="btn-topbar fire" onclick="openExport()">⬆ Export .js</button>
+  </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="statsbar" id="statsbar"></div>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="filter-group" id="grade-filters">
+    <button class="fbtn active" data-grade="all" onclick="setGrade('all',this)">All grades</button>
+    <button class="fbtn" data-grade="K"  onclick="setGrade('K',this)"  style="border-color:#FFD0B5;color:#C04000">Grade K</button>
+    <button class="fbtn" data-grade="1"  onclick="setGrade('1',this)"  style="border-color:#99DBD5;color:#005A52">Grade 1</button>
+    <button class="fbtn" data-grade="2"  onclick="setGrade('2',this)"  style="border-color:#BFDBFE;color:#1E40AF">Grade 2</button>
+    <button class="fbtn" data-grade="3"  onclick="setGrade('3',this)"  style="border-color:#FDE68A;color:#92400E">Grade 3</button>
+    <button class="fbtn" data-grade="4"  onclick="setGrade('4',this)"  style="border-color:#DDD6FE;color:#5B21B6">Grade 4</button>
+  </div>
+  <div class="sep"></div>
+  <div class="filter-group" id="type-filters">
+    <button class="fbtn active" data-type="all"          onclick="setType('all',this)">All</button>
+    <button class="fbtn"        data-type="puzzles"       onclick="setType('puzzles',this)">Has Puzzle</button>
+    <button class="fbtn"        data-type="games"         onclick="setType('games',this)">Has Game</button>
+    <button class="fbtn"        data-type="interventions" onclick="setType('interventions',this)">Has Intervention</button>
+    <button class="fbtn"        data-type="linked"        onclick="setType('linked',this)">Any resource</button>
+    <button class="fbtn"        data-type="unlinked"      onclick="setType('unlinked',this)">No resources</button>
+  </div>
+  <div class="sep"></div>
+  <input class="search-box" type="text" placeholder="Search skills…" id="search-input" oninput="renderTable()">
+  <div class="legend">
+    <div class="leg"><span class="leg-chip chip-puz">PUZ</span>Puzzle</div>
+    <div class="leg"><span class="leg-chip chip-game">GAME</span>Game</div>
+    <div class="leg"><span class="leg-chip chip-int">INT</span>Intervention</div>
+  </div>
+</div>
+
+<!-- Main Table -->
+<div id="main-content"></div>
+
+<!-- Registry Side Panel -->
+<div class="registry-panel hidden" id="registry-panel">
+  <div class="reg-header">
+    <div class="reg-title">Manage Registries</div>
+    <button class="reg-close" onclick="closeRegistry()">✕</button>
+  </div>
+  <div class="reg-tabs">
+    <div class="reg-tab active" id="rt-puz" onclick="switchRegTab('puz')">🧩 Puzzles</div>
+    <div class="reg-tab" id="rt-int" onclick="switchRegTab('int')">🎯 Interventions</div>
+    <div class="reg-tab" id="rt-game" onclick="switchRegTab('game')">🎮 Games</div>
+  </div>
+  <div class="reg-body">
+    <div id="reg-list-puz">
+      <ul class="reg-list" id="reg-items-puz"></ul>
+      <div class="reg-add-form">
+        <div class="reg-add-title">Add New Puzzle Type</div>
+        <div class="reg-field">
+          <label class="reg-label">ID (machine key, no spaces)</label>
+          <input class="reg-input" id="new-puz-id" placeholder="e.g. divpyramid">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Label (display name)</label>
+          <input class="reg-input" id="new-puz-label" placeholder="e.g. Division Pyramid">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Category</label>
+          <input class="reg-input" id="new-puz-cat" placeholder="e.g. mult/div facts">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Applies to skill pools</label>
+          <div class="reg-pool-checks">
+            <label class="pool-check"><input type="checkbox" value="early"> Early (dot/number writing)</label>
+            <label class="pool-check"><input type="checkbox" value="addsub"> Add/Sub Facts</label>
+            <label class="pool-check"><input type="checkbox" value="multdiv"> Mult/Div Facts</label>
+            <label class="pool-check"><input type="checkbox" value="multidigit"> Multidigit</label>
+          </div>
+        </div>
+        <button class="btn-reg-add" onclick="addPuzzle()">+ Add Puzzle Type</button>
+      </div>
+    </div>
+    <div id="reg-list-int" class="hidden">
+      <ul class="reg-list" id="reg-items-int"></ul>
+      <div class="reg-add-form">
+        <div class="reg-add-title">Add New Intervention Type</div>
+        <div class="reg-field">
+          <label class="reg-label">ID (machine key, no spaces)</label>
+          <input class="reg-input" id="new-int-id" placeholder="e.g. numberlineScaffold">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Label (display name)</label>
+          <input class="reg-input" id="new-int-label" placeholder="e.g. Number Line Scaffold">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Abbreviation (for chips)</label>
+          <input class="reg-input" id="new-int-abbrev" placeholder="e.g. NLS" style="max-width:100px">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Applies to skill pools</label>
+          <div class="reg-pool-checks">
+            <label class="pool-check"><input type="checkbox" value="early"> Early</label>
+            <label class="pool-check"><input type="checkbox" value="addsub"> Add/Sub Facts</label>
+            <label class="pool-check"><input type="checkbox" value="multdiv"> Mult/Div Facts</label>
+            <label class="pool-check"><input type="checkbox" value="multidigit"> Multidigit</label>
+          </div>
+        </div>
+        <button class="btn-reg-add" onclick="addIntervention()">+ Add Intervention Type</button>
+      </div>
+    </div>
+    <div id="reg-list-game" class="hidden">
+      <ul class="reg-list" id="reg-items-game"></ul>
+      <div class="reg-add-form">
+        <div class="reg-add-title">Add New Game / Tool</div>
+        <div class="reg-field">
+          <label class="reg-label">ID</label>
+          <input class="reg-input" id="new-game-id" placeholder="e.g. factRace">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Label</label>
+          <input class="reg-input" id="new-game-label" placeholder="e.g. Fact Race">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Category</label>
+          <input class="reg-input" id="new-game-cat" placeholder="e.g. add/sub fluency">
+        </div>
+        <button class="btn-reg-add" onclick="addGame()">+ Add Game / Tool</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Resource Modal -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-skill-name">Add Resource</div>
+    <div class="modal-sub" id="modal-skill-sub"></div>
+    <div class="form-group">
+      <div class="form-label">Resource Type</div>
+      <div class="type-selector">
+        <div class="type-opt" id="opt-puz"  onclick="selectType('puzzles')">🧩 Puzzle</div>
+        <div class="type-opt" id="opt-game" onclick="selectType('games')">🎮 Game</div>
+        <div class="type-opt" id="opt-int"  onclick="selectType('interventions')">🎯 Intervention</div>
+      </div>
+    </div>
+    <div class="form-group" id="id-group">
+      <label class="form-label" id="id-label">Puzzle Type</label>
+      <select class="form-select" id="res-id-select" onchange="onIdChange()">
+        <option value="">— select —</option>
+      </select>
+      <input class="form-input" id="res-id-text" placeholder="Resource ID" style="display:none;margin-top:6px">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Label (display name)</label>
+      <input class="form-input" id="res-label" placeholder="e.g. Honeycomb Path">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="res-notes" placeholder="e.g. works well mid-unit, Beast Academy reference">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveResource()">Add Resource</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export Panel -->
+<div class="export-panel hidden" id="export-panel">
+  <div class="export-box">
+    <div class="export-title">Export — elem_skill_resources.js</div>
+    <div class="export-sub">Choose a block to copy, then paste into elem_skill_resources.js</div>
+    <div class="export-tabs">
+      <div class="exp-tab active" id="et-resources" onclick="switchExportTab('resources')">SKILL_RESOURCES</div>
+      <div class="exp-tab" id="et-puzzles"   onclick="switchExportTab('puzzles')">PUZZLE_REGISTRY</div>
+      <div class="exp-tab" id="et-int"       onclick="switchExportTab('interventions')">INTERVENTION_REGISTRY</div>
+      <div class="exp-tab" id="et-games"     onclick="switchExportTab('games')">GAME_REGISTRY</div>
+    </div>
+    <div class="export-code" id="export-code"></div>
+    <div class="export-actions">
+      <button class="btn-copy" onclick="copyExport()">Copy to clipboard</button>
+      <button class="btn-close-export" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── SKILL LIST ───────────────────────────────────────────────────────────────
+// [grade, week, canonicalName, puzzlePool]
+const SKILLS_RAW = [
+  ['K', 1,  'Numbers 1–5',                               'none'],
+  ['K', 2,  'Numbers 1–5 (continued)',                   'none'],
+  ['K', 3,  'Dot Numbers',                               'none'],
+  ['K', 4,  'Numbers 6–10',                              'none'],
+  ['K', 5,  'Numbers 6–10 (continued)',                  'none'],
+  ['K', 6,  'Dot Totals',                                'early'],
+  ['K', 7,  'Numbers 11–15',                             'none'],
+  ['K', 8,  'Numbers 11–15 (continued)',                 'none'],
+  ['K', 9,  'Numbers 16–20',                             'none'],
+  ['K', 10, 'Numbers 16–20 (continued)',                 'none'],
+  ['K', 11, 'Sums to 6',                                 'addsub'],
+  ['K', 12, 'Sums to 6 (continued)',                     'addsub'],
+  ['K', 13, 'Sums to 6 (beat score)',                    'addsub'],
+  ['K', 14, 'Sums to 10',                                'addsub'],
+  ['K', 15, 'Sums to 10 (continued)',                    'addsub'],
+  ['K', 16, 'Sums to 10 (beat score)',                   'addsub'],
+  ['K', 17, 'Sums to 10 (beat score continued)',         'addsub'],
+  ['K', 18, 'Subtract from 10',                          'addsub'],
+  ['K', 19, 'Subtract from 10 (continued)',              'addsub'],
+  ['K', 20, 'Subtract from 10 (beat score)',             'addsub'],
+  ['K', 21, 'Subtract from 10 (beat score continued)',   'addsub'],
+  ['K', 22, 'Sums to 18 (intro)',                        'addsub'],
+  ['K', 23, 'Sums to 18',                                'addsub'],
+  ['K', 24, 'Sums to 18 (continued)',                    'addsub'],
+  ['K', 25, 'Sums to 18 (beat score)',                   'addsub'],
+  ['K', 26, 'Subtract from 18 (intro)',                  'addsub'],
+  ['K', 27, 'Subtract from 18',                          'addsub'],
+  ['K', 28, 'Subtract from 18 (continued)',              'addsub'],
+  ['K', 29, 'Mixed add/sub to 18',                       'addsub'],
+  ['K', 30, 'Mixed add/sub review',                      'addsub'],
+  ['1', 1,  'Sums to 10 (review)',                       'addsub'],
+  ['1', 2,  'Subtract from 10 (review)',                 'addsub'],
+  ['1', 3,  'Sums to 18',                                'addsub'],
+  ['1', 4,  'Sums to 18 (continued)',                    'addsub'],
+  ['1', 5,  'Sums to 18 (beat score)',                   'addsub'],
+  ['1', 6,  'Subtract from 18',                          'addsub'],
+  ['1', 7,  'Subtract from 18 (continued)',              'addsub'],
+  ['1', 8,  'Subtract from 18 (beat score)',             'addsub'],
+  ['1', 9,  'Sums to 30',                                'addsub'],
+  ['1', 10, 'Sums to 30 (continued)',                    'addsub'],
+  ['1', 11, 'Sums to 30 (beat score)',                   'addsub'],
+  ['1', 12, 'Subtract from 30',                          'addsub'],
+  ['1', 13, 'Subtract from 30 (continued)',              'addsub'],
+  ['1', 14, 'Subtract from 30 (beat score)',             'addsub'],
+  ['1', 15, 'Mixed add/sub to 18',                       'addsub'],
+  ['1', 16, 'Mixed add/sub to 18 (beat score)',          'addsub'],
+  ['1', 17, 'Mixed add/sub to 30',                       'addsub'],
+  ['1', 18, 'Mixed add/sub to 30 (beat score)',          'addsub'],
+  ['1', 19, 'Sums to 18 (mastery check)',                'addsub'],
+  ['1', 20, 'Subtract from 18 (mastery check)',          'addsub'],
+  ['1', 21, 'Sums to 30 (mastery check)',                'addsub'],
+  ['1', 22, 'Subtract from 30 (mastery check)',          'addsub'],
+  ['1', 23, '3-Digit Addition, No Regrouping',           'multidigit'],
+  ['1', 24, '3-Digit Addition, No Regrouping (cont.)',   'multidigit'],
+  ['1', 25, '3-Digit Subtraction, No Regrouping',        'multidigit'],
+  ['1', 26, '3-Digit Subtraction, No Regrouping (cont.)','multidigit'],
+  ['1', 27, 'Multiplication facts (to 18) intro',        'multdiv'],
+  ['1', 28, 'Multiplication facts (to 18)',               'multdiv'],
+  ['1', 29, 'Division facts (to 18) intro',               'multdiv'],
+  ['1', 30, 'Division facts (to 18)',                     'multdiv'],
+  ['2', 1,  'Sums to 18 (review)',                       'addsub'],
+  ['2', 2,  'Subtract from 18 (review)',                 'addsub'],
+  ['2', 3,  'Sums to 30 (review)',                       'addsub'],
+  ['2', 4,  'Subtract from 30 (review)',                 'addsub'],
+  ['2', 5,  '3-Digit Addition, No Regrouping',           'multidigit'],
+  ['2', 6,  '3-Digit Addition, No Regrouping (cont.)',   'multidigit'],
+  ['2', 7,  '2-Digit Addition, With Regrouping',         'multidigit'],
+  ['2', 8,  '2-Digit Addition, With Regrouping (cont.)', 'multidigit'],
+  ['2', 9,  '3-Digit Addition, With Regrouping',         'multidigit'],
+  ['2', 10, '3-Digit Addition, With Regrouping (cont.)', 'multidigit'],
+  ['2', 11, '3-Digit Subtraction, No Regrouping',        'multidigit'],
+  ['2', 12, '3-Digit Subtraction, No Regrouping (cont.)','multidigit'],
+  ['2', 13, '2-Digit Subtraction, With Regrouping',      'multidigit'],
+  ['2', 14, '2-Digit Subtraction, With Regrouping (cont.)','multidigit'],
+  ['2', 15, '3-Digit Subtraction, With Regrouping',      'multidigit'],
+  ['2', 16, '3-Digit Subtraction, With Regrouping (cont.)','multidigit'],
+  ['2', 17, 'Mixed multidigit add/sub',                  'multidigit'],
+  ['2', 18, 'Mixed multidigit add/sub (beat score)',     'multidigit'],
+  ['2', 19, 'Multiplication facts (to 18)',               'multdiv'],
+  ['2', 20, 'Multiplication facts (to 18) (cont.)',       'multdiv'],
+  ['2', 21, 'Multiplication facts (to 36)',               'multdiv'],
+  ['2', 22, 'Multiplication facts (to 36) (cont.)',       'multdiv'],
+  ['2', 23, 'Multiplication facts (to 36) (beat score)', 'multdiv'],
+  ['2', 24, 'Division facts (to 18)',                     'multdiv'],
+  ['2', 25, 'Division facts (to 18) (cont.)',             'multdiv'],
+  ['2', 26, 'Division facts (to 36)',                     'multdiv'],
+  ['2', 27, 'Division facts (to 36) (cont.)',             'multdiv'],
+  ['2', 28, 'Division facts (to 36) (beat score)',        'multdiv'],
+  ['2', 29, 'Mixed mult/div to 36',                       'multdiv'],
+  ['2', 30, 'Mixed mult/div to 36 (beat score)',          'multdiv'],
+  ['3', 1,  'Multiplication facts (to 36) (review)',     'multdiv'],
+  ['3', 2,  'Division facts (to 36) (review)',            'multdiv'],
+  ['3', 3,  'Multiplication facts (to 49)',               'multdiv'],
+  ['3', 4,  'Multiplication facts (to 49) (cont.)',       'multdiv'],
+  ['3', 5,  'Division facts (to 49)',                     'multdiv'],
+  ['3', 6,  'Division facts (to 49) (cont.)',             'multdiv'],
+  ['3', 7,  'Multiplication facts (to 100)',              'multdiv'],
+  ['3', 8,  'Multiplication facts (to 100) (cont.)',      'multdiv'],
+  ['3', 9,  'Multiplication facts (to 100) (beat score)','multdiv'],
+  ['3', 10, 'Division facts (to 100)',                    'multdiv'],
+  ['3', 11, 'Division facts (to 100) (cont.)',            'multdiv'],
+  ['3', 12, 'Division facts (to 100) (beat score)',       'multdiv'],
+  ['3', 13, 'Mixed mult/div to 100',                      'multdiv'],
+  ['3', 14, 'Mixed mult/div to 100 (beat score)',         'multdiv'],
+  ['3', 15, 'Multiplication facts (to 144)',              'multdiv'],
+  ['3', 16, 'Multiplication facts (to 144) (cont.)',      'multdiv'],
+  ['3', 17, 'Division facts (to 144)',                    'multdiv'],
+  ['3', 18, 'Division facts (to 144) (cont.)',            'multdiv'],
+  ['3', 19, 'Multiplication facts (to 225)',              'multdiv'],
+  ['3', 20, 'Multiplication facts (to 225) (cont.)',      'multdiv'],
+  ['3', 21, 'Division facts (to 225)',                    'multdiv'],
+  ['3', 22, 'Division facts (to 225) (cont.)',            'multdiv'],
+  ['3', 23, 'Multiplication facts (to 400)',              'multdiv'],
+  ['3', 24, 'Multiplication facts (to 400) (cont.)',      'multdiv'],
+  ['3', 25, 'Division facts (to 400)',                    'multdiv'],
+  ['3', 26, 'Division facts (to 400) (cont.)',            'multdiv'],
+  ['3', 27, 'Mixed mult/div to 400',                      'multdiv'],
+  ['3', 28, 'Mixed mult/div to 400 (beat score)',         'multdiv'],
+  ['3', 29, 'Mixed review — all mult/div',                'multdiv'],
+  ['3', 30, 'Mixed review — all mult/div (beat score)',   'multdiv'],
+  ['4', 1,  'Multiplication facts (to 100) (review)',    'multdiv'],
+  ['4', 2,  'Division facts (to 100) (review)',           'multdiv'],
+  ['4', 3,  'Multiplication facts (to 400) (review)',    'multdiv'],
+  ['4', 4,  'Division facts (to 400) (review)',           'multdiv'],
+  ['4', 5,  'Mixed mult/div to 400 (fluency)',            'multdiv'],
+  ['4', 6,  'Mixed mult/div to 400 (beat score)',         'multdiv'],
+  ['4', 7,  '3-Digit Addition, No Regrouping (review)',  'multidigit'],
+  ['4', 8,  '2-Digit Addition, With Regrouping (review)','multidigit'],
+  ['4', 9,  '3-Digit Addition, With Regrouping',         'multidigit'],
+  ['4', 10, '3-Digit Addition, With Regrouping (cont.)', 'multidigit'],
+  ['4', 11, '3-Digit Subtraction, No Regrouping (review)','multidigit'],
+  ['4', 12, '2-Digit Subtraction, With Regrouping (review)','multidigit'],
+  ['4', 13, '3-Digit Subtraction, With Regrouping',      'multidigit'],
+  ['4', 14, '3-Digit Subtraction, With Regrouping (cont.)','multidigit'],
+  ['4', 15, 'Mixed multidigit add/sub',                  'multidigit'],
+  ['4', 16, 'Mixed multidigit add/sub (beat score)',     'multidigit'],
+  ['4', 17, 'Long multiplication',                       'multidigit'],
+  ['4', 18, 'Long multiplication (continued)',            'multidigit'],
+  ['4', 19, 'Long multiplication (beat score)',           'multidigit'],
+  ['4', 20, 'Long division',                              'multidigit'],
+  ['4', 21, 'Long division (continued)',                  'multidigit'],
+  ['4', 22, 'Long division (beat score)',                 'multidigit'],
+  ['4', 23, 'Mixed multidigit computation',               'multidigit'],
+  ['4', 24, 'Mixed multidigit computation (beat score)', 'multidigit'],
+  ['4', 25, 'Multiplication facts to 400 (mastery)',     'multdiv'],
+  ['4', 26, 'Division facts to 400 (mastery)',            'multdiv'],
+  ['4', 27, 'Multidigit addition — fluency review',      'multidigit'],
+  ['4', 28, 'Multidigit subtraction — fluency review',   'multidigit'],
+  ['4', 29, 'Mixed review — all operations',             'multdiv'],
+  ['4', 30, 'Mixed review — all operations (beat score)','multdiv'],
+];
+
+// ─── DEFAULT REGISTRIES (can be extended via UI) ──────────────────────────────
+const DEFAULT_PUZZLE_REGISTRY = {
+  honeycomb:  { label: 'Honeycomb Path',  category: 'add/sub facts',               pool: ['early','addsub'] },
+  crossnum:   { label: 'Cross-Number',    category: 'all types',                   pool: ['early','addsub','multdiv','multidigit'] },
+  maze:       { label: 'Number Maze',     category: 'all types',                   pool: ['early','addsub','multdiv','multidigit'] },
+  triangle:   { label: '100 Triangles',   category: 'add/sub, mult/div',           pool: ['early','addsub','multdiv'] },
+  mismo:      { label: 'Mismo',           category: 'add/sub, mult/div, multidigit', pool: ['addsub','multdiv','multidigit'] },
+  megamismo:  { label: 'Mega Mismo',      category: 'mult/div, multidigit',        pool: ['multdiv','multidigit'] },
+  twoout:     { label: 'Two-Out',         category: 'add/sub, mult/div, multidigit', pool: ['addsub','multdiv','multidigit'] },
+  xout:       { label: 'X-Out',           category: 'add/sub, mult/div',           pool: ['addsub','multdiv'] },
+  factorblob: { label: 'Factor Blob',     category: 'add/sub, mult/div, multidigit', pool: ['addsub','multdiv','multidigit'] },
+  crypto:     { label: 'Cryptarithms',    category: 'multidigit',                  pool: ['multidigit'] },
+};
+
+const DEFAULT_INTERVENTION_REGISTRY = {
+  ccc:           { label: 'Cover-Copy-Compare',  abbrev: 'CCC', applicableTo: ['addsub','multdiv','multidigit'] },
+  factfamilies:  { label: 'Fact Families',        abbrev: 'FF',  applicableTo: ['addsub','multdiv'] },
+  factfamprac:   { label: 'Fact Family Practice', abbrev: 'FFP', applicableTo: ['multdiv'] },
+  tablescaffold: { label: 'Table Scaffold',        abbrev: 'TS',  applicableTo: ['multidigit'] },
+  touchmath:     { label: 'TouchMath',             abbrev: 'TM',  applicableTo: ['addsub'] },
+  warpweft:      { label: 'Warp & Weft',           abbrev: 'WW',  applicableTo: ['addsub'] },
+};
+
+const DEFAULT_GAME_REGISTRY = {};
+
+// ─── POOL LABELS ─────────────────────────────────────────────────────────────
+const POOL_LABELS = {
+  none: 'Number Writing',
+  early: 'Early (dot totals)',
+  addsub: 'Add/Sub Facts',
+  multdiv: 'Mult/Div Facts',
+  multidigit: 'Multidigit',
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let resources     = {};   // g{grade}w{week} → { puzzles, games, interventions }
+let puzzleReg     = {};   // id → { label, category, pool[] }
+let interventionReg = {}; // id → { label, abbrev, applicableTo[] }
+let gameReg       = {};   // id → { label, category }
+let filterGrade   = 'all';
+let filterType    = 'all';
+let modalSkillKey = null;
+let modalResType  = null;
+let currentRegTab = 'puz';
+let currentExpTab = 'resources';
+
+function skillKey(g, w) { return `g${g}w${w}`; }
+function ensureKey(k) {
+  if (!resources[k]) resources[k] = { puzzles:[], games:[], interventions:[] };
+}
+function hasAnyResource(k) {
+  const r = resources[k];
+  return r && (r.puzzles.length || r.games.length || r.interventions.length);
+}
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+async function loadState() {
+  try {
+    const r = await window.storage.get('elem_skill_resources_v1');
+    if (r && r.value) {
+      const saved = JSON.parse(r.value);
+      resources       = saved.resources       || {};
+      puzzleReg       = saved.puzzleReg       || JSON.parse(JSON.stringify(DEFAULT_PUZZLE_REGISTRY));
+      interventionReg = saved.interventionReg || JSON.parse(JSON.stringify(DEFAULT_INTERVENTION_REGISTRY));
+      gameReg         = saved.gameReg         || JSON.parse(JSON.stringify(DEFAULT_GAME_REGISTRY));
+    } else {
+      resources       = {};
+      puzzleReg       = JSON.parse(JSON.stringify(DEFAULT_PUZZLE_REGISTRY));
+      interventionReg = JSON.parse(JSON.stringify(DEFAULT_INTERVENTION_REGISTRY));
+      gameReg         = JSON.parse(JSON.stringify(DEFAULT_GAME_REGISTRY));
+    }
+  } catch(e) {
+    resources = {};
+    puzzleReg = JSON.parse(JSON.stringify(DEFAULT_PUZZLE_REGISTRY));
+    interventionReg = JSON.parse(JSON.stringify(DEFAULT_INTERVENTION_REGISTRY));
+    gameReg   = JSON.parse(JSON.stringify(DEFAULT_GAME_REGISTRY));
+  }
+}
+
+async function saveState() {
+  try {
+    await window.storage.set('elem_skill_resources_v1', JSON.stringify(
+      { resources, puzzleReg, interventionReg, gameReg }
+    ));
+  } catch(e) {}
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function renderStats() {
+  let withPuz=0, withGame=0, withInt=0, withAny=0;
+  SKILLS_RAW.forEach(([g,w]) => {
+    const k = skillKey(g,w);
+    const r = resources[k] || {};
+    if ((r.puzzles||[]).length) withPuz++;
+    if ((r.games||[]).length)   withGame++;
+    if ((r.interventions||[]).length) withInt++;
+    if (hasAnyResource(k)) withAny++;
+  });
+  document.getElementById('statsbar').innerHTML = `
+    <div class="stat"><div class="stat-val">${SKILLS_RAW.length}</div><div class="stat-label">Total<br>Skills</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--fire)">${withAny}</div><div class="stat-label">Skills<br>Linked</div></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--puz-color)"></div>
+      <div class="stat-val" style="color:var(--puz-color)">${withPuz}</div><div class="stat-label">Have<br>Puzzle</div></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--game-color)"></div>
+      <div class="stat-val" style="color:var(--game-color)">${withGame}</div><div class="stat-label">Have<br>Game</div></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--int-color)"></div>
+      <div class="stat-val" style="color:var(--int-color)">${withInt}</div><div class="stat-label">Have<br>Intervention</div></div>
+    <div class="stat" style="margin-left:auto;font-size:11px;color:var(--muted);font-weight:600">
+      Puzzle types: ${Object.keys(puzzleReg).length} &nbsp;·&nbsp;
+      Intervention types: ${Object.keys(interventionReg).length}
+    </div>
+  `;
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function setGrade(g, btn) {
+  filterGrade = g;
+  document.querySelectorAll('[data-grade]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); renderTable();
+}
+function setType(t, btn) {
+  filterType = t;
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); renderTable();
+}
+
+function rowVisible(grade, week) {
+  const k = skillKey(grade, week);
+  const r = resources[k] || {};
+  if (filterGrade !== 'all' && grade !== filterGrade) return false;
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  if (q) {
+    const s = SKILLS_RAW.find(x => x[0]===grade && x[1]===week);
+    if (!s || !s[2].toLowerCase().includes(q)) return false;
+  }
+  if (filterType === 'puzzles') return (r.puzzles||[]).length > 0;
+  if (filterType === 'games')   return (r.games||[]).length > 0;
+  if (filterType === 'interventions') return (r.interventions||[]).length > 0;
+  if (filterType === 'linked')   return hasAnyResource(k);
+  if (filterType === 'unlinked') return !hasAnyResource(k);
+  return true;
+}
+
+// ─── RENDER TABLE ────────────────────────────────────────────────────────────
+const GRADE_HDR_CLASS = { 'K':'grade-K-hdr','1':'grade-1-hdr','2':'grade-2-hdr','3':'grade-3-hdr','4':'grade-4-hdr' };
+
+function renderTable() {
+  const container = document.getElementById('main-content');
+  const grades = ['K','1','2','3','4'];
+  let html = '';
+
+  grades.forEach(grade => {
+    const rows = SKILLS_RAW.filter(([g,w]) => rowVisible(g,w) && g===grade);
+    if (!rows.length) return;
+    const gradeAll = SKILLS_RAW.filter(s => s[0]===grade);
+    const linked = gradeAll.filter(([g,w]) => hasAnyResource(skillKey(g,w))).length;
+
+    html += `<div class="grade-section">
+      <div class="grade-header ${GRADE_HDR_CLASS[grade]}">
+        Grade ${grade}
+        <span class="grade-badge-count">${linked} / ${gradeAll.length} skills linked</span>
+      </div>
+      <table class="skills-table">`;
+
+    rows.forEach(([g, w, name, pool]) => {
+      const k = skillKey(g, w);
+      const r = resources[k] || { puzzles:[], games:[], interventions:[] };
+      const anyRes = r.puzzles.length || r.games.length || r.interventions.length;
+
+      const puzChips = r.puzzles.map((p,i) =>
+        `<span class="chip chip-puz" title="${p.notes||''}">🧩 ${p.label}
+          <span class="chip-remove" onclick="removeResource('${k}','puzzles',${i},event)">✕</span></span>`
+      ).join('');
+      const gameChips = r.games.map((p,i) =>
+        `<span class="chip chip-game" title="${p.notes||''}">🎮 ${p.label}
+          <span class="chip-remove" onclick="removeResource('${k}','games',${i},event)">✕</span></span>`
+      ).join('');
+      const intChips = r.interventions.map((p,i) =>
+        `<span class="chip chip-int" title="${p.notes||''}">🎯 ${p.label}
+          <span class="chip-remove" onclick="removeResource('${k}','interventions',${i},event)">✕</span></span>`
+      ).join('');
+
+      const poolLabel = POOL_LABELS[pool] || pool;
+      const poolClass = pool === 'none' ? '' : 'pool-badge';
+
+      html += `<tr class="skill-row${anyRes?' has-resources':''}">
+        <td class="wk-cell">W${w}</td>
+        <td class="skill-name-cell">
+          ${name}
+          <span class="skill-key">${k}</span>
+          ${poolClass ? `<span class="${poolClass}">${poolLabel}</span>` : ''}
+        </td>
+        <td class="res-cell">
+          <div class="chips">
+            ${puzChips}${gameChips}${intChips}
+            <button class="add-btn" onclick="openModal('${k}','${name.replace(/'/g,"\\'")}','${pool}')">+ Add</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += `</table></div>`;
+  });
+
+  if (!html) html = `<div style="padding:40px;text-align:center;color:var(--muted);font-size:14px">No skills match the current filters.</div>`;
+  container.innerHTML = html;
+}
+
+// ─── REMOVE RESOURCE ─────────────────────────────────────────────────────────
+function removeResource(key, type, idx, evt) {
+  evt.stopPropagation();
+  ensureKey(key);
+  resources[key][type].splice(idx, 1);
+  saveState(); renderTable(); renderStats();
+  toast('Resource removed');
+}
+
+// ─── ADD RESOURCE MODAL ───────────────────────────────────────────────────────
+function openModal(key, name, pool) {
+  modalSkillKey = key;
+  const g = key.match(/g([^w]+)w/)[1];
+  const w = key.match(/w(\d+)/)[1];
+  document.getElementById('modal-skill-name').textContent = name;
+  document.getElementById('modal-skill-sub').textContent = `Grade ${g} · Week ${w} · pool: ${POOL_LABELS[pool]||pool}`;
+  document.getElementById('res-label').value = '';
+  document.getElementById('res-notes').value = '';
+  document.getElementById('res-id-text').value = '';
+  selectType('puzzles', pool);
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal(evt) {
+  if (evt && evt.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.add('hidden');
+  modalSkillKey = null;
+}
+
+function selectType(type, pool) {
+  modalResType = type;
+  ['puz','game','int'].forEach(k => document.getElementById('opt-'+k).className = 'type-opt');
+  const map = { puzzles:'puz', games:'game', interventions:'int' };
+  document.getElementById('opt-'+map[type]).className = `type-opt sel-${map[type]}`;
+
+  const select = document.getElementById('res-id-select');
+  const textIn = document.getElementById('res-id-text');
+  const idLabel = document.getElementById('id-label');
+
+  if (type === 'puzzles') {
+    idLabel.textContent = 'Puzzle Type';
+    select.style.display = ''; textIn.style.display = 'none';
+    // Filter to puzzles applicable to this skill's pool when pool is provided
+    const entries = Object.entries(puzzleReg);
+    select.innerHTML = '<option value="">— select puzzle type —</option>' +
+      entries.map(([id, p]) => {
+        const inPool = !pool || pool === 'none' || !p.pool || p.pool.includes(pool);
+        const mark = inPool ? '' : ' ⚠ outside usual pool';
+        return `<option value="${id}">${p.label} (${p.category})${mark}</option>`;
+      }).join('');
+  } else if (type === 'interventions') {
+    idLabel.textContent = 'Intervention Type';
+    select.style.display = ''; textIn.style.display = 'none';
+    select.innerHTML = '<option value="">— select intervention —</option>' +
+      Object.entries(interventionReg).map(([id, v]) =>
+        `<option value="${id}">${v.label} (${v.abbrev})</option>`
+      ).join('');
+  } else {
+    idLabel.textContent = 'Game / Tool';
+    if (Object.keys(gameReg).length) {
+      select.style.display = ''; textIn.style.display = 'none';
+      select.innerHTML = '<option value="">— select game —</option>' +
+        Object.entries(gameReg).map(([id, v]) =>
+          `<option value="${id}">${v.label}</option>`
+        ).join('');
+    } else {
+      select.style.display = 'none'; textIn.style.display = '';
+      textIn.placeholder = 'Game ID (e.g. factRace)';
+    }
+  }
+  document.getElementById('res-label').value = '';
+}
+
+function onIdChange() {
+  const val = document.getElementById('res-id-select').value;
+  if (!val) return;
+  const p = puzzleReg[val] || interventionReg[val] || gameReg[val];
+  if (p) document.getElementById('res-label').value = p.label || '';
+}
+
+function saveResource() {
+  if (!modalSkillKey || !modalResType) return;
+  const useSelect = modalResType !== 'games' || Object.keys(gameReg).length > 0;
+  const id = useSelect
+    ? document.getElementById('res-id-select').value
+    : document.getElementById('res-id-text').value.trim();
+  const label = document.getElementById('res-label').value.trim();
+  const notes = document.getElementById('res-notes').value.trim();
+  if (!id) { toast('Please select a resource'); return; }
+  if (!label) { toast('Please enter a label'); return; }
+  ensureKey(modalSkillKey);
+  // Prevent duplicates
+  if (resources[modalSkillKey][modalResType].some(r => r.id === id)) {
+    toast('Already linked to this skill'); return;
+  }
+  resources[modalSkillKey][modalResType].push({ id, label, notes });
+  saveState(); renderTable(); renderStats();
+  document.getElementById('modal-overlay').classList.add('hidden');
+  toast('Resource added ✓');
+}
+
+// ─── REGISTRY PANEL ──────────────────────────────────────────────────────────
+function openRegistry() {
+  document.getElementById('registry-panel').classList.remove('hidden');
+  renderRegList(currentRegTab);
+}
+function closeRegistry() {
+  document.getElementById('registry-panel').classList.add('hidden');
+}
+function switchRegTab(tab) {
+  currentRegTab = tab;
+  ['puz','int','game'].forEach(t => {
+    document.getElementById('rt-'+t).classList.toggle('active', t===tab);
+    document.getElementById('reg-list-'+t).classList.toggle('hidden', t!==tab);
+  });
+  renderRegList(tab);
+}
+
+function renderRegList(tab) {
+  if (tab === 'puz') {
+    const ul = document.getElementById('reg-items-puz');
+    ul.innerHTML = Object.entries(puzzleReg).map(([id, p]) =>
+      `<li class="reg-item">
+        <span class="reg-item-id">${id}</span>
+        <span class="reg-item-label">${p.label}</span>
+        <span class="reg-item-cat">${p.category}</span>
+        <button class="reg-item-del" onclick="deletePuzzle('${id}')" title="Remove">✕</button>
+      </li>`
+    ).join('') || '<li style="color:var(--muted);font-size:12px;padding:8px 10px">No puzzle types yet.</li>';
+  } else if (tab === 'int') {
+    const ul = document.getElementById('reg-items-int');
+    ul.innerHTML = Object.entries(interventionReg).map(([id, v]) =>
+      `<li class="reg-item">
+        <span class="reg-item-id">${id}</span>
+        <span class="reg-item-label">${v.label}</span>
+        <span class="reg-item-cat">${v.abbrev}</span>
+        <button class="reg-item-del" onclick="deleteIntervention('${id}')" title="Remove">✕</button>
+      </li>`
+    ).join('') || '<li style="color:var(--muted);font-size:12px;padding:8px 10px">No intervention types yet.</li>';
+  } else {
+    const ul = document.getElementById('reg-items-game');
+    ul.innerHTML = Object.entries(gameReg).map(([id, v]) =>
+      `<li class="reg-item">
+        <span class="reg-item-id">${id}</span>
+        <span class="reg-item-label">${v.label}</span>
+        <span class="reg-item-cat">${v.category||''}</span>
+        <button class="reg-item-del" onclick="deleteGame('${id}')" title="Remove">✕</button>
+      </li>`
+    ).join('') || '<li style="color:var(--muted);font-size:12px;padding:8px 10px">No games yet.</li>';
+  }
+}
+
+function getCheckedPools(containerSelector) {
+  return [...document.querySelectorAll(containerSelector + ' input[type=checkbox]:checked')]
+    .map(c => c.value);
+}
+
+function addPuzzle() {
+  const id    = document.getElementById('new-puz-id').value.trim().replace(/\s/g,'');
+  const label = document.getElementById('new-puz-label').value.trim();
+  const cat   = document.getElementById('new-puz-cat').value.trim();
+  const pool  = getCheckedPools('#reg-list-puz .reg-pool-checks');
+  if (!id || !label) { toast('ID and label are required'); return; }
+  if (puzzleReg[id]) { toast('ID already exists — use a different one'); return; }
+  puzzleReg[id] = { label, category: cat, pool };
+  saveState(); renderRegList('puz'); renderStats();
+  document.getElementById('new-puz-id').value = '';
+  document.getElementById('new-puz-label').value = '';
+  document.getElementById('new-puz-cat').value = '';
+  document.querySelectorAll('#reg-list-puz input[type=checkbox]').forEach(c => c.checked = false);
+  toast(`Puzzle type "${label}" added ✓`);
+}
+
+function addIntervention() {
+  const id     = document.getElementById('new-int-id').value.trim().replace(/\s/g,'');
+  const label  = document.getElementById('new-int-label').value.trim();
+  const abbrev = document.getElementById('new-int-abbrev').value.trim();
+  const pool   = getCheckedPools('#reg-list-int .reg-pool-checks');
+  if (!id || !label) { toast('ID and label are required'); return; }
+  if (interventionReg[id]) { toast('ID already exists'); return; }
+  interventionReg[id] = { label, abbrev: abbrev || id.toUpperCase().slice(0,4), applicableTo: pool };
+  saveState(); renderRegList('int'); renderStats();
+  document.getElementById('new-int-id').value = '';
+  document.getElementById('new-int-label').value = '';
+  document.getElementById('new-int-abbrev').value = '';
+  document.querySelectorAll('#reg-list-int input[type=checkbox]').forEach(c => c.checked = false);
+  toast(`Intervention "${label}" added ✓`);
+}
+
+function addGame() {
+  const id    = document.getElementById('new-game-id').value.trim().replace(/\s/g,'');
+  const label = document.getElementById('new-game-label').value.trim();
+  const cat   = document.getElementById('new-game-cat').value.trim();
+  if (!id || !label) { toast('ID and label are required'); return; }
+  if (gameReg[id]) { toast('ID already exists'); return; }
+  gameReg[id] = { label, category: cat };
+  saveState(); renderRegList('game'); renderStats();
+  document.getElementById('new-game-id').value = '';
+  document.getElementById('new-game-label').value = '';
+  document.getElementById('new-game-cat').value = '';
+  toast(`Game "${label}" added ✓`);
+}
+
+function deletePuzzle(id) {
+  if (!confirm(`Remove puzzle type "${puzzleReg[id]?.label}"? Existing skill linkages using this ID are not removed.`)) return;
+  delete puzzleReg[id];
+  saveState(); renderRegList('puz'); renderStats();
+  toast('Puzzle type removed');
+}
+function deleteIntervention(id) {
+  if (!confirm(`Remove intervention "${interventionReg[id]?.label}"?`)) return;
+  delete interventionReg[id];
+  saveState(); renderRegList('int'); renderStats();
+  toast('Intervention removed');
+}
+function deleteGame(id) {
+  if (!confirm(`Remove game "${gameReg[id]?.label}"?`)) return;
+  delete gameReg[id];
+  saveState(); renderRegList('game'); renderStats();
+  toast('Game removed');
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────────────────────
+function openExport() {
+  switchExportTab('resources');
+  document.getElementById('export-panel').classList.remove('hidden');
+}
+function closeExport() {
+  document.getElementById('export-panel').classList.add('hidden');
+}
+function switchExportTab(tab) {
+  currentExpTab = tab;
+  ['resources','puzzles','interventions','games'].forEach(t => {
+    const el = document.getElementById('et-' + (t==='resources'?'resources':t==='puzzles'?'puzzles':t==='interventions'?'int':'games'));
+    if (el) el.classList.toggle('active', t===tab);
+  });
+  refreshExportCode();
+}
+
+function refreshExportCode() {
+  const code = document.getElementById('export-code');
+  if (currentExpTab === 'resources') {
+    const lines = ['const SKILL_RESOURCES = {'];
+    ['K','1','2','3','4'].forEach(grade => {
+      const gradeSkills = SKILLS_RAW.filter(s => s[0]===grade);
+      const withRes = gradeSkills.filter(([g,w]) => hasAnyResource(skillKey(g,w)));
+      if (!withRes.length) return;
+      lines.push(`\n  // ── GRADE ${grade} ──`);
+      gradeSkills.forEach(([g, w, name]) => {
+        const k = skillKey(g, w);
+        const r = resources[k];
+        if (!r || (!r.puzzles.length && !r.games.length && !r.interventions.length)) return;
+        lines.push(`  ${k}: {`);
+        lines.push(`    skill: '${name.replace(/'/g,"\\'")}',`);
+        lines.push(`    grade: '${g}', week: ${w},`);
+        lines.push(`    puzzles: ${JSON.stringify(r.puzzles)},`);
+        lines.push(`    games: ${JSON.stringify(r.games)},`);
+        lines.push(`    interventions: ${JSON.stringify(r.interventions)}`);
+        lines.push(`  },`);
+      });
+    });
+    lines.push('};');
+    code.textContent = lines.join('\n');
+  } else if (currentExpTab === 'puzzles') {
+    const lines = ['const PUZZLE_REGISTRY = {'];
+    Object.entries(puzzleReg).forEach(([id, p]) => {
+      lines.push(`  ${id}: { label: '${p.label.replace(/'/g,"\\'")}', category: '${p.category}', pool: ${JSON.stringify(p.pool||[])} },`);
+    });
+    lines.push('};');
+    code.textContent = lines.join('\n');
+  } else if (currentExpTab === 'interventions') {
+    const lines = ['const INTERVENTION_REGISTRY = {'];
+    Object.entries(interventionReg).forEach(([id, v]) => {
+      lines.push(`  ${id}: { label: '${v.label.replace(/'/g,"\\'")}', abbrev: '${v.abbrev}', applicableTo: ${JSON.stringify(v.applicableTo||[])} },`);
+    });
+    lines.push('};');
+    code.textContent = lines.join('\n');
+  } else {
+    const lines = ['const GAME_REGISTRY = {'];
+    Object.entries(gameReg).forEach(([id, v]) => {
+      lines.push(`  ${id}: { label: '${v.label.replace(/'/g,"\\'")}', category: '${v.category||''}' },`);
+    });
+    lines.push('};');
+    code.textContent = lines.join('\n');
+  }
+}
+
+function copyExport() {
+  const text = document.getElementById('export-code').textContent;
+  navigator.clipboard.writeText(text)
+    .then(() => toast('Copied ✓'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      toast('Copied ✓');
+    });
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+(async function init() {
+  await loadState();
+  renderStats();
+  renderTable();
+})();
+</script>
+</body>
+</html>
