@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facts on Fire — Class Roster Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --fire: #FF4F00;
+  --ember: #FFF0EB;
+  --fire-border: #FFB899;
+  --ink: #1A1A1A;
+  --muted: #6B7280;
+  --surf: #FFFFFF;
+  --bg: #F5F4F1;
+  --border: #E2E0DB;
+  --green: #10B981;
+  --green-bg: #ECFDF5;
+  --green-border: #6EE7B7;
+  --amber: #F59E0B;
+  --amber-bg: #FFFBEB;
+  --amber-border: #FCD34D;
+  --blue: #1B4FCC;
+  --blue-bg: #EEF2FF;
+  --blue-border: #A5B4FC;
+  --red: #EF4444;
+  --red-bg: #FEF2F2;
+  --font-head: 'Archivo Black', sans-serif;
+  --font-body: 'Archivo', sans-serif;
+  --radius: 10px;
+  --shadow: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: var(--font-body); color: var(--ink); min-height: 100vh; }
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.topbar-flame { font-size: 20px; }
+.topbar-brand { font-family: var(--font-head); font-size: 15px; color: #fff; }
+.topbar-sep { color: #555; font-size: 13px; }
+.topbar-title { font-size: 13px; color: #ccc; font-weight: 500; }
+.topbar-spacer { flex: 1; }
+.topbar-btn {
+  background: transparent;
+  border: 1.5px solid #444;
+  color: #ccc;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color .15s, color .15s;
+}
+.topbar-btn:hover { border-color: #aaa; color: #fff; }
+.topbar-btn.sheets { border-color: #34a853; color: #34a853; }
+.topbar-btn.sheets:hover { background: #34a853; color: #fff; }
+.topbar-btn.fire { background: var(--fire); border-color: var(--fire); color: #fff; }
+.topbar-btn.fire:hover { background: #e04400; }
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 52px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--surf);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.teacher-card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background .12s;
+  margin-bottom: 2px;
+}
+.teacher-card:hover { background: var(--bg); }
+.teacher-card.active { background: var(--ember); }
+.teacher-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 13px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.teacher-info { flex: 1; min-width: 0; }
+.teacher-name { font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.teacher-meta { font-size: 11px; color: var(--muted); }
+.teacher-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--ember);
+  color: var(--fire);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+.teacher-card.active .teacher-badge { background: #fff; }
+
+.add-btn {
+  width: 100%;
+  padding: 8px;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  margin-top: 6px;
+}
+.add-btn:hover { border-color: var(--fire); color: var(--fire); }
+
+.class-tab {
+  padding: 8px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background .12s;
+  margin-bottom: 2px;
+}
+.class-tab:hover { background: var(--bg); }
+.class-tab.active { background: var(--blue-bg); color: var(--blue); font-weight: 700; }
+.class-tab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.class-tab.active .class-tab-dot { background: var(--blue); }
+.class-tab-count { margin-left: auto; font-size: 11px; color: var(--muted); }
+.class-tab.active .class-tab-count { color: var(--blue); }
+
+/* ── MAIN ── */
+.main { padding: 28px 32px; overflow-y: auto; }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.page-header-text { flex: 1; }
+.page-title { font-family: var(--font-head); font-size: 22px; color: var(--ink); line-height: 1.15; }
+.page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.page-actions { display: flex; gap: 8px; align-items: center; }
+
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--border);
+  background: var(--surf);
+  color: var(--ink);
+  transition: all .12s;
+}
+.action-btn:hover { border-color: #aaa; background: var(--bg); }
+.action-btn.primary { background: var(--fire); border-color: var(--fire); color: #fff; }
+.action-btn.primary:hover { background: #e04400; border-color: #e04400; }
+.action-btn.danger { border-color: var(--red); color: var(--red); }
+.action-btn.danger:hover { background: var(--red-bg); }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.stat-card-val { font-family: var(--font-head); font-size: 26px; color: var(--ink); }
+.stat-card-val.green { color: var(--green); }
+.stat-card-val.amber { color: var(--amber); }
+.stat-card-val.blue { color: var(--blue); }
+.stat-card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 2px; }
+
+/* ── ROSTER TABLE ── */
+.roster-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.roster-card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.roster-card-title { font-family: var(--font-head); font-size: 15px; flex: 1; }
+.roster-search {
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--bg);
+  outline: none;
+  width: 180px;
+  transition: border-color .15s;
+}
+.roster-search:focus { border-color: var(--blue); background: var(--surf); }
+
+.roster-table { width: 100%; border-collapse: collapse; }
+.roster-table th {
+  background: var(--bg);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.roster-table td {
+  padding: 11px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.roster-table tr:last-child td { border-bottom: none; }
+.roster-table tr:hover td { background: var(--bg); }
+.roster-table tr.editing td { background: var(--amber-bg); }
+.roster-table tr.inactive td { opacity: .45; }
+.roster-table tr.inactive .student-num { background: #f1f1f1; border-color: #ddd; color: #bbb; text-decoration: line-through; }
+.inactive-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+.skill-cell-wrap { display: flex; flex-direction: column; gap: 4px; }
+.next-skill-hint {
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.next-skill-hint span { color: var(--ink); font-weight: 600; }
+.skill-select {
+  padding: 5px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--surf);
+  outline: none;
+  width: 260px;
+  cursor: pointer;
+}
+.skill-select:focus { border-color: var(--blue); }
+.mastery-bar {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.mastery-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.mastery-pip.pass { background: var(--green); }
+.mastery-pip.fail { background: #FCA5A5; }
+
+.student-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  font-family: var(--font-head);
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.name-input {
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  width: 220px;
+  outline: none;
+  background: var(--surf);
+}
+.name-input:focus { border-color: var(--blue); }
+
+.skill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.skill-badge.assigned { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); }
+.skill-badge.mastered { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+
+.row-btn {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  transition: all .12s;
+  font-family: var(--font-body);
+}
+.row-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--bg); }
+.row-btn.save { border-color: var(--green); color: var(--green); }
+.row-btn.save:hover { background: var(--green-bg); }
+.row-btn.delete { border-color: transparent; }
+.row-btn.delete:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+.add-student-row td {
+  padding: 10px 16px;
+  background: var(--bg);
+}
+.add-student-input {
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  width: 240px;
+  outline: none;
+  background: var(--surf);
+}
+.add-student-input:focus { border-color: var(--blue); }
+.add-student-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--fire);
+  border: none;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background .12s;
+}
+.add-student-btn:hover { background: #e04400; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-family: var(--font-head); font-size: 18px; margin-bottom: 8px; }
+.empty-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surf);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 540px;
+  overflow: hidden;
+  transform: translateY(12px);
+  transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.modal-title { font-family: var(--font-head); font-size: 16px; flex: 1; }
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px;
+}
+.modal-close:hover { color: #fff; }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── FORM ELEMENTS ── */
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  background: var(--bg);
+  transition: border-color .15s;
+}
+.form-input:focus { border-color: var(--blue); background: var(--surf); }
+.form-select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  background: var(--bg);
+  appearance: none;
+  cursor: pointer;
+}
+.form-select:focus { border-color: var(--blue); }
+.form-hint { font-size: 11px; color: var(--muted); margin-top: 4px; font-style: italic; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── CSV IMPORT ── */
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 32px 20px;
+  text-align: center;
+  transition: border-color .15s, background .15s;
+  cursor: pointer;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-bg); }
+.drop-zone-icon { font-size: 36px; margin-bottom: 10px; }
+.drop-zone-text { font-size: 13px; color: var(--muted); }
+.drop-zone-link { color: var(--blue); font-weight: 600; cursor: pointer; }
+
+/* ── SHEETS PANEL ── */
+.sheets-panel {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.sheets-panel-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #166534;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sheets-panel-text { font-size: 12px; color: #166534; line-height: 1.5; }
+.sheets-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #166534;
+}
+.sheets-step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #166534;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.code-block {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 11px;
+  margin-top: 10px;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 999;
+  box-shadow: var(--shadow-md);
+  transform: translateY(60px);
+  opacity: 0;
+  transition: all .25s;
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.green { border-left: 4px solid var(--green); }
+.toast.fire { border-left: 4px solid var(--fire); }
+
+/* ── COVER SHEET NOTICE ── */
+.notice-bar {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); max-height: 200px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <span class="topbar-flame">🔥</span>
+  <span class="topbar-brand">Facts on Fire</span>
+  <span class="topbar-sep">›</span>
+  <span class="topbar-title">Class Roster Portal</span>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn sheets" onclick="openModal('sheets-modal')">
+    <span>⬡</span> Google Sheets Sync
+  </button>
+  <button class="topbar-btn" onclick="openModal('import-modal')">
+    ↑ Import CSV
+  </button>
+  <button class="topbar-btn fire" onclick="openModal('add-teacher-modal')">
+    + Add Teacher
+  </button>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Teachers</div>
+      <div id="teacher-list"></div>
+      <button class="add-btn" onclick="openModal('add-teacher-modal')">+ Add Teacher</button>
+    </div>
+    <div class="sidebar-section" id="class-list-section" style="display:none">
+      <div class="sidebar-label">Classes</div>
+      <div id="class-list"></div>
+      <button class="add-btn" onclick="openModal('add-class-modal')">+ Add Class</button>
+    </div>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div class="main" id="main-content">
+    <div class="empty-state">
+      <div class="empty-icon">👩‍🏫</div>
+      <div class="empty-title">Select a teacher to view their roster</div>
+      <div class="empty-sub">Choose from the sidebar, or add a new teacher to get started.</div>
+      <button class="action-btn primary" onclick="loadSampleData()">Load Sample Rosters</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MODALS ── -->
+
+<!-- Add Teacher -->
+<div class="modal-overlay" id="add-teacher-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span>👩‍🏫</span>
+      <span class="modal-title">Add Teacher</span>
+      <button class="modal-close" onclick="closeModal('add-teacher-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Teacher Name</label>
+        <input class="form-input" id="new-teacher-name" placeholder="e.g. Ms. Martinez" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Grade(s) / Subject</label>
+        <input class="form-input" id="new-teacher-grade" placeholder="e.g. Grade 6 Math" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeModal('add-teacher-modal')">Cancel</button>
+      <button class="action-btn primary" onclick="addTeacher()">Add Teacher</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Class -->
+<div class="modal-overlay" id="add-class-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span>📋</span>
+      <span class="modal-title">Add Class</span>
+      <button class="modal-close" onclick="closeModal('add-class-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Period / Section</label>
+          <input class="form-input" id="new-class-period" placeholder="e.g. 2nd Period" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grade Level</label>
+          <select class="form-select" id="new-class-grade">
+            <option>K</option><option>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option><option>6</option><option>7</option><option>8</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Room / Notes (optional)</label>
+        <input class="form-input" id="new-class-room" placeholder="e.g. Room 14" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeModal('add-class-modal')">Cancel</button>
+      <button class="action-btn primary" onclick="addClass()">Add Class</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import CSV -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <span>📥</span>
+      <span class="modal-title">Import Roster from CSV</span>
+      <button class="modal-close" onclick="closeModal('import-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+        Upload a CSV file with student names. The system will assign roster numbers alphabetically.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Target Teacher</label>
+        <select class="form-select" id="import-teacher"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target Class</label>
+        <select class="form-select" id="import-class"></select>
+      </div>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file-input').click()">
+        <div class="drop-zone-icon">📄</div>
+        <div class="drop-zone-text">
+          Drop a CSV file here or <span class="drop-zone-link">browse</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">
+          Expected columns: <strong>Last Name</strong>, <strong>First Name</strong> (or <strong>Full Name</strong>)
+        </div>
+      </div>
+      <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleCSV(event)">
+      <div id="csv-preview" style="margin-top:14px;display:none">
+        <div class="form-label">Preview (first 5 students)</div>
+        <div id="csv-preview-list" style="font-size:12px;padding:8px 0;"></div>
+        <div id="csv-full-count" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeModal('import-modal')">Cancel</button>
+      <button class="action-btn primary" id="import-confirm-btn" onclick="confirmImport()" disabled>Import Students</button>
+    </div>
+  </div>
+</div>
+
+<!-- Google Sheets Modal -->
+<div class="modal-overlay" id="sheets-modal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header" style="background:#166534">
+      <span>⬡</span>
+      <span class="modal-title">Google Sheets Sync</span>
+      <button class="modal-close" onclick="closeModal('sheets-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+      <div class="sheets-panel">
+        <div class="sheets-panel-title">📋 How Sheets Integration Works</div>
+        <div class="sheets-panel-text">
+          Rosters are stored in a shared Google Sheet — one tab per teacher. 
+          All teachers and the coach see live data. No login system required beyond Google OAuth.
+        </div>
+      </div>
+
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px">Setup Steps (one-time, done by tech coordinator)</div>
+
+      <div class="sheets-step">
+        <div class="sheets-step-num">1</div>
+        <div>Go to <strong>console.cloud.google.com</strong> → create a project → enable the <em>Google Sheets API</em> and <em>Google Drive API</em>.</div>
+      </div>
+      <div class="sheets-step">
+        <div class="sheets-step-num">2</div>
+        <div>Under <em>APIs & Services → Credentials</em>, create an <strong>OAuth 2.0 Client ID</strong> (Web Application). Add your site's URL as an authorized origin.</div>
+      </div>
+      <div class="sheets-step">
+        <div class="sheets-step-num">3</div>
+        <div>Create a master Google Sheet. Copy its Sheet ID from the URL: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px">docs.google.com/spreadsheets/d/<strong>[SHEET_ID]</strong>/edit</code></div>
+      </div>
+      <div class="sheets-step">
+        <div class="sheets-step-num">4</div>
+        <div>Paste your Client ID and Sheet ID into the fields below and click Save.</div>
+      </div>
+
+      <div class="code-block">// Expected sheet structure — one tab per teacher
+// Tab name = Teacher name (e.g., "Ms. Martinez")
+// Columns:  Number | Last Name | First Name | Grade | Class Period | Current Skill | Notes</div>
+
+      <div style="margin-top:20px">
+        <div class="form-group">
+          <label class="form-label">Google OAuth Client ID</label>
+          <input class="form-input" id="sheets-client-id" placeholder="xxxxxxxx.apps.googleusercontent.com"
+            value="" />
+          <div class="form-hint">From Google Cloud Console → Credentials</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Master Spreadsheet ID</label>
+          <input class="form-input" id="sheets-spreadsheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
+          <div class="form-hint">Copied from the Google Sheets URL</div>
+        </div>
+      </div>
+
+      <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;padding:12px;font-size:12px;color:#92400e;margin-top:4px">
+        ⚠️ <strong>Current status:</strong> Rosters are saved locally in your browser. Once Client ID and Sheet ID are saved, the app will read/write directly to Google Sheets on every change.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeModal('sheets-modal')">Close</button>
+      <button class="action-btn primary" onclick="saveSheetsConfig()">Save Sheets Config</button>
+    </div>
+  </div>
+</div>
+
+<!-- Score Entry Modal -->
+<div class="modal-overlay" id="score-entry-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header" style="background:#1B4FCC">
+      <span>📊</span>
+      <span class="modal-title">Enter Probe Scores</span>
+      <button class="modal-close" onclick="closeModal('score-entry-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:65vh;overflow-y:auto">
+      <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+        <div class="form-group" style="margin-bottom:0;flex:1">
+          <label class="form-label">Probe Date</label>
+          <input type="date" class="form-input" id="score-entry-date">
+        </div>
+        <div style="font-size:12px;color:var(--muted);padding-top:18px">
+          Students reaching 3× ≥ 85% will auto-advance after saving.
+        </div>
+      </div>
+      <div style="background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue);margin-bottom:14px">
+        Enter number correct (not percent). The system will calculate the percentage based on the skill's total problems.
+      </div>
+      <table style="width:100%;border-collapse:collapse" id="score-entry-table">
+        <thead>
+          <tr style="background:var(--bg)">
+            <th style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;width:40px">#</th>
+            <th style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left">Name</th>
+            <th style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left">Current Skill</th>
+            <th style="padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center;width:110px">Score</th>
+          </tr>
+        </thead>
+        <tbody id="score-entry-rows"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <div id="score-entry-advance-preview" style="flex:1;font-size:12px;color:var(--green);font-weight:600"></div>
+      <button class="action-btn" onclick="closeModal('score-entry-modal')">Cancel</button>
+      <button class="action-btn primary" onclick="saveScoreEntry()">Save All Scores</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ── SCRIPTS ── -->
+<script>
+
+// ══════════════════════════════════════════════════════════════════
+// DATA MODEL
+// ══════════════════════════════════════════════════════════════════
+
+const TEACHER_COLORS = ['#FF4F00','#1B4FCC','#10B981','#7C3AED','#F59E0B','#EC4899'];
+
+let data = {
+  teachers: [],
+  sheetsConfig: { clientId: '', spreadsheetId: '' }
+};
+
+let activeTeacherId = null;
+let activeClassId   = null;
+let csvImportData   = null;
+
+// ── Persistence ────────────────────────────────────────────────────
+function save() {
+  try { localStorage.setItem('fof_roster_v1', JSON.stringify(data)); } catch(e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem('fof_roster_v1');
+    if (raw) data = JSON.parse(raw);
+  } catch(e) {}
+}
+
+// ── IDs ─────────────────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2,9); }
+
+// ══════════════════════════════════════════════════════════════════
+// SKILL SEQUENCE  (K–8, ordered)
+// id = gXwY for 5-8, short token for K-4
+// Each entry: { id, name, grade, seq (0-based position) }
+// ══════════════════════════════════════════════════════════════════
+
+const SKILL_SEQUENCE_RAW = {
+  'K': [
+    'Number writing 1–5',
+    'Number writing 6–10',
+    'Number writing 11–15',
+    'Number writing 16–20',
+    'Dot-to-number recognition',
+    'Dot-to-dot totals',
+    'Addition facts (sums to 6)',
+    'Addition facts (sums to 10)',
+  ],
+  '1': [
+    'Addition facts (sums to 10)',
+    'Addition facts (sums to 18)',
+    'Addition facts (sums to 30)',
+    'Subtraction facts (from 10)',
+    'Subtraction facts (from 18)',
+  ],
+  '2': [
+    'Subtraction facts (from 18)',
+    'Subtraction facts (from 30)',
+    'Multidigit addition — no regrouping',
+    'Multidigit addition — 2-digit w/ regrouping',
+    'Multidigit addition — 3-digit w/ regrouping',
+    'Multidigit subtraction — no regrouping',
+    'Multidigit subtraction — 2-digit w/ regrouping',
+  ],
+  '3': [
+    'Multidigit subtraction — 3-digit w/ regrouping',
+    'Multiplication facts (to 18)',
+    'Multiplication facts (to 36)',
+    'Multiplication facts (to 49)',
+    'Division facts (to 18)',
+    'Division facts (to 36)',
+  ],
+  '4': [
+    'Multiplication facts (to 100)',
+    'Multiplication facts (to 144)',
+    'Multiplication facts (to 225)',
+    'Multiplication facts (to 400)',
+    'Division facts (to 49)',
+    'Division facts (to 100)',
+    'Division facts (to 144)',
+  ],
+  '5': [
+    'Multidigit addition','Multidigit subtraction',
+    'Multiplication facts (to 36)','Multiplication facts (to 81)',
+    'Division facts','Division facts (continued)',
+    'Long multiplication','Long division',
+    'Perfect squares (to 100)','Area of a rectangle','Area vs. perimeter',
+    'Area of parallelograms','Area of triangle — right triangles',
+    'Area of a triangle — all triangles',
+    'Decimal addition ($)','Decimal subtraction ($)','Decimal add/subtract',
+    'Decimal multiplication','Decimal multiplication (continued)',
+    'Decimal division','Decimal division (continued)',
+    'Equivalent fractions','Mixed/improper fractions',
+    'Fraction addition — like denominators','Fraction subtraction — like denominators',
+    'Fraction addition — level 1 unlike','Fraction subtraction — level 1 unlike',
+    'Fraction multiplication','Fraction division','Fraction division (continued)',
+  ],
+  '6': [
+    'Perfect squares (to 144)','Evaluating exponents',
+    'Factor trees / prime factorization',
+    'Order of operations with parentheses','Order of operations with exponents',
+    'Decimal computation +/−','Decimal computation ×/÷',
+    'Fraction computation +/−','Fraction computation ×/÷',
+    'Fractions to percents','Decimals to percents',
+    'Benchmark percents (1, 5, 10, 20)','Benchmark percents (25, 40, 50, 60, 75, 80)',
+    'Order of operations — four operations',
+    'Integer addition','Integer addition (continued)',
+    'Integer subtraction','Integer subtraction (continued)',
+    'Integer addition/subtraction mixed',
+    'Integer multiplication','Integer multiplication (continued)',
+    'Integer division','Integer division (continued)',
+    'Coordinate plane — graph points',
+    'Expressions — evaluate','Expressions — add/sub like terms',
+    'Expressions — scale an expression',
+    'One-step equations (whole numbers)','One-step equations (all)',
+    'Two-step equations (easy)',
+  ],
+  '7': [
+    'Integer add/sub','Integer ×/÷',
+    'Fraction add/sub','Fraction ×/÷','Decimal computation',
+    'Expressions','Two-step equations (easy)','Two-step equations',
+    'Ratio tables','Ratios — part:whole','Unit rate (how much for one)',
+    'Classifying quadrilaterals',
+    'Area — rect, parallelogram, triangle, trapezoid',
+    'Area / compound shapes','Area / negative space',
+    'Area of circles (in terms of π)','Area of circles/sectors (in terms of π)',
+    'Circumference of circles (in terms of π)','Circumference of sectors (in terms of π)',
+    'Complementary/supplementary angles','Angles in triangles',
+    'Triangle inequality theorem',
+    'Fraction/decimal benchmark percents',
+    'Percent of a number (1, 10, 5, 25, 50)',
+    'Percent of a number (40, 60, 75, 80, 150, 200)',
+    'Percent formula','Percent change (benchmark)','Percent change (any)',
+    'Simple probability','Compound probability',
+  ],
+  '8': [
+    'Integer computation','Fraction computation','Decimal computation',
+    'Ratios and rates','Expressions','Two-step equations','Distance, rate, time',
+    'Equations — variables both sides',
+    'Equations — clearing fractions','Equations — clearing fractions (continued)',
+    'Simple inequalities','Inequalities — two step',
+    'Evaluate absolute value','Slope between two points','Slope from a graph',
+    'Slope-intercept form from a graph','Graph y = mx + b','Graph y = mx + b (continued)',
+    'Perfect squares and roots','Evaluate exponents',
+    'Exponent rules — ×/÷','Order of operations with exponents',
+    'Solve simple quadratics (x² = 25)',
+    'Pythagorean theorem — solve for hypotenuse',
+    'Pythagorean theorem — solve for leg',
+    'Scientific notation — convert to/from',
+    'Recognize/classify transformations',
+    'Volume — rectangular prisms','Volume — cylinders',
+    'Volume — cones and spheres (formula match)',
+  ],
+};
+
+// Build flat indexed objects: SKILL_MAP[grade] = [{id, name, grade, seq}, ...]
+const SKILL_MAP = {};
+Object.entries(SKILL_SEQUENCE_RAW).forEach(([grade, names]) => {
+  SKILL_MAP[grade] = names.map((name, seq) => ({
+    id: `g${grade}s${seq}`,
+    name,
+    grade,
+    seq,
+  }));
+});
+
+function getSkillsForGrade(grade) {
+  return SKILL_MAP[grade] || SKILL_MAP['5'] || [];
+}
+
+function defaultSkillForGrade(grade) {
+  const skills = getSkillsForGrade(grade);
+  return skills.length ? skills[0] : null;
+}
+
+function getNextSkill(currentSkillId, grade) {
+  const skills = getSkillsForGrade(grade);
+  const idx = skills.findIndex(s => s.id === currentSkillId);
+  if (idx === -1 || idx >= skills.length - 1) return null;
+  return skills[idx + 1];
+}
+
+function skillById(id, grade) {
+  const skills = getSkillsForGrade(grade);
+  return skills.find(s => s.id === id) || null;
+}
+
+// Normalize legacy string skill to object (for backward compat)
+function normalizeSkill(rawSkill, grade) {
+  if (!rawSkill) return null;
+  if (typeof rawSkill === 'object' && rawSkill.id) return rawSkill;
+  // Legacy string — try to find a matching skill
+  const skills = getSkillsForGrade(grade);
+  const match = skills.find(s => s.name === rawSkill);
+  return match || { id: 'custom', name: rawSkill, grade, seq: -1 };
+}
+
+// Build a <select> options string for a grade's skill sequence
+function skillSelectOptions(grade, currentSkillId) {
+  const skills = getSkillsForGrade(grade);
+  const opts = skills.map((s, i) => {
+    const sel = s.id === currentSkillId ? 'selected' : '';
+    return `<option value="${s.id}" ${sel}>${i + 1}. ${s.name}</option>`;
+  }).join('');
+  return `<option value="">— Unassigned —</option>` + opts;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SAMPLE DATA
+// ══════════════════════════════════════════════════════════════════
+
+function loadSampleData() {
+  data.teachers = [
+    {
+      id: 't1',
+      name: 'Ms. Martinez',
+      grade: 'Grade 5 Math',
+      color: TEACHER_COLORS[0],
+      classes: [
+        {
+          id: 'c1a',
+          period: '1st Period',
+          grade: '5',
+          room: 'Room 12',
+          students: makeStudents([
+            'Adams, Emma','Baker, Noah','Castillo, Sofia','Davis, Liam',
+            'Evans, Olivia','Foster, Ethan','Garcia, Mia','Harris, James',
+            'Ingram, Ava','Jensen, Lucas','Kim, Isabella','Lopez, Mason',
+            'Miller, Harper','Nguyen, Elijah','Ortiz, Amelia','Patel, Logan',
+            'Quinn, Aria','Rivera, Sebastian','Smith, Luna','Torres, Jack',
+            'Upton, Chloe','Vargas, Aiden','White, Zoey'
+          ], '5')
+        },
+        {
+          id: 'c1b',
+          period: '3rd Period',
+          grade: '5',
+          room: 'Room 12',
+          students: makeStudents([
+            'Allen, Nora','Brown, Oliver','Chen, Penelope','Diaz, Wyatt',
+            'Edwards, Layla','Flynn, Henry','Gomez, Lily','Hayes, Owen',
+            'Irving, Ellie','Jackson, Caleb','King, Hannah','Lewis, Isaiah',
+            'Moore, Addison','Nelson, Mateo','Owens, Aubrey','Perez, Luke',
+            'Reed, Violet','Scott, Nathan','Taylor, Stella','Underwood, Dylan',
+            'Vega, Paisley','Wade, Carter','Yang, Savannah'
+          ], '5')
+        }
+      ]
+    },
+    {
+      id: 't2',
+      name: 'Mr. Chen',
+      grade: 'Grade 7 Math',
+      color: TEACHER_COLORS[1],
+      classes: [
+        {
+          id: 'c2a',
+          period: '2nd Period',
+          grade: '7',
+          room: 'Room 8',
+          students: makeStudents([
+            'Abbott, Mila','Brooks, Julian','Cole, Riley','Drake, Nolan',
+            'Ellis, Brooklyn','Ford, Ryker','Grant, Nova','Hill, Jordan',
+            'James, Eliana','Knox, Xavier','Lane, Autumn','Marsh, Kayden',
+            'Nash, Peyton','Oliver, Jade','Price, Brayden','Ray, Sienna',
+            'Stone, Miles','Turner, Kinsley','Urban, Easton','Vale, Aurora',
+            'Webb, Jaxon','Young, Serenity'
+          ], '7')
+        },
+        {
+          id: 'c2b',
+          period: '4th Period',
+          grade: '7',
+          room: 'Room 8',
+          students: makeStudents([
+            'Archer, Piper','Bell, Grayson','Cruz, Mackenzie','Dean, Bentley',
+            'Estes, Freya','Fisher, Reid','Greene, Willow','Hunt, Chase',
+            'Irwin, Eva','Jarvis, Cooper','Kent, Naomi','Long, Beckett',
+            'Mann, Daisy','Norris, Beau','Owen, Ivy','Park, Tripp',
+            'Ramsey, Wren','Sims, Dawson','Todd, Magnolia','Vance, River',
+            'Ware, Sloane','Xavier, Brooks'
+          ], '7')
+        }
+      ]
+    },
+    {
+      id: 't3',
+      name: 'Ms. Johnson',
+      grade: 'Grade 3 Math',
+      color: TEACHER_COLORS[2],
+      classes: [
+        {
+          id: 'c3a',
+          period: 'Morning',
+          grade: '3',
+          room: 'Room 5',
+          students: makeStudents([
+            'Andrews, Charlotte','Boyd, Henry','Carr, Sophia','Dixon, William',
+            'English, Amelia','Fields, James','Gross, Abigail','Holt, Michael',
+            'Ingram, Elizabeth','Judd, Alexander','Kane, Madison','Lowe, Daniel',
+            'Mayo, Victoria','Neal, David','Ott, Grace','Page, Joseph',
+            'Rand, Samantha','Sage, Christopher','Tate, Anna','Voss, Matthew',
+            'Wynn, Natalie','York, Andrew'
+          ], '3')
+        }
+      ]
+    }
+  ];
+  save();
+  renderSidebar();
+  selectTeacher('t1');
+  toast('Sample rosters loaded! 3 teachers · 5 classes · 110 students', 'green');
+}
+
+function makeStudents(names, grade) {
+  const defaultSkill = defaultSkillForGrade(grade);
+  const sorted = [...names].sort((a,b) => a.localeCompare(b));
+  return sorted.map((name, i) => ({
+    id: uid(),
+    number: i + 1,
+    name: name,
+    currentSkill: defaultSkill,   // { id, name, grade, seq }
+    scores: [],
+    inactive: false,
+  }));
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════════
+
+function renderSidebar() {
+  const tList = document.getElementById('teacher-list');
+  tList.innerHTML = data.teachers.map(t => `
+    <div class="teacher-card ${t.id === activeTeacherId ? 'active' : ''}" onclick="selectTeacher('${t.id}')">
+      <div class="teacher-avatar" style="background:${t.color}">${initials(t.name)}</div>
+      <div class="teacher-info">
+        <div class="teacher-name">${t.name}</div>
+        <div class="teacher-meta">${t.grade}</div>
+      </div>
+      <span class="teacher-badge">${totalStudents(t)}</span>
+    </div>
+  `).join('');
+}
+
+function initials(name) {
+  return name.replace(/^(Mr\.|Ms\.|Mrs\.|Dr\.)\s*/i,'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function totalStudents(teacher) {
+  return teacher.classes.reduce((sum, c) => sum + c.students.filter(s => !s.inactive).length, 0);
+}
+
+function renderClassList(teacher) {
+  const section = document.getElementById('class-list-section');
+  const list    = document.getElementById('class-list');
+  section.style.display = 'block';
+  list.innerHTML = teacher.classes.map(c => `
+    <div class="class-tab ${c.id === activeClassId ? 'active' : ''}" onclick="selectClass('${c.id}')">
+      <div class="class-tab-dot"></div>
+      <span>${c.period} · Gr ${c.grade}</span>
+      <span class="class-tab-count">${c.students.length}</span>
+    </div>
+  `).join('');
+}
+
+function renderRoster(teacher, cls) {
+  const main = document.getElementById('main-content');
+  const activeStudents = cls.students.filter(s => !s.inactive);
+  const activeCount   = activeStudents.length;
+  const inactiveCount = cls.students.filter(s => s.inactive).length;
+  const assigned      = activeStudents.filter(s => s.currentSkill).length;
+  // Count students whose skill seq is beyond the first (i.e. have advanced at least once)
+  const advanced      = activeStudents.filter(s => s.currentSkill && normalizeSkill(s.currentSkill, cls.grade)?.seq > 0).length;
+
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-header-text">
+        <div class="page-title">${teacher.name} — ${cls.period}</div>
+        <div class="page-sub">Grade ${cls.grade} · ${cls.room || ''} · ${cls.students.length} students</div>
+      </div>
+      <div class="page-actions">
+        <button class="action-btn" onclick="exportCSV()">↓ Export CSV</button>
+        <button class="action-btn" style="border-color:var(--blue);color:var(--blue)" onclick="openScoreEntry()">📊 Enter Scores</button>
+        <button class="action-btn primary" onclick="window.open('differentiated_probe_generator.html','_blank')">📄 Generate Probes</button>
+        <button class="action-btn" onclick="assignGradeDefaults()">⚡ Assign Grade Defaults</button>
+        <button class="action-btn" onclick="sortRoster()">⇅ Re-sort</button>
+        <button class="action-btn danger" onclick="confirmDeleteClass()">🗑 Delete Class</button>
+      </div>
+    </div>
+
+    <div class="notice-bar">
+      📄 <strong>Phase 2 note:</strong> When probes are generated for this class, each sheet will include the student's roster number. A cover sheet with teacher name, class, and date will be generated for batch upload.
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-val">${activeCount}<span style="font-size:14px;color:var(--muted);font-family:var(--font-body);font-weight:500"> active</span></div>
+        <div class="stat-card-label">Students${inactiveCount ? ` · ${inactiveCount} inactive` : ''}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-val blue">${assigned}</div>
+        <div class="stat-card-label">Skill Assigned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-val green">${advanced}</div>
+        <div class="stat-card-label">Advanced ≥ 1 Skill</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-val amber">${activeCount - assigned}</div>
+        <div class="stat-card-label">Unassigned</div>
+      </div>
+    </div>
+
+    <div class="roster-card">
+      <div class="roster-card-header">
+        <div class="roster-card-title">Class Roster</div>
+        <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="show-inactive-toggle" onchange="renderRosterRows()" style="cursor:pointer">
+          Show inactive
+        </label>
+        <input class="roster-search" id="roster-search" placeholder="🔍 Search students…" oninput="filterRoster(this.value)">
+      </div>
+      <table class="roster-table" id="roster-table">
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th>Student Name</th>
+            <th>Current Skill → Next</th>
+            <th style="width:120px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="roster-body">
+          ${cls.students.map(s => studentRow(s, false, cls.grade)).join('')}        </tbody>
+        <tfoot>
+          <tr class="add-student-row">
+            <td colspan="4">
+              <input class="add-student-input" id="new-student-name" placeholder="Last Name, First Name — press Enter to add" 
+                onkeydown="if(event.key==='Enter') addStudent()">
+              <button class="add-student-btn" onclick="addStudent()">+ Add</button>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
+}
+
+function studentRow(s, showInactive, clsGrade) {
+  if (s.inactive && !showInactive) return '';
+  const skill = normalizeSkill(s.currentSkill, clsGrade);
+  const nextSkill = skill && skill.id !== 'custom' ? getNextSkill(skill.id, clsGrade) : null;
+  const skillHtml = skill
+    ? `<div class="skill-cell-wrap">
+        <span class="skill-badge assigned">📚 ${skill.name}</span>
+        ${nextSkill ? `<div class="next-skill-hint">→ next: <span>${nextSkill.name}</span></div>` : '<div class="next-skill-hint" style="color:#10B981">🏁 final skill</div>'}
+       </div>`
+    : `<span class="skill-badge">— unassigned —</span>`;
+
+  // Recent scores pips (last 5)
+  const recentScores = (s.scores || []).slice(-5);
+  const pipsHtml = recentScores.length
+    ? `<div class="mastery-bar">${recentScores.map(sc => `<div class="mastery-pip ${sc >= 85 ? 'pass' : 'fail'}" title="${sc}%"></div>`).join('')}</div>`
+    : '';
+
+  if (s.inactive) {
+    return `
+      <tr id="row-${s.id}" class="inactive">
+        <td><span class="student-num">${s.number}</span></td>
+        <td style="font-weight:500">${s.name} <span class="inactive-label">inactive</span></td>
+        <td>${skill ? `<span class="skill-badge">${skill.name}</span>` : '<span class="skill-badge">—</span>'}</td>
+        <td style="display:flex;gap:6px;align-items:center">
+          <button class="row-btn" onclick="reactivateStudent('${s.id}')">↩ Restore</button>
+        </td>
+      </tr>`;
+  }
+  return `
+    <tr id="row-${s.id}">
+      <td><span class="student-num">${s.number}</span></td>
+      <td style="font-weight:500">${s.name}</td>
+      <td>${skillHtml}${pipsHtml}</td>
+      <td style="display:flex;gap:6px;align-items:center">
+        <button class="row-btn" onclick="editRow('${s.id}')">✏ Edit</button>
+        <button class="row-btn delete" onclick="deleteStudent('${s.id}')">🗑</button>
+      </td>
+    </tr>`;
+}
+
+function editRow(sid) {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const s = cls.students.find(x => x.id === sid);
+  const skill = normalizeSkill(s.currentSkill, cls.grade);
+  const currentId = skill ? skill.id : '';
+  const row = document.getElementById('row-' + sid);
+  row.classList.add('editing');
+  row.innerHTML = `
+    <td><span class="student-num">${s.number}</span></td>
+    <td><input class="name-input" id="edit-name-${sid}" value="${s.name}"></td>
+    <td>
+      <select class="skill-select" id="edit-skill-${sid}">
+        ${skillSelectOptions(cls.grade, currentId)}
+      </select>
+    </td>
+    <td style="display:flex;gap:6px;align-items:center">
+      <button class="row-btn save" onclick="saveRow('${sid}')">✓ Save</button>
+      <button class="row-btn" onclick="cancelEdit('${sid}')">✕</button>
+    </td>`;
+}
+
+function saveRow(sid) {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const s = cls.students.find(x => x.id === sid);
+  s.name = document.getElementById('edit-name-' + sid).value.trim() || s.name;
+  const selectedId = document.getElementById('edit-skill-' + sid).value;
+  s.currentSkill = selectedId ? skillById(selectedId, cls.grade) : null;
+  save();
+  renderRoster(teacher, cls);
+  toast('Student updated', 'green');
+}
+
+function cancelEdit(sid) {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  renderRoster(teacher, cls);
+}
+
+function deleteStudent(sid) {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const s = cls.students.find(x => x.id === sid);
+  if (!confirm(`Mark ${s.name} as inactive? Their roster number (${s.number}) will be held. You can restore them later.`)) return;
+  s.inactive = true;
+  save();
+  renderRoster(teacher, cls);
+  toast(`${s.name} marked inactive — number ${s.number} preserved`, 'fire');
+}
+
+function reactivateStudent(sid) {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const s = cls.students.find(x => x.id === sid);
+  s.inactive = false;
+  save();
+  renderRoster(teacher, cls);
+  toast(`${s.name} restored to active roster`, 'green');
+}
+
+function addStudent() {
+  const input = document.getElementById('new-student-name');
+  const name = input.value.trim();
+  if (!name) return;
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const maxNum = cls.students.reduce((m, s) => Math.max(m, s.number), 0);
+  const defaultSkill = defaultSkillForGrade(cls.grade);
+  cls.students.push({ id: uid(), number: maxNum + 1, name, currentSkill: defaultSkill, scores: [], inactive: false });
+  save();
+  renderRoster(teacher, cls);
+  document.getElementById('new-student-name').focus();
+  toast(`${name} added as #${maxNum + 1} · skill: ${defaultSkill ? defaultSkill.name : 'unassigned'}`, 'green');
+}
+
+// Re-render just the tbody rows (for the inactive toggle)
+function renderRosterRows() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  if (!teacher) return;
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  if (!cls) return;
+  const showInactive = document.getElementById('show-inactive-toggle')?.checked;
+  const tbody = document.getElementById('roster-body');
+  if (tbody) tbody.innerHTML = cls.students.map(s => studentRow(s, showInactive, cls.grade)).join('');
+}
+
+// ── Assign grade-default skill to all unassigned active students ──────────────
+function assignGradeDefaults() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const defaultSkill = defaultSkillForGrade(cls.grade);
+  if (!defaultSkill) { toast('No skills defined for this grade', 'fire'); return; }
+
+  const unassigned = cls.students.filter(s => !s.inactive && !s.currentSkill);
+  const all = cls.students.filter(s => !s.inactive);
+
+  if (unassigned.length === 0) {
+    if (!confirm(`All ${all.length} active students already have skills assigned.\n\nReset EVERYONE to the grade default (${defaultSkill.name})?`)) return;
+    all.forEach(s => s.currentSkill = defaultSkill);
+    save();
+    renderRoster(teacher, cls);
+    toast(`All ${all.length} students reset to: ${defaultSkill.name}`, 'fire');
+  } else {
+    unassigned.forEach(s => s.currentSkill = defaultSkill);
+    save();
+    renderRoster(teacher, cls);
+    toast(`${unassigned.length} student${unassigned.length > 1 ? 's' : ''} assigned to: ${defaultSkill.name}`, 'green');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PROBE SCORING & AUTO-ADVANCE  — see SCORE ENTRY section below
+// ══════════════════════════════════════════════════════════════════
+
+function renumberStudents(cls) {
+  const sorted = cls.students.sort((a,b) => a.name.localeCompare(b.name));
+  sorted.forEach((s,i) => s.number = i + 1);
+  cls.students = sorted;
+}
+
+function sortRoster() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  if (!confirm('Re-sort alphabetically and renumber all ACTIVE students from 1? Inactive students will keep their numbers and move to the end.\n\nOnly do this at the start of the year — mid-year renumbering will confuse students who have learned their numbers.')) return;
+  const active   = cls.students.filter(s => !s.inactive).sort((a,b) => a.name.localeCompare(b.name));
+  const inactive = cls.students.filter(s => s.inactive);
+  active.forEach((s, i) => s.number = i + 1);
+  cls.students = [...active, ...inactive];
+  save();
+  renderRoster(teacher, cls);
+  toast('Roster re-sorted and renumbered (active students only)', 'green');
+}
+
+function renumberStudents(cls) {
+  // Only called during initial import — sorts all students alphabetically
+  const sorted = [...cls.students].sort((a,b) => a.name.localeCompare(b.name));
+  sorted.forEach((s,i) => s.number = i + 1);
+  cls.students = sorted;
+}
+
+function filterRoster(q) {
+  const rows = document.querySelectorAll('#roster-body tr');
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SELECTION
+// ══════════════════════════════════════════════════════════════════
+
+function selectTeacher(tid) {
+  activeTeacherId = tid;
+  activeClassId   = null;
+  const teacher = data.teachers.find(t => t.id === tid);
+  renderSidebar();
+  renderClassList(teacher);
+  // Auto-select first class
+  if (teacher.classes.length > 0) selectClass(teacher.classes[0].id);
+  else {
+    document.getElementById('main-content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">No classes yet for ${teacher.name}</div>
+        <div class="empty-sub">Add a class using the sidebar to get started.</div>
+        <button class="action-btn primary" onclick="openModal('add-class-modal')">+ Add Class</button>
+      </div>`;
+  }
+}
+
+function selectClass(cid) {
+  activeClassId = cid;
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === cid);
+  renderClassList(teacher);
+  renderRoster(teacher, cls);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ADD TEACHER / CLASS
+// ══════════════════════════════════════════════════════════════════
+
+function addTeacher() {
+  const name  = document.getElementById('new-teacher-name').value.trim();
+  const grade = document.getElementById('new-teacher-grade').value.trim();
+  if (!name) { alert('Please enter a teacher name.'); return; }
+  const color = TEACHER_COLORS[data.teachers.length % TEACHER_COLORS.length];
+  const teacher = { id: uid(), name, grade: grade || 'Math', color, classes: [] };
+  data.teachers.push(teacher);
+  save();
+  closeModal('add-teacher-modal');
+  renderSidebar();
+  selectTeacher(teacher.id);
+  document.getElementById('new-teacher-name').value = '';
+  document.getElementById('new-teacher-grade').value = '';
+  toast(`${name} added`, 'green');
+}
+
+function addClass() {
+  const period = document.getElementById('new-class-period').value.trim();
+  const grade  = document.getElementById('new-class-grade').value;
+  const room   = document.getElementById('new-class-room').value.trim();
+  if (!period) { alert('Please enter a period or section name.'); return; }
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = { id: uid(), period, grade, room, students: [] };
+  teacher.classes.push(cls);
+  save();
+  closeModal('add-class-modal');
+  renderClassList(teacher);
+  selectClass(cls.id);
+  toast(`${period} class added`, 'green');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CSV IMPORT
+// ══════════════════════════════════════════════════════════════════
+
+function openModal(id) {
+  if (id === 'import-modal') populateImportSelects();
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function populateImportSelects() {
+  const tSel = document.getElementById('import-teacher');
+  const cSel = document.getElementById('import-class');
+  tSel.innerHTML = data.teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  updateImportClassSelect();
+  tSel.onchange = updateImportClassSelect;
+}
+
+function updateImportClassSelect() {
+  const tid = document.getElementById('import-teacher').value;
+  const teacher = data.teachers.find(t => t.id === tid);
+  const cSel = document.getElementById('import-class');
+  cSel.innerHTML = teacher
+    ? teacher.classes.map(c => `<option value="${c.id}">${c.period} · Grade ${c.grade}</option>`).join('')
+    : '';
+}
+
+function handleCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
+    const names = [];
+    for (let i = 0; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      if (i === 0 && cols[0].toLowerCase().includes('name')) continue; // skip header
+      if (cols.length >= 2) {
+        names.push(`${cols[0]}, ${cols[1]}`);
+      } else if (cols.length === 1 && cols[0]) {
+        names.push(cols[0]);
+      }
+    }
+    csvImportData = names;
+    const preview = document.getElementById('csv-preview');
+    const list    = document.getElementById('csv-preview-list');
+    const count   = document.getElementById('csv-full-count');
+    preview.style.display = 'block';
+    list.innerHTML = names.slice(0,5).map((n,i) => `<div style="padding:3px 0;border-bottom:1px solid var(--border)">${i+1}. ${n}</div>`).join('');
+    count.textContent = names.length > 5 ? `… and ${names.length - 5} more (${names.length} total)` : `${names.length} students found`;
+    document.getElementById('import-confirm-btn').disabled = false;
+  };
+  reader.readAsText(file);
+}
+
+function confirmImport() {
+  if (!csvImportData || !csvImportData.length) return;
+  const tid = document.getElementById('import-teacher').value;
+  const cid = document.getElementById('import-class').value;
+  const teacher = data.teachers.find(t => t.id === tid);
+  const cls = teacher.classes.find(c => c.id === cid);
+  const newStudents = csvImportData.map(name => ({ id: uid(), number: 0, name, currentSkill: null, scores: [] }));
+  // Merge or replace
+  if (cls.students.length > 0) {
+    if (!confirm(`This class already has ${cls.students.length} students. Replace them with the ${csvImportData.length} imported students?`)) return;
+  }
+  cls.students = newStudents;
+  renumberStudents(cls);
+  save();
+  closeModal('import-modal');
+  csvImportData = null;
+  document.getElementById('import-confirm-btn').disabled = true;
+  document.getElementById('csv-preview').style.display = 'none';
+  if (activeTeacherId === tid) {
+    renderClassList(teacher);
+    if (activeClassId === cid) renderRoster(teacher, cls);
+  }
+  toast(`${newStudents.length} students imported to ${teacher.name} — ${cls.period}`, 'green');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════════════════════════════
+
+function exportCSV() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const rows = [['Number','Last Name','First Name','Current Skill','Grade','Period']];
+  cls.students.forEach(s => {
+    const parts = s.name.split(',').map(x=>x.trim());
+    const skill = normalizeSkill(s.currentSkill, cls.grade);
+    rows.push([s.number, parts[0]||'', parts[1]||'', skill ? skill.name : '', cls.grade, cls.period]);
+  });
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${teacher.name.replace(/\s/g,'_')}_${cls.period.replace(/\s/g,'_')}_roster.csv`;
+  a.click();
+  toast('CSV exported', 'green');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DELETE CLASS
+// ══════════════════════════════════════════════════════════════════
+
+function confirmDeleteClass() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  if (!confirm(`Delete ${cls.period} (${cls.students.length} students)? This cannot be undone.`)) return;
+  teacher.classes = teacher.classes.filter(c => c.id !== activeClassId);
+  activeClassId = null;
+  save();
+  renderClassList(teacher);
+  selectTeacher(activeTeacherId);
+  toast('Class deleted', 'fire');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// GOOGLE SHEETS CONFIG
+// ══════════════════════════════════════════════════════════════════
+
+function saveSheetsConfig() {
+  data.sheetsConfig.clientId = document.getElementById('sheets-client-id').value.trim();
+  data.sheetsConfig.spreadsheetId = document.getElementById('sheets-spreadsheet-id').value.trim();
+  save();
+  closeModal('sheets-modal');
+  toast('Sheets config saved — connect your OAuth Client ID to activate sync', 'green');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DRAG-OVER on drop zone
+// ══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('drop-zone');
+  ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-over'); }));
+  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { dz.classList.remove('drag-over'); }));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.csv')) {
+      const fakeEvent = { target: { files: [file] } };
+      handleCSV(fakeEvent);
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════════
+
+function toast(msg, type='green') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SCORE ENTRY
+// ══════════════════════════════════════════════════════════════════
+
+// Total problems per skill genType — mirrors SKILL_GEN_MAP in probe generator
+const SKILL_TOTAL_MAP = {
+  'add': 20, 'sub': 20, 'mult': 30, 'div': 30,
+  'multiadd': 16, 'multiadd2wr': 16, 'multiadd3wr': 16,
+  'multisub': 16, 'multisub2wr': 16, 'multisub3wr': 16,
+};
+// Map skill name → total problems (simple lookup by keyword)
+function totalProblemsForSkill(skillName) {
+  if (!skillName) return 20;
+  const n = skillName.toLowerCase();
+  if (n.includes('multiplication') || n.includes('division')) return 30;
+  if (n.includes('multidigit') || n.includes('multi-digit')) return 16;
+  return 20; // addition/subtraction facts default
+}
+
+function openScoreEntry() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const active = cls.students.filter(s => !s.inactive);
+
+  // Default date to today
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  document.getElementById('score-entry-date').value = `${yyyy}-${mm}-${dd}`;
+
+  const tbody = document.getElementById('score-entry-rows');
+  tbody.innerHTML = active.map(s => {
+    const skill = normalizeSkill(s.currentSkill, cls.grade);
+    const skillName = skill ? skill.name : '—';
+    const total = totalProblemsForSkill(skillName);
+    const recent = (s.scores || []).slice(-3);
+    const recentStr = recent.length ? recent.map(x => `${x}%`).join(', ') : 'no scores yet';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 12px;font-weight:700;font-size:13px">${s.number}</td>
+      <td style="padding:8px 12px;font-size:13px;font-weight:600">${s.name}</td>
+      <td style="padding:8px 12px">
+        <div style="font-size:12px;color:var(--ink)">${skillName}</div>
+        <div style="font-size:10px;color:var(--muted)">Recent: ${recentStr}</div>
+      </td>
+      <td style="padding:8px 12px;text-align:center">
+        <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+          <input type="number" min="0" max="${total}"
+            style="width:52px;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-weight:700;text-align:center;outline:none;font-family:var(--font-body)"
+            placeholder="—"
+            id="score-input-${s.id}"
+            oninput="previewAdvances()">
+          <span style="font-size:11px;color:var(--muted)">/ ${total}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('score-entry-advance-preview').textContent = '';
+  openModal('score-entry-modal');
+}
+
+function previewAdvances() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const active = cls.students.filter(s => !s.inactive);
+  let advanceCount = 0;
+
+  active.forEach(s => {
+    const input = document.getElementById('score-input-' + s.id);
+    if (!input || !input.value) return;
+    const skill = normalizeSkill(s.currentSkill, cls.grade);
+    const skillName = skill ? skill.name : '';
+    const total = totalProblemsForSkill(skillName);
+    const pct = Math.round((parseInt(input.value) / total) * 100);
+    const recent = (s.scores || []).slice(-2);
+    const wouldAdvance = recent.length === 2 && recent.every(x => x >= 85) && pct >= 85;
+    if (wouldAdvance) advanceCount++;
+  });
+
+  const el = document.getElementById('score-entry-advance-preview');
+  if (advanceCount > 0) {
+    el.textContent = `⬆ ${advanceCount} student${advanceCount > 1 ? 's' : ''} will auto-advance`;
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = '';
+  }
+}
+
+function saveScoreEntry() {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  const cls = teacher.classes.find(c => c.id === activeClassId);
+  const active = cls.students.filter(s => !s.inactive);
+  const advanced = [];
+  let count = 0;
+
+  active.forEach(s => {
+    const input = document.getElementById('score-input-' + s.id);
+    if (!input || input.value === '') return;
+    const skill = normalizeSkill(s.currentSkill, cls.grade);
+    const skillName = skill ? skill.name : '';
+    const total = totalProblemsForSkill(skillName);
+    const raw = parseInt(input.value);
+    if (isNaN(raw)) return;
+    const pct = Math.round((raw / total) * 100);
+    const result = recordProbeScore(s.id, cls.id, pct);
+    count++;
+    if (result && result.advanced) {
+      advanced.push({ name: s.name, from: result.oldSkill?.name, to: result.newSkill?.name });
+    }
+  });
+
+  closeModal('score-entry-modal');
+  renderRoster(teacher, cls);
+
+  if (advanced.length > 0) {
+    const names = advanced.map(a => a.name).join(', ');
+    toast(`${count} scores saved · ${advanced.length} student${advanced.length>1?'s':''} advanced: ${names}`, 'green');
+    // Show a more detailed alert for advances
+    setTimeout(() => {
+      const details = advanced.map(a => `${a.name}: ${a.from} → ${a.to}`).join('\n');
+      alert(`🎉 ${advanced.length} student${advanced.length>1?'s have':'has'} reached mastery and advanced!\n\n${details}`);
+    }, 400);
+  } else if (count > 0) {
+    toast(`${count} score${count>1?'s':''} saved`, 'green');
+  }
+}
+
+// Also fix recordProbeScore to accept classId instead of assuming activeClassId
+function recordProbeScore(sid, classId, pct) {
+  const teacher = data.teachers.find(t => t.id === activeTeacherId);
+  if (!teacher) return null;
+  const cls = teacher.classes.find(c => c.id === classId) ||
+              teacher.classes.find(c => c.id === activeClassId);
+  if (!cls) return null;
+  const s = cls.students.find(x => x.id === sid);
+  if (!s) return null;
+
+  s.scores = s.scores || [];
+  s.scores.push(Math.round(pct));
+
+  const MASTERY_THRESHOLD = 85;
+  const CONSECUTIVE_NEEDED = 3;
+  const recent = s.scores.slice(-CONSECUTIVE_NEEDED);
+  const mastered = recent.length === CONSECUTIVE_NEEDED && recent.every(sc => sc >= MASTERY_THRESHOLD);
+
+  let advanced = false, oldSkill = null, newSkill = null;
+  if (mastered) {
+    const currentSkill = normalizeSkill(s.currentSkill, cls.grade);
+    const next = currentSkill ? getNextSkill(currentSkill.id, cls.grade) : null;
+    if (next) {
+      oldSkill = currentSkill;
+      s.currentSkill = next;
+      newSkill = next;
+      advanced = true;
+    }
+  }
+
+  save();
+  return { advanced, oldSkill, newSkill, scores: s.scores };
+}
+
+load();
+
+// Restore sheets config inputs
+if (data.sheetsConfig) {
+  const ci = document.getElementById('sheets-client-id');
+  const si = document.getElementById('sheets-spreadsheet-id');
+  if (ci) ci.value = data.sheetsConfig.clientId || '';
+  if (si) si.value = data.sheetsConfig.spreadsheetId || '';
+}
+
+if (data.teachers.length > 0) {
+  renderSidebar();
+  selectTeacher(data.teachers[0].id);
+} else {
+  renderSidebar();
+}
+
+</script>
+</body>
+</html>

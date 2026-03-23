@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facts on Fire — Differentiated Probe Set</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── UI TOKENS ── */
+:root {
+  --fire:#FF4F00; --ember:#FFF0EB; --ink:#1A1A1A; --muted:#6B7280;
+  --surf:#FFF; --bg:#F5F4F1; --border:#E2E0DB;
+  --green:#10B981; --green-bg:#ECFDF5;
+  --blue:#1B4FCC; --blue-bg:#EEF2FF; --blue-border:#A5B4FC;
+  --amber:#F59E0B; --amber-bg:#FFFBEB;
+  --font-head:'Archivo Black',sans-serif; --font-body:'Archivo',sans-serif;
+  --r:10px; --shadow:0 2px 8px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--ink);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.topbar-flame{font-size:20px}
+.topbar-brand{font-family:var(--font-head);font-size:15px;color:#fff}
+.topbar-sep{color:#555;font-size:13px}
+.topbar-title{font-size:13px;color:#ccc;font-weight:500}
+.topbar-spacer{flex:1}
+.topbar-btn{background:transparent;border:1.5px solid #444;color:#ccc;font-family:var(--font-body);font-size:12px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.topbar-btn:hover{border-color:#aaa;color:#fff}
+.topbar-btn.fire{background:var(--fire);border-color:var(--fire);color:#fff}
+.topbar-btn.fire:hover{background:#e04400}
+.topbar-btn.fire:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 52px)}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--surf);border-right:1px solid var(--border);padding:24px 20px;display:flex;flex-direction:column;gap:20px;overflow-y:auto}
+.sidebar-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px;display:block}
+.form-select,.form-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:var(--font-body);font-size:13px;color:var(--ink);background:var(--bg);outline:none;transition:border-color .15s;appearance:none}
+.form-select:focus,.form-input:focus{border-color:var(--blue);background:var(--surf)}
+.form-hint{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic}
+
+/* ── SKILL GROUP SUMMARY ── */
+.group-card{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.group-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.group-letter{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:11px;color:#fff;flex-shrink:0}
+.group-skill-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3}
+.group-count{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.group-students{font-size:11px;color:var(--muted);line-height:1.6;padding-left:32px}
+.group-no-gen{font-size:10px;color:var(--amber);font-weight:600;margin-top:3px;padding-left:32px}
+
+/* ── MAIN PREVIEW ── */
+.main{padding:32px;overflow-y:auto}
+.empty-state{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty-icon{font-size:52px;margin-bottom:14px}
+.empty-title{font-family:var(--font-head);font-size:18px;color:var(--ink);margin-bottom:8px}
+.empty-sub{font-size:13px}
+
+.preview-header{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.preview-title{font-family:var(--font-head);font-size:20px;flex:1}
+.preview-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.page-count-badge{background:var(--bg);border:1px solid var(--border);padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;color:var(--muted)}
+
+/* ── PRINT PREVIEW ── */
+.print-preview{background:#888;padding:20px;border-radius:8px;display:flex;flex-direction:column;gap:12px}
+.preview-page-wrap{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.25);border-radius:2px;transform-origin:top left}
+.preview-label{font-size:11px;font-weight:700;color:#ddd;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.green{border-left:4px solid var(--green)}
+
+/* ════════════════════════════════════════════════════════════
+   PRINT STYLES  — hide UI, show pages only
+   ════════════════════════════════════════════════════════════ */
+@media print {
+  .topbar,.sidebar,.preview-header,.print-preview .preview-label,
+  .preview-page-wrap { box-shadow:none !important }
+  body > *:not(#print-root) { display:none !important }
+  #print-root { display:block !important }
+  .print-root-page { page-break-after:always }
+}
+#print-root { display:none }
+
+/* ════════════════════════════════════════════════════════════
+   WORKBOOK PAGE STYLES  (locked format from workbook-generator)
+   ════════════════════════════════════════════════════════════ */
+.wb-page{padding:.42in .6in .38in;font-family:Helvetica,Arial,sans-serif;background:#fff;overflow:hidden;page-break-after:always}
+.wb-hdr-line{font-size:13px;font-weight:bold;color:#1a1a1a;border-bottom:2px solid #1a1a1a;padding-bottom:3px;margin-bottom:5px;white-space:nowrap}
+.wb-meta{display:flex;align-items:baseline;margin-bottom:8px;font-size:12px;font-weight:bold;color:#1a1a1a}
+.wb-meta-act{flex:1;text-align:center;font-size:12px;font-weight:bold}
+.wb-line{display:inline-block;border-bottom:1.5px solid #555;vertical-align:baseline;height:11px}
+.wb-line.long{width:150px}.wb-line.med{width:90px}.wb-line.short{width:46px}
+.wb-dir{font-size:11px;font-weight:bold;color:#333;margin-bottom:10px;padding-bottom:6px;border-bottom:1.5px solid #e0e0e0}
+.wb-pr-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.wb-pr-table td{width:20%;vertical-align:middle;text-align:center;padding:0;border:none}
+.wb-pr-wrap{display:inline-block;text-align:left}
+.wb-pr-n{font-size:11px;font-weight:bold;color:#999;line-height:1.3;margin-bottom:4px}
+.wb-pr-top,.wb-pr-bot{display:flex;align-items:baseline;line-height:1}
+.wb-sp{display:inline-block;width:32px}
+.wb-op{display:inline-block;width:32px;font-size:52px;font-weight:bold;color:#1a1a1a;line-height:1.0}
+.wb-d{display:inline-block;width:58px;text-align:center;font-size:52px;font-weight:bold;color:#1a1a1a;line-height:1.15}
+.wb-d-r{display:inline-block;width:58px;text-align:right;font-size:52px;font-weight:bold;color:#1a1a1a;line-height:1.15}
+.wb-d.key-ans{color:#b83000}.wb-d-r.key-ans{color:#b83000}
+.wb-bar{height:2.5px;background:#1a1a1a;width:90px;border-radius:1px;margin:5px 0}
+.wb-pr-ans{height:135px}
+/* mult/div probe */
+.wb-pr-table-md{width:100%;border-collapse:collapse;table-layout:fixed}
+.wb-pr-table-md td{width:16.66%;vertical-align:middle;text-align:center;padding:0;border:none}
+/* multidigit */
+.md-wb-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.md-wb-table td{width:25%;vertical-align:middle;text-align:center;padding:2px 0;border:none}
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <span class="topbar-flame">🔥</span>
+  <span class="topbar-brand">Facts on Fire</span>
+  <span class="topbar-sep">›</span>
+  <span class="topbar-title">Differentiated Probe Set</span>
+  <div class="topbar-spacer"></div>
+  <button class="topbar-btn" onclick="window.location.href='class_roster_portal.html'">← Roster</button>
+  <button class="topbar-btn fire" id="print-btn" onclick="doPrint()" disabled>🖨 Print / Save PDF</button>
+</div>
+
+<div class="layout">
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div>
+      <div class="sidebar-section-title">Class Setup</div>
+      <div class="form-group">
+        <label class="form-label">Teacher</label>
+        <select class="form-select" id="sel-teacher" onchange="onTeacherChange()">
+          <option value="">— Select teacher —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Class / Period</label>
+        <select class="form-select" id="sel-class" onchange="onClassChange()">
+          <option value="">— Select class —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-input" id="probe-date" onchange="onDateChange()">
+        <div class="form-hint">Printed on cover sheet and used for score entry matching</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Include</label>
+        <select class="form-select" id="sel-include" onchange="onIncludeChange()">
+          <option value="both">Probe + Target Practice (both)</option>
+          <option value="probe">Probe only</option>
+          <option value="target">Target Practice only</option>
+        </select>
+        <div class="form-hint">Target practice uses same format, different problems</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-section-title">Skill Groups in this Class</div>
+      <div id="group-summary"><div style="font-size:12px;color:var(--muted)">Select a class to see skill groups.</div></div>
+    </div>
+
+    <div style="margin-top:auto">
+      <div style="background:var(--amber-bg);border:1px solid #FCD34D;border-radius:8px;padding:12px;font-size:12px;color:#92400e">
+        <strong>Score entry:</strong> The cover sheet has a score column for paper entry. Use the <strong>Enter Scores</strong> button in the Roster Portal to record digital scores and trigger auto-advance.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div class="main" id="main-area">
+    <div class="empty-state">
+      <div class="empty-icon">📄</div>
+      <div class="empty-title">Select a class to generate probes</div>
+      <div class="empty-sub">Choose a teacher, class, and date from the sidebar.<br>The generator will create one probe per skill group.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Print root (hidden, becomes visible during print) -->
+<div id="print-root"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// SKILL → GENERATOR MAP
+// Maps roster skill names to problem generator configs
+// ══════════════════════════════════════════════════════════════════
+const SKILL_GEN_MAP = {
+  // ── Addition facts ──────────────────────────────────────────────
+  'Addition facts (sums to 6)':         {genType:'add', maxSum:6,  op:'+', problems:20},
+  'Addition facts (sums to 10)':        {genType:'add', maxSum:10, op:'+', problems:20},
+  'Addition facts (sums to 18)':        {genType:'add', maxSum:18, op:'+', problems:20, rightAlign:true},
+  'Addition facts (sums to 30)':        {genType:'add', maxSum:30, op:'+', problems:20, rightAlign:true},
+  // ── Subtraction facts ───────────────────────────────────────────
+  'Subtraction facts (from 10)':        {genType:'sub', maxMin:10, op:'−', problems:20},
+  'Subtraction facts (from 18)':        {genType:'sub', maxMin:18, op:'−', problems:20, rightAlign:true},
+  'Subtraction facts (from 30)':        {genType:'sub', maxMin:30, op:'−', problems:20, rightAlign:true},
+  // ── Multiplication facts ────────────────────────────────────────
+  'Multiplication facts (to 18)':       {genType:'mult', maxProd:18, op:'×', problems:30},
+  'Multiplication facts (to 36)':       {genType:'mult', maxProd:36, prevMaxProd:18, op:'×', problems:30},
+  'Multiplication facts (to 49)':       {genType:'mult', maxProd:49, prevMaxProd:36, op:'×', problems:30},
+  'Multiplication facts (to 81)':       {genType:'mult', maxProd:81, prevMaxProd:49, op:'×', problems:30},
+  'Multiplication facts (to 100)':      {genType:'mult', maxProd:100, prevMaxProd:49, op:'×', problems:30},
+  'Multiplication facts (to 144)':      {genType:'mult', maxProd:144, prevMaxProd:100, op:'×', problems:30},
+  'Multiplication facts (to 225)':      {genType:'mult', maxProd:225, prevMaxProd:144, op:'×', problems:30},
+  'Multiplication facts (to 400)':      {genType:'mult', maxProd:400, prevMaxProd:225, op:'×', problems:30},
+  // ── Division facts ──────────────────────────────────────────────
+  'Division facts (to 18)':             {genType:'div', maxProd:18, op:'÷', problems:30},
+  'Division facts (to 36)':             {genType:'div', maxProd:36, prevMaxProd:18, op:'÷', problems:30},
+  'Division facts (to 49)':             {genType:'div', maxProd:49, prevMaxProd:36, op:'÷', problems:30},
+  'Division facts (to 100)':            {genType:'div', maxProd:100, prevMaxProd:49, op:'÷', problems:30},
+  'Division facts (to 144)':            {genType:'div', maxProd:144, prevMaxProd:100, op:'÷', problems:30},
+  // ── Multidigit add/sub (K-4 names) ─────────────────────────────
+  'Multidigit addition — no regrouping':         {genType:'multiadd',    digits:3, op:'+', problems:16},
+  'Multidigit addition — 2-digit w/ regrouping': {genType:'multiadd2wr', digits:2, op:'+', problems:16},
+  'Multidigit addition — 3-digit w/ regrouping': {genType:'multiadd3wr', digits:3, op:'+', problems:16},
+  'Multidigit subtraction — no regrouping':      {genType:'multisub',    digits:3, op:'−', problems:16},
+  'Multidigit subtraction — 2-digit w/ regrouping':{genType:'multisub2wr',digits:2, op:'−', problems:16},
+  'Multidigit subtraction — 3-digit w/ regrouping':{genType:'multisub3wr',digits:3, op:'−', problems:16},
+  // ── Grade 5 skill names ─────────────────────────────────────────
+  'Multidigit addition':    {genType:'multiadd3wr', digits:3, op:'+', problems:16},
+  'Multidigit subtraction': {genType:'multisub3wr', digits:3, op:'−', problems:16},
+  'Multiplication facts (to 36)': {genType:'mult', maxProd:36, op:'×', problems:30},
+  'Multiplication facts (to 81)': {genType:'mult', maxProd:81, prevMaxProd:36, op:'×', problems:30},
+  'Division facts':          {genType:'div', maxProd:81, op:'÷', problems:30},
+  'Division facts (continued)':{genType:'div', maxProd:81, prevMaxProd:36, op:'÷', problems:30},
+};
+
+// Group colors
+const GROUP_COLORS = ['#FF4F00','#1B4FCC','#10B981','#7C3AED','#F59E0B','#EC4899','#0891B2','#65A30D'];
+const GROUP_LETTERS = 'ABCDEFGHIJKLMNOP'.split('');
+
+// ══════════════════════════════════════════════════════════════════
+// ROSTER DATA
+// ══════════════════════════════════════════════════════════════════
+let rosterData = { teachers: [] };
+let activeTeacher = null;
+let activeClass   = null;
+let skillGroups   = [];
+let probePages    = [];
+let includeMode   = 'both';
+
+function loadRoster() {
+  try {
+    const raw = localStorage.getItem('fof_roster_v1');
+    if (raw) rosterData = JSON.parse(raw);
+  } catch(e) {}
+}
+
+function normalizeSkill(rawSkill, grade) {
+  if (!rawSkill) return null;
+  if (typeof rawSkill === 'object' && rawSkill.name) return rawSkill;
+  return { name: rawSkill, grade, seq: -1 };
+}
+
+// ══════════════════════════════════════════════════════════════════
+// UI SETUP
+// ══════════════════════════════════════════════════════════════════
+function init() {
+  loadRoster();
+  // Set default date to today
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm   = String(today.getMonth()+1).padStart(2,'0');
+  const dd   = String(today.getDate()).padStart(2,'0');
+  document.getElementById('probe-date').value = `${yyyy}-${mm}-${dd}`;
+
+  const tSel = document.getElementById('sel-teacher');
+  rosterData.teachers.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.name;
+    tSel.appendChild(opt);
+  });
+  if (rosterData.teachers.length === 1) {
+    tSel.value = rosterData.teachers[0].id;
+    onTeacherChange();
+  }
+}
+
+function onTeacherChange() {
+  const tid = document.getElementById('sel-teacher').value;
+  activeTeacher = rosterData.teachers.find(t => t.id === tid) || null;
+  const cSel = document.getElementById('sel-class');
+  cSel.innerHTML = '<option value="">— Select class —</option>';
+  if (!activeTeacher) return;
+  activeTeacher.classes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = `${c.period} · Grade ${c.grade}`;
+    cSel.appendChild(opt);
+  });
+  if (activeTeacher.classes.length === 1) {
+    cSel.value = activeTeacher.classes[0].id;
+    onClassChange();
+  }
+  activeClass = null;
+  clearPreview();
+}
+
+function onClassChange() {
+  if (!activeTeacher) return;
+  const cid = document.getElementById('sel-class').value;
+  activeClass = activeTeacher.classes.find(c => c.id === cid) || null;
+  if (activeClass) buildGroupSummary();
+  else clearPreview();
+}
+
+function onDateChange() { if (activeClass) buildGroupSummary(); }
+function onIncludeChange() {
+  includeMode = document.getElementById('sel-include').value;
+  if (activeClass) buildGroupSummary();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// GROUP BUILDING
+// ══════════════════════════════════════════════════════════════════
+function buildGroupSummary() {
+  if (!activeClass) return;
+  const active = activeClass.students.filter(s => !s.inactive);
+
+  // Group students by skill name
+  const groups = {};
+  active.forEach(s => {
+    const skill = normalizeSkill(s.currentSkill, activeClass.grade);
+    const key = skill ? skill.name : '— Unassigned —';
+    const seq = skill ? (skill.seq ?? 999) : 999;
+    if (!groups[key]) groups[key] = { skillName: key, seq, students: [] };
+    groups[key].students.push(s);
+  });
+
+  // Sort groups by skill sequence, then by name
+  skillGroups = Object.values(groups).sort((a,b) => a.seq - b.seq || a.skillName.localeCompare(b.skillName));
+
+  // Render sidebar group cards
+  const container = document.getElementById('group-summary');
+  if (!skillGroups.length) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--muted)">No active students.</div>';
+    return;
+  }
+
+  const hasUnmapped = skillGroups.some(g => !SKILL_GEN_MAP[g.skillName]);
+  container.innerHTML = skillGroups.map((g, i) => {
+    const gen = SKILL_GEN_MAP[g.skillName];
+    const color = GROUP_COLORS[i % GROUP_COLORS.length];
+    const letter = GROUP_LETTERS[i];
+    const studentNums = g.students.map(s => `#${s.number}`).join(', ');
+    return `<div class="group-card">
+      <div class="group-card-header">
+        <div class="group-letter" style="background:${color}">${letter}</div>
+        <div class="group-skill-name">${g.skillName}</div>
+        <div class="group-count">${g.students.length} student${g.students.length!==1?'s':''}</div>
+      </div>
+      <div class="group-students">${studentNums}</div>
+      ${!gen ? `<div class="group-no-gen">⚠ No generator for this skill — page omitted</div>` : ''}
+    </div>`;
+  }).join('');
+
+  generatePreview();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PAGE GENERATION
+// ══════════════════════════════════════════════════════════════════
+function generatePreview() {
+  const date = document.getElementById('probe-date').value;
+  const dateDisplay = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) : 'No date';
+
+  const pages = [];
+  // Page 1: Cover / Score Sheet
+  pages.push({ label:'Cover / Score Sheet', html: buildCoverSheet(dateDisplay) });
+
+  skillGroups.forEach((g, i) => {
+    const gen = SKILL_GEN_MAP[g.skillName];
+    if (!gen) return;
+    const color = GROUP_COLORS[i % GROUP_COLORS.length];
+    const letter = GROUP_LETTERS[i];
+    const label = `Group ${letter} — ${g.skillName}`;
+
+    if (includeMode === 'both' || includeMode === 'probe') {
+      pages.push({ label:`${label} · Probe`, html: buildProbePage(gen, g.skillName, 'Probe', color, letter) });
+    }
+    if (includeMode === 'both' || includeMode === 'target') {
+      pages.push({ label:`${label} · Target Practice`, html: buildProbePage(gen, g.skillName, 'Target Practice', color, letter) });
+    }
+  });
+
+  probePages = pages;
+  renderPreview(pages, dateDisplay);
+  buildPrintRoot(pages);
+  document.getElementById('print-btn').disabled = false;
+}
+
+function clearPreview() {
+  document.getElementById('main-area').innerHTML = `<div class="empty-state">
+    <div class="empty-icon">📄</div>
+    <div class="empty-title">Select a class to generate probes</div>
+    <div class="empty-sub">Choose a teacher, class, and date from the sidebar.</div>
+  </div>`;
+  document.getElementById('group-summary').innerHTML = '<div style="font-size:12px;color:var(--muted)">Select a class to see skill groups.</div>';
+  document.getElementById('print-btn').disabled = true;
+}
+
+function renderPreview(pages, dateDisplay) {
+  const main = document.getElementById('main-area');
+  const SCALE = 0.62;
+  const PW = 816, PH = 1056; // letter at 96dpi
+
+  main.innerHTML = `
+    <div class="preview-header">
+      <div>
+        <div class="preview-title">${activeTeacher.name} — ${activeClass.period}</div>
+        <div class="preview-sub">${dateDisplay} · Grade ${activeClass.grade} · ${activeClass.students.filter(s=>!s.inactive).length} students</div>
+      </div>
+      <span class="page-count-badge">${pages.length} page${pages.length!==1?'s':''}</span>
+    </div>
+    <div class="print-preview" id="preview-container">
+      ${pages.map((p,i) => `
+        <div>
+          <div class="preview-label">Page ${i+1}: ${p.label}</div>
+          <div class="preview-page-wrap" style="width:${Math.round(PW*SCALE)}px;height:${Math.round(PH*SCALE)}px;overflow:hidden">
+            <div style="transform:scale(${SCALE});transform-origin:top left;width:${PW}px;height:${PH}px;overflow:hidden">
+              ${p.html}
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function buildPrintRoot(pages) {
+  const root = document.getElementById('print-root');
+  root.innerHTML = pages.map(p => `<div class="print-root-page">${p.html}</div>`).join('');
+}
+
+function doPrint() {
+  window.print();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// COVER SHEET
+// ══════════════════════════════════════════════════════════════════
+function buildCoverSheet(dateDisplay) {
+  const teacherName = activeTeacher.name;
+  const className   = `${activeClass.period} · Grade ${activeClass.grade}${activeClass.room ? ' · ' + activeClass.room : ''}`;
+  const active = activeClass.students.filter(s => !s.inactive);
+
+  // Mastery threshold helper
+  const masteryInfo = (gen) => {
+    if (!gen) return '';
+    const n = gen.problems;
+    const thresh = Math.ceil(n * 0.85);
+    return `${thresh}+ / ${n} = mastery`;
+  };
+
+  // Group legend
+  const legendRows = skillGroups.map((g,i) => {
+    const gen = SKILL_GEN_MAP[g.skillName];
+    const color = GROUP_COLORS[i % GROUP_COLORS.length];
+    const letter = GROUP_LETTERS[i];
+    return `<tr>
+      <td style="padding:4px 8px;font-size:11px;font-weight:bold;color:#fff;background:${color};border-radius:3px;white-space:nowrap">Group ${letter}</td>
+      <td style="padding:4px 12px;font-size:11px;font-weight:bold">${g.skillName}</td>
+      <td style="padding:4px 12px;font-size:10px;color:#555">${g.students.length} student${g.students.length!==1?'s':''}</td>
+      <td style="padding:4px 12px;font-size:10px;color:#555">${gen ? masteryInfo(gen) : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  // Student score rows
+  const scoreRows = active.map(s => {
+    const skill = normalizeSkill(s.currentSkill, activeClass.grade);
+    const skillName = skill ? skill.name : '—';
+    // Find which group this student is in
+    const gIdx = skillGroups.findIndex(g => g.skillName === skillName);
+    const gen = gIdx >= 0 ? SKILL_GEN_MAP[skillName] : null;
+    const color = gIdx >= 0 ? GROUP_COLORS[gIdx % GROUP_COLORS.length] : '#ccc';
+    const letter = gIdx >= 0 ? GROUP_LETTERS[gIdx] : '?';
+    const total = gen ? gen.problems : '?';
+    return `<tr style="border-bottom:1px solid #e8e8e8">
+      <td style="padding:5px 8px;font-size:13px;font-weight:bold;text-align:center">${s.number}</td>
+      <td style="padding:5px 8px;font-size:12px;font-weight:600">${s.name}</td>
+      <td style="padding:5px 8px;text-align:center">
+        <span style="background:${color};color:#fff;font-size:10px;font-weight:bold;padding:2px 7px;border-radius:3px">${letter}</span>
+      </td>
+      <td style="padding:5px 8px;font-size:11px;color:#444">${skillName}</td>
+      <td style="padding:5px 14px;font-size:12px;color:#888;text-align:center">_____ / ${total}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="wb-page" style="padding:.4in .55in .3in">
+  <div style="border-bottom:3px solid #1a1a1a;margin-bottom:10px;padding-bottom:8px">
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:18px;font-weight:bold;color:#1a1a1a">🔥 Facts on Fire — Class Probe Set</div>
+    <div style="display:flex;gap:40px;margin-top:6px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;color:#444">
+      <span>Teacher: <span style="color:#1a1a1a">${teacherName}</span></span>
+      <span>Class: <span style="color:#1a1a1a">${className}</span></span>
+      <span>Date: <span style="color:#1a1a1a">${dateDisplay}</span></span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start">
+    <div>
+      <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:6px">Student Roster &amp; Scores</div>
+      <table style="width:100%;border-collapse:collapse;font-family:Helvetica,Arial,sans-serif">
+        <thead>
+          <tr style="background:#1a1a1a">
+            <th style="padding:5px 8px;font-size:10px;font-weight:bold;color:#fff;text-align:center;width:36px">#</th>
+            <th style="padding:5px 8px;font-size:10px;font-weight:bold;color:#fff;text-align:left">Name</th>
+            <th style="padding:5px 8px;font-size:10px;font-weight:bold;color:#fff;text-align:center;width:48px">Grp</th>
+            <th style="padding:5px 8px;font-size:10px;font-weight:bold;color:#fff;text-align:left">Skill</th>
+            <th style="padding:5px 8px;font-size:10px;font-weight:bold;color:#fff;text-align:center;width:90px">Score</th>
+          </tr>
+        </thead>
+        <tbody>${scoreRows}</tbody>
+      </table>
+    </div>
+
+    <div style="min-width:200px">
+      <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:6px">Skill Groups</div>
+      <table style="border-collapse:collapse;font-family:Helvetica,Arial,sans-serif">
+        <thead>
+          <tr style="background:#f5f5f5">
+            <th style="padding:4px 8px;font-size:9px;font-weight:bold;color:#666;text-align:left">Group</th>
+            <th style="padding:4px 12px;font-size:9px;font-weight:bold;color:#666;text-align:left">Skill</th>
+            <th style="padding:4px 12px;font-size:9px;font-weight:bold;color:#666;text-align:left">n</th>
+            <th style="padding:4px 12px;font-size:9px;font-weight:bold;color:#666;text-align:left">Mastery</th>
+          </tr>
+        </thead>
+        <tbody>${legendRows}</tbody>
+      </table>
+      <div style="margin-top:14px;padding:8px 10px;background:#FFF8E1;border:1px solid #FFD54F;border-radius:5px;font-family:Helvetica,Arial,sans-serif;font-size:10px;color:#555;line-height:1.5">
+        <strong>Auto-advance rule:</strong><br>
+        3 consecutive scores ≥ 85% → student moves to next skill.<br>
+        Enter scores in the Roster Portal to trigger auto-advance.
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PROBLEM GENERATORS  (from workbook-generator.html)
+// ══════════════════════════════════════════════════════════════════
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]];}return a}
+
+function genProblems(gen, n) {
+  const pool = [];
+  const {genType, op, maxSum, maxMin, maxProd, prevMaxProd} = gen;
+  if (genType === 'add') {
+    for(let a=1;a<maxSum;a++) for(let b=1;a+b<=maxSum;b++) pool.push({a,b,op:'+'});
+  } else if (genType === 'sub') {
+    for(let a=2;a<=maxMin;a++) for(let b=1;b<a&&b<=9&&(a-b)>=1;b++) pool.push({a,b,op:'−'});
+  } else if (genType === 'mult') {
+    const mp = maxProd||81, minP = prevMaxProd||0;
+    const maxF = Math.min(20,Math.max(9,Math.round(Math.sqrt(mp))));
+    for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++) if(a*b<=mp&&a*b>minP) pool.push({a,b,op:'×',ans:a*b});
+  } else if (genType === 'div') {
+    const mp = maxProd||81, minP = prevMaxProd||0;
+    const maxF = Math.min(20,Math.max(9,Math.round(Math.sqrt(mp))));
+    for(let a=2;a<=maxF;a++) for(let b=2;b<=maxF;b++) if(a*b<=mp&&a*b>minP) pool.push({a:a*b,b:a,op:'÷',ans:b});
+  } else if (genType === 'multiadd') {
+    for(let a=100;a<=899;a+=ri(1,9)) for(let b=100;b<=899&&pool.length<n*4;b+=ri(1,9)){
+      const noReg=(x,y)=>{let r=true;let xi=x,yi=y;for(let i=0;i<3;i++){if((xi%10)+(yi%10)>=10){r=false;break;}xi=Math.floor(xi/10);yi=Math.floor(yi/10);}return r;};
+      if(noReg(a,b)&&a+b<=999) pool.push({a,b,op:'+'});
+    }
+  } else if (genType === 'multiadd2wr') {
+    for(let a=11;a<=99;a++) for(let b=1;b<=9;b++) if((a%10)+b>=10) pool.push({a,b,op:'+'});
+  } else if (genType === 'multiadd3wr') {
+    for(let t=0;t<n*40&&pool.length<n*3;t++){
+      const a=100+Math.floor(Math.random()*800), b=100+Math.floor(Math.random()*800);
+      const hasReg=(x,y)=>{let xi=x,yi=y;for(let i=0;i<3;i++){if((xi%10)+(yi%10)>=10)return true;xi=Math.floor(xi/10);yi=Math.floor(yi/10);}return false;};
+      if(hasReg(a,b)&&a+b<=9999) pool.push({a,b,op:'+'});
+    }
+  } else if (genType === 'multisub') {
+    const noRegSub=(x,y)=>{let xi=x,yi=y;for(let i=0;i<3;i++){if((xi%10)<(yi%10))return false;xi=Math.floor(xi/10);yi=Math.floor(yi/10);}return true;};
+    for(let t=0;t<n*40&&pool.length<n*3;t++){
+      const a=200+Math.floor(Math.random()*700),b=100+Math.floor(Math.random()*(a-100));
+      if(b>=100&&noRegSub(a,b)&&a-b>=100) pool.push({a,b,op:'−'});
+    }
+  } else if (genType === 'multisub2wr') {
+    for(let t=0;t<n*30&&pool.length<n*3;t++){
+      const a=20+Math.floor(Math.random()*80),b=10+Math.floor(Math.random()*Math.min(a-10,80));
+      if(b>=10&&a>b&&(a%10)<(b%10)) pool.push({a,b,op:'−'});
+    }
+  } else if (genType === 'multisub3wr') {
+    const hasRegSub3=(x,y)=>{let xi=x,yi=y;for(let i=0;i<3;i++){if((xi%10)<(yi%10))return true;xi=Math.floor(xi/10);yi=Math.floor(yi/10);}return false;};
+    for(let t=0;t<n*40&&pool.length<n*3;t++){
+      const a=200+Math.floor(Math.random()*700),b=100+Math.floor(Math.random()*(a-100));
+      if(b>=100&&hasRegSub3(a,b)) pool.push({a,b,op:'−'});
+    }
+  }
+  shuffle(pool);
+  while(pool.length<n) pool.push(...pool.slice(0,n));
+  return pool.slice(0,n);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PAGE RENDERERS  (derived from workbook-generator.html locked formats)
+// ══════════════════════════════════════════════════════════════════
+
+function probPageHTML(problems, label, title, rightAlign=false) {
+  const n = Math.min(problems.length,20);
+  let rows='';
+  for(let r=0;r<4;r++){
+    let cells='';
+    for(let c=0;c<5;c++){
+      const idx=r*5+c;
+      if(idx<n){
+        const p=problems[idx];
+        const ans=p.op==='+'?p.a+p.b:p.op==='−'||p.op==='-'?p.a-p.b:p.ans;
+        const op=p.op==='−'?'−':p.op==='÷'?'÷':p.op==='×'?'×':'+';
+        const dc=rightAlign?'wb-d-r':'wb-d';
+        cells+=`<td><div class="wb-pr-wrap">
+          <div class="wb-pr-n">${idx+1}</div>
+          <div class="wb-pr-top"><span class="wb-sp"></span><span class="${dc}">${p.a}</span></div>
+          <div class="wb-pr-bot"><span class="wb-op">${op}</span><span class="${dc}">${p.b}</span></div>
+          <div class="wb-bar"></div>
+          <div class="wb-pr-ans"></div>
+        </div></td>`;
+      } else cells+='<td></td>';
+    }
+    rows+=`<tr>${cells}</tr>`;
+  }
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} — ${label}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span>&nbsp;#&nbsp;<span class="wb-line" style="width:32px"></span></span>
+    <span class="wb-meta-act">${label}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;/ ${n}&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+  <table class="wb-pr-table"><tbody>${rows}</tbody></table>
+</div>`;
+}
+
+function probPageHTMLMult(problems, label, title) {
+  const n=Math.min(problems.length,30);
+  let rows='';
+  for(let r=0;r<5;r++){
+    let cells='';
+    for(let c=0;c<6;c++){
+      const idx=r*6+c;
+      if(idx<n){
+        const p=problems[idx];
+        const ans=p.op==='×'?p.a*p.b:p.ans;
+        const op=p.op==='÷'?'÷':'×';
+        cells+=`<td><div class="wb-pr-wrap">
+          <div class="wb-pr-n">${idx+1}</div>
+          <div class="wb-pr-top"><span style="display:inline-block;width:22px"></span><span style="display:inline-block;width:42px;text-align:center;font-size:36px;font-weight:bold;color:#1a1a1a;line-height:1.15">${p.a}</span></div>
+          <div class="wb-pr-bot"><span style="display:inline-block;width:22px;font-size:36px;font-weight:bold;color:#1a1a1a;line-height:1.0">${op}</span><span style="display:inline-block;width:42px;text-align:center;font-size:36px;font-weight:bold;color:#1a1a1a;line-height:1.15">${p.b}</span></div>
+          <div style="height:2px;background:#1a1a1a;width:64px;border-radius:1px;margin:4px 0"></div>
+          <div style="height:72px"></div>
+        </div></td>`;
+      } else cells+='<td></td>';
+    }
+    rows+=`<tr>${cells}</tr>`;
+  }
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} — ${label}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span>&nbsp;#&nbsp;<span class="wb-line" style="width:32px"></span></span>
+    <span class="wb-meta-act">${label}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;/ ${n}&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+  <table class="wb-pr-table-md" style="border-collapse:collapse;table-layout:fixed"><tbody>${rows}</tbody></table>
+</div>`;
+}
+
+function mdProbPageHTML(problems, label, title, numDigits=3) {
+  const n=Math.min(problems.length,16);
+  const cfg=numDigits<=2?{fz:42,dw:38,ow:30,ansH:110}:{fz:34,dw:28,ow:26,ansH:128};
+  const dS=`display:inline-block;width:${cfg.dw}px;text-align:center;font-size:${cfg.fz}px;font-weight:bold;color:#1a1a1a;line-height:1.1;font-family:Helvetica,Arial,sans-serif;`;
+  const opS=`display:inline-block;width:${cfg.ow}px;text-align:center;font-size:${cfg.fz}px;font-weight:bold;color:#1a1a1a;line-height:1.1;font-family:Helvetica,Arial,sans-serif;`;
+  const spS=`display:inline-block;width:${cfg.ow}px;`;
+  const blS=`display:inline-block;width:${cfg.dw}px;`;
+  const barW=cfg.ow+cfg.dw*numDigits;
+  const digRow=(num)=>{const s=String(num);const pad=numDigits-s.length;return Array(pad).fill(`<span style="${blS}"></span>`).join('')+s.split('').map(d=>`<span style="${dS}">${d}</span>`).join('');};
+  let rows='';
+  for(let r=0;r<4;r++){
+    let cells='';
+    for(let c=0;c<4;c++){
+      const idx=r*4+c;
+      if(idx<n){
+        const p=problems[idx];
+        const isSub=p.op==='−'||p.op==='-';
+        const op=isSub?'−':'+';
+        cells+=`<td><div style="display:inline-block;text-align:left;">
+          <div style="font-size:11px;font-weight:bold;color:#bbb;margin-bottom:3px;line-height:1;">${idx+1}</div>
+          <div style="display:flex;align-items:baseline;"><span style="${spS}"></span>${digRow(p.a)}</div>
+          <div style="display:flex;align-items:baseline;"><span style="${opS}">${op}</span>${digRow(p.b)}</div>
+          <div style="height:2.5px;background:#1a1a1a;width:${barW}px;margin:4px 0;border-radius:1px;"></div>
+          <div style="height:${cfg.ansH}px;"></div>
+        </div></td>`;
+      } else cells+='<td></td>';
+    }
+    rows+=`<tr>${cells}</tr>`;
+  }
+  return `<div class="wb-page">
+  <div class="wb-hdr-line">Facts on Fire: ${title} — ${label}</div>
+  <div class="wb-meta">
+    <span>Name:&nbsp;<span class="wb-line long"></span>&nbsp;#&nbsp;<span class="wb-line" style="width:32px"></span></span>
+    <span class="wb-meta-act">${label}</span>
+    <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;/ ${n}&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
+  </div>
+  <table class="md-wb-table"><tbody>${rows}</tbody></table>
+</div>`;
+}
+
+// ── Dispatch: pick the right renderer based on genType ──────────────────
+function buildProbePage(gen, skillName, pageType, color, letter) {
+  const label = `Group ${letter} — ${pageType}`;
+  const n = gen.problems;
+  const problems = genProblems(gen, n);
+  const {genType} = gen;
+
+  if (genType === 'mult' || genType === 'div') {
+    return probPageHTMLMult(problems, label, skillName);
+  } else if (['multiadd','multiadd2wr','multiadd3wr','multisub','multisub2wr','multisub3wr'].includes(genType)) {
+    return mdProbPageHTML(problems, label, skillName, gen.digits || 3);
+  } else {
+    return probPageHTML(problems, label, skillName, !!gen.rightAlign);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════════
+function toast(msg, type='green') {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=`toast ${type} show`;
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
