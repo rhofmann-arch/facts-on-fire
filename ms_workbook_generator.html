@@ -116,8 +116,8 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .wb-dir{font-size:10.5px;font-weight:700;color:#444;margin-bottom:8px;padding-bottom:5px;border-bottom:1.5px solid #e8e8e8}
 
 /* ── PROBE / TARGET: 20-fact grid (4 cols × 5 rows) ── */
-.prob-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px 10px;flex:1;align-content:start}
-.prob-cell{display:flex;align-items:center;gap:4px;padding:4px 3px;border-bottom:1px solid #ececec;min-height:49px}
+.prob-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0 10px;flex:1;align-content:space-between}
+.prob-cell{display:flex;align-items:center;gap:4px;padding:6px 3px;border-bottom:1px solid #ececec;}
 .prob-num{font-size:9px;font-weight:800;color:#ccc;min-width:14px;align-self:flex-start;padding-top:4px}
 .prob-expr{display:flex;align-items:center;gap:3px;font-size:21px;font-weight:800;color:#1a1a1a;line-height:1;flex:1}
 .prob-eq{font-size:18px;font-weight:700;color:#666}
@@ -130,6 +130,43 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 /* square */
 .sq-base{font-size:21px;font-weight:800;line-height:1}
 .sq-exp{font-size:16px;font-weight:800;position:relative;top:-10px;margin-left:0;line-height:1}
+
+/* ── BENCHMARK PERCENTS PAGE STYLES ── */
+.pct-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 28px;flex:1;align-content:space-between;}
+.pct-cell{display:flex;align-items:center;gap:0;padding:7px 2px;border-bottom:1px solid #e8e8e8;}
+.pct-num{font-size:9px;font-weight:800;color:#ccc;min-width:16px;align-self:flex-start;padding-top:6px;flex-shrink:0;}
+.pct-expr{display:flex;align-items:center;gap:6px;flex:1;font-size:19px;font-weight:800;color:#1a1a1a;line-height:1;}
+.pct-eq{font-size:17px;font-weight:700;color:#666;flex-shrink:0;}
+/* stacked fraction */
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1;vertical-align:middle;gap:1px;}
+.fnum{font-size:19px;font-weight:800;line-height:1;}
+.fbar{width:100%;min-width:18px;height:2px;background:#1a1a1a;}
+.fden{font-size:19px;font-weight:800;line-height:1;}
+/* blank slots — no underlines, fraction bar does the work */
+.frac-blank .fnum{display:inline-block;min-width:28px;height:20px;}
+.frac-blank .fbar{background:#1a1a1a;}
+.frac-blank .fden{color:#1a1a1a;}
+.frac-rev .fnum{display:inline-block;min-width:22px;height:20px;}
+.frac-rev .fbar{background:#1a1a1a;}
+.frac-rev .fden{display:inline-block;min-width:22px;height:20px;}
+/* percent blank */
+.pct-blank{display:inline-block;border-bottom:2px solid #888;min-width:34px;height:20px;vertical-align:bottom;}
+.pct-sym{font-size:19px;font-weight:800;color:#1a1a1a;flex-shrink:0;}
+/* answer key */
+.fnum-key{font-size:19px;font-weight:800;color:#b83000;line-height:1;}
+.fbar-key{background:#b83000;}
+.pct-ans{font-size:19px;font-weight:800;color:#b83000;}
+.frac-rev-key .fnum{font-size:19px;font-weight:800;color:#b83000;line-height:1;}
+.frac-rev-key .fbar{background:#b83000;}
+.frac-rev-key .fden{font-size:19px;font-weight:800;color:#b83000;line-height:1;}
+/* section label */
+.sect-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#999;grid-column:1/-1;padding:3px 0 1px;}
+/* inline mini fraction for reference table */
+.rf{display:inline-flex;flex-direction:column;align-items:center;line-height:1;vertical-align:middle;margin:0 1px;}
+.rf-n{font-size:9px;font-weight:800;line-height:1;}
+.rf-b{width:100%;height:1.2px;background:#1a1a1a;margin:1px 0;}
+.rf-d{font-size:9px;font-weight:800;line-height:1;}
+.ref-cell{flex:1;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#1a1a1a;white-space:nowrap;}
 
 /* ── REFERENCE TABLE ── */
 .ref-wrap{border:2px solid #007A6E;border-radius:7px;margin-bottom:9px;overflow:hidden}
@@ -301,6 +338,28 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .ar-ref-body{padding:4px 14px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
 .ar-ref-f{font-size:12px;font-weight:800;color:#1a1a1a;}.ar-ref-f em{font-style:normal;color:#007A6E;}
 
+/* ════════════════════════════════════════════════════════════
+   AREA OF TRIANGLES PAGE STYLES
+   ════════════════════════════════════════════════════════════ */
+.tri-grid{
+  flex:1;display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:8px 12px;
+}
+.tri-cell{
+  border:1.5px solid #ddd;border-radius:7px;
+  padding:6px 8px 8px;
+  display:flex;flex-direction:column;
+  position:relative;overflow:visible;
+}
+.tri-pnum{position:absolute;top:5px;left:8px;font-size:9px;font-weight:800;color:#ccc;line-height:1;}
+.tri-diag{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:visible;padding:4px 2px 0;}
+.tri-diag svg{display:block;width:100%;height:100%;overflow:visible;}
+.tri-ans{font-size:12px;font-weight:800;color:#1a1a1a;display:flex;align-items:center;gap:5px;padding:5px 2px 0;border-top:1px solid #eee;flex-shrink:0;}
+.tri-blank{display:inline-block;border-bottom:2px solid #888;min-width:54px;height:16px;vertical-align:bottom;}
+.tri-ans-val{color:#b83000;font-weight:800;font-size:13px;}
+
 /* ── PREVIEW MODAL ── */
 .preview-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;flex-direction:column}
 .preview-modal.open{display:flex}
@@ -343,6 +402,26 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
         <div class="skill-name">Perfect Squares &amp; Square Roots</div>
         <div class="skill-desc">Fluency with perfect squares (1–144) and square roots (√1–√144). Timed probes and target practice mix squaring and rooting facts. 20 problems per page.</div>
       </div>
+      <div class="skill-card" id="skill-ee" onclick="selectSkill('evalexp')">
+        <div class="skill-icon">bⁿ</div>
+        <div class="skill-name">Evaluating Exponents</div>
+        <div class="skill-desc">Bases 2–9, exponents 2 and 3. Timed probes and target practice mix forward evaluation (b<sup>e</sup> = ?) and missing-exponent problems (b<sup>?</sup> = value). Reference table on target pages. 20 problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-bp1" onclick="selectSkill('benchpct1')">
+        <div class="skill-icon">%½</div>
+        <div class="skill-name">Benchmark Percents 1</div>
+        <div class="skill-desc">Core benchmark percents: 1%, 5%, 10%, 20%, 25%, 40%, 50%, 75%. Forward problems show the simplified fraction; students fill in the /100 numerator and the percent. Reverse problems give the percent; students write the simplified fraction. 16 problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-bp2" onclick="selectSkill('benchpct2')">
+        <div class="skill-icon">%¾</div>
+        <div class="skill-name">Benchmark Percents 2</div>
+        <div class="skill-desc">Extended benchmark percents: 2%, 30%, 70%, 90%, 150%, 200%. Same forward/reverse format as Set 1 — includes improper fractions (3/2, 2/1) for percents over 100%. 16 problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-atri" onclick="selectSkill('areatri')">
+        <div class="skill-icon">△</div>
+        <div class="skill-name">Area of Triangles</div>
+        <div class="skill-desc">Acute and obtuse triangles with dashed height lines. Obtuse triangles show the height extended outside the base. Some problems include a distractor measurement — students identify the correct base–height pair. 6 diagram problems per page.</div>
+      </div>
       <div class="skill-card" id="skill-ia" onclick="selectSkill('intadd')">
         <div class="skill-icon">﹢⁻</div>
         <div class="skill-name">Integer Addition</div>
@@ -377,6 +456,11 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
         <div class="skill-icon">×÷⁻</div>
         <div class="skill-name">Integer Mul/Div Mixed</div>
         <div class="skill-desc">Multiplication and division problems interleaved on the same page — operator varies per problem. Sign rules reference at top. 12 horizontal + 8 vertical problems per page.</div>
+      </div>
+      <div class="skill-card" id="skill-all" onclick="selectSkill('intallmix')">
+        <div class="skill-icon">±×÷</div>
+        <div class="skill-name">Integer All Four Mixed</div>
+        <div class="skill-desc">All four integer operations on one page — 5 addition, 5 subtraction, 5 multiplication, 5 division, shuffled. Number line + sign rules reference. Ideal for end-of-unit review.</div>
       </div>
     </div>
     <div class="btn-row">
@@ -461,14 +545,283 @@ const SQ_DATA = [
 ];
 const SQ_SET = new Set([1,4,9,16,25,36,49,64,81,100,121,144]);
 
-let ACTIVE_SKILL = 'squares'; // 'squares' | 'intadd'
+/* ════════════════════════════════════════════════════════════
+   EVALUATING EXPONENTS — DATA, GENERATORS & PAGE RENDERERS
+   Bases 2–9, exponents 2 and 3.
+   Two problem types per page:
+     'eval' → b^e = ___   (find the value)
+     'inv'  → b^? = val   (find the missing exponent)
+   ════════════════════════════════════════════════════════════ */
+const EXP_DATA = [
+  // Squared: bases 2–9
+  {base:2,exp:2,val:4},
+  {base:3,exp:2,val:9},
+  {base:4,exp:2,val:16},
+  {base:5,exp:2,val:25},
+  {base:6,exp:2,val:36},
+  {base:7,exp:2,val:49},
+  {base:8,exp:2,val:64},
+  {base:9,exp:2,val:81},
+  // Cubed: bases 1–5
+  {base:1,exp:3,val:1},
+  {base:2,exp:3,val:8},
+  {base:3,exp:3,val:27},
+  {base:4,exp:3,val:64},
+  {base:5,exp:3,val:125},
+];
+
+/* Generate n problems: pool of all eval + inv facts, shuffle, pick n */
+function genExpProblems(n=20){
+  const pool=[];
+  for(const d of EXP_DATA){
+    pool.push({...d, type:'eval'});   // b^e = ___
+    pool.push({...d, type:'inv'});    // b^? = val
+  }
+  return shuffle(pool).slice(0,n);
+}
+
+/* ════════════════════════════════════════════════════════════
+   BENCHMARK PERCENTS — DATA, GENERATORS & PAGE RENDERERS
+   Set 1: 1,5,10,20,25,40,50,75%
+   Set 2: 2,30,70,90,150,200%
+   Forward:  simplified frac → fill ?/100 numerator + %
+   Reverse:  % → fill simplified fraction (both slots)
+   ════════════════════════════════════════════════════════════ */
+const PCT_DATA_1 = [
+  {pct:1,  num:1,  den:100, snum:1, sden:100},
+  {pct:5,  num:5,  den:100, snum:1, sden:20 },
+  {pct:10, num:10, den:100, snum:1, sden:10 },
+  {pct:20, num:20, den:100, snum:1, sden:5  },
+  {pct:25, num:25, den:100, snum:1, sden:4  },
+  {pct:40, num:40, den:100, snum:2, sden:5  },
+  {pct:50, num:50, den:100, snum:1, sden:2  },
+  {pct:75, num:75, den:100, snum:3, sden:4  },
+];
+const PCT_DATA_2 = [
+  {pct:2,   num:2,   den:100, snum:1, sden:50},
+  {pct:30,  num:30,  den:100, snum:3, sden:10},
+  {pct:70,  num:70,  den:100, snum:7, sden:10},
+  {pct:90,  num:90,  den:100, snum:9, sden:10},
+  {pct:150, num:150, den:100, snum:3, sden:2 },
+  {pct:200, num:200, den:100, snum:2, sden:1 },
+];
+
+function genPctProblems(data){
+  const fwd = shuffle([...data]).map(d=>({...d,type:'fwd'}));
+  const rev = shuffle([...data]).map(d=>({...d,type:'rev'}));
+  return {fwd, rev};
+}
+
+/* stacked fraction HTML helper */
+function pctFracHTML(num, den){
+  return`<span class="frac"><span class="fnum">${num}</span><span class="fbar"></span><span class="fden">${den}</span></span>`;
+}
+
+/* Forward cell: 1/4 = __/100 = __% */
+function pctFwdCell(d, idx, key){
+  const frac100 = key
+    ? `<span class="frac"><span class="fnum-key">${d.num}</span><span class="fbar fbar-key"></span><span class="fden">100</span></span>`
+    : `<span class="frac frac-blank"><span class="fnum"></span><span class="fbar"></span><span class="fden">100</span></span>`;
+  const pctSlot = key
+    ? `<span class="pct-ans">${d.pct}</span><span class="pct-sym">%</span>`
+    : `<span class="pct-blank"></span><span class="pct-sym">%</span>`;
+  return`<div class="pct-cell">
+    <span class="pct-num">${idx}</span>
+    <span class="pct-expr">
+      ${pctFracHTML(d.snum, d.sden)}
+      <span class="pct-eq">=</span>
+      ${frac100}
+      <span class="pct-eq">=</span>
+      ${pctSlot}
+    </span>
+  </div>`;
+}
+
+/* Reverse cell: 25% = __/__ */
+function pctRevCell(d, idx, key){
+  const fracSlot = key
+    ? `<span class="frac frac-rev-key"><span class="fnum-key">${d.snum}</span><span class="fbar fbar-key"></span><span class="fden" style="color:#b83000">${d.sden}</span></span>`
+    : `<span class="frac frac-rev"><span class="fnum"></span><span class="fbar"></span><span class="fden"></span></span>`;
+  return`<div class="pct-cell">
+    <span class="pct-num">${idx}</span>
+    <span class="pct-expr">
+      <span class="pct-sym">${d.pct}%</span>
+      <span class="pct-eq">=</span>
+      ${fracSlot}
+    </span>
+  </div>`;
+}
+
+/* Reference table for target pages */
+function pctRefTableHTML(data, title){
+  const rows=[];
+  const perRow = data.length<=6 ? 2 : 2;
+  for(let r=0;r<Math.ceil(data.length/perRow);r++){
+    const cells=[];
+    for(let c=0;c<perRow;c++){
+      const d=data[r*perRow+c];
+      if(!d){cells.push(`<span class="ref-cell"></span>`);continue;}
+      cells.push(`<span class="ref-cell">
+        <span class="rf"><span class="rf-n">${d.snum}</span><span class="rf-b"></span><span class="rf-d">${d.sden}</span></span>
+        &nbsp;=&nbsp;
+        <span class="rf"><span class="rf-n">${d.num}</span><span class="rf-b"></span><span class="rf-d">100</span></span>
+        &nbsp;=&nbsp;<span class="ref-ans">${d.pct}%</span>
+      </span>`);
+    }
+    rows.push(`<div class="ref-row">${cells.join('')}</div>`);
+  }
+  return`<div class="ref-wrap">
+    <div class="ref-hdr">📋 Reference — ${title}</div>
+    <div class="ref-body">${rows.join('')}</div>
+  </div>`;
+}
+
+/* Probe page */
+function pctProbePageHTML(data, key, pgNum, cycleNum, dayLabel, skillName){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const {fwd,rev}=genPctProblems(data);
+  const n=data.length;
+  const fwdCells=fwd.map((d,i)=>pctFwdCell(d,i+1,key)).join('');
+  const revCells=rev.map((d,i)=>pctRevCell(d,i+n+1,key)).join('');
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>${skillName}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="pct-grid">
+      <div class="sect-lbl">Fraction → Percent</div>
+      ${fwdCells}
+      <div class="sect-lbl">Percent → Fraction</div>
+      ${revCells}
+    </div>
+  </div>`;
+}
+
+/* Target page */
+function pctTargetPageHTML(data, key, pgNum, cycleNum, dayLabel, skillName, refTitle){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const {fwd,rev}=genPctProblems(data);
+  const n=data.length;
+  const fwdCells=fwd.map((d,i)=>pctFwdCell(d,i+1,key)).join('');
+  const revCells=rev.map((d,i)=>pctRevCell(d,i+n+1,key)).join('');
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>${skillName}&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${pctRefTableHTML(data, refTitle)}
+    <div class="pct-grid">
+      <div class="sect-lbl">Fraction → Percent</div>
+      ${fwdCells}
+      <div class="sect-lbl">Percent → Fraction</div>
+      ${revCells}
+    </div>
+  </div>`;
+}
+
+/* Render one problem cell — matches prob-cell / prob-grid pattern */
+function expCellHTML(fact, idx, key){
+  let exprHTML;
+  if(fact.type==='eval'){
+    // Forward: b^e = ___
+    const ans = key
+      ? `<span class="prob-blank key"><span class="key-ans">${fact.val}</span></span>`
+      : `<span class="prob-blank"></span>`;
+    exprHTML = `<span class="sq-base">${fact.base}</span><span class="sq-exp">${fact.exp}</span><span class="prob-eq">&thinsp;=</span>${ans}`;
+  } else {
+    // Inverse: b^[blank] = val  (find the missing exponent)
+    const expSlot = key
+      ? `<span style="color:#b83000;font-weight:800;">${fact.exp}</span>`
+      : `<span style="display:inline-block;border-bottom:1.5px solid #888;min-width:11px;height:12px;"></span>`;
+    exprHTML = `<span class="sq-base">${fact.base}</span><span class="sq-exp">${expSlot}</span><span class="prob-eq">&thinsp;=&thinsp;</span><span class="sq-base">${fact.val}</span>`;
+  }
+  return`<div class="prob-cell">
+    <span class="prob-num">${idx+1}</span>
+    <span class="prob-expr">${exprHTML}</span>
+  </div>`;
+}
+
+/* Reference table — 2 columns: Squared (×²) and Cubed (×³), 4 rows × 2 facts each */
+function expRefTableHTML(){
+  const sqBases=[2,3,4,5,6,7,8,9]; // 8 entries → 4 rows × 2
+  const cbBases=[1,2,3,4,5];        // 5 entries → split 2+2+1
+  const sqRows=[];
+  for(let r=0;r<4;r++){
+    const facts=[];
+    for(let c=0;c<2;c++){
+      const b=sqBases[r*2+c];
+      facts.push(`<span class="ref-fact">${b}<span class="ref-sup">2</span> = <span class="ref-ans">${b*b}</span></span>`);
+    }
+    sqRows.push(`<div class="ref-row">${facts.join('')}</div>`);
+  }
+  const cbRows=[];
+  // rows: [1,2], [3,4], [5]
+  const cbLayout=[[0,1],[2,3],[4]];
+  for(const idxs of cbLayout){
+    const facts=idxs.map(i=>{
+      const b=cbBases[i];
+      return`<span class="ref-fact">${b}<span class="ref-sup">3</span> = <span class="ref-ans">${b*b*b}</span></span>`;
+    });
+    cbRows.push(`<div class="ref-row">${facts.join('')}</div>`);
+  }
+  return`<div class="ref-wrap">
+    <div class="ref-hdr">📋 Reference — Evaluating Exponents (Bases 2–9 squared · Bases 1–5 cubed)</div>
+    <div class="ref-body">
+      <div class="ref-col"><div class="ref-col-hdr">Squared (b²)</div>${sqRows.join('')}</div>
+      <div class="ref-col"><div class="ref-col-hdr">Cubed (b³)</div>${cbRows.join('')}</div>
+    </div>
+  </div>`;
+}
+
+/* Probe page — 20-problem grid, no reference */
+function expProbePageHTML(probs, key, pgNum, cycleNum, dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const probsHTML=probs.map((p,i)=>expCellHTML(p,i,key)).join('');
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Evaluating Exponents&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="prob-grid">${probsHTML}</div>
+  </div>`;
+}
+
+/* Target page — reference table above the 20-problem grid */
+function expTargetPageHTML(probs, key, pgNum, cycleNum, dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const probsHTML=probs.map((p,i)=>expCellHTML(p,i,key)).join('');
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Evaluating Exponents&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${expRefTableHTML()}
+    <div class="prob-grid">${probsHTML}</div>
+  </div>`;
+}
+
+
+let ACTIVE_SKILL = 'squares'; // 'squares' | 'evalexp' | 'intadd' | ...
 function skillTitle(){
+  if(ACTIVE_SKILL==='evalexp')        return 'Evaluating Exponents';
+  if(ACTIVE_SKILL==='benchpct1')      return 'Benchmark Percents 1';
+  if(ACTIVE_SKILL==='benchpct2')      return 'Benchmark Percents 2';
+  if(ACTIVE_SKILL==='areatri')        return 'Area of Triangles';
   if(ACTIVE_SKILL==='intadd')        return 'Integer Addition';
   if(ACTIVE_SKILL==='intsub')        return 'Integer Subtraction';
   if(ACTIVE_SKILL==='intmul')        return 'Integer Multiplication';
   if(ACTIVE_SKILL==='intdiv')        return 'Integer Division';
   if(ACTIVE_SKILL==='intaddsubmix')  return 'Integer Addition & Subtraction';
   if(ACTIVE_SKILL==='intmuldivmix')  return 'Integer Multiplication & Division';
+  if(ACTIVE_SKILL==='intallmix')     return 'Integer Computation — All Four Operations';
   if(ACTIVE_SKILL==='arearect')      return 'Area of Rectangles & Squares';
   return 'Perfect Squares & Square Roots';
 }
@@ -1552,6 +1905,118 @@ function imdMixTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
 }
 
 /* ════════════════════════════════════════════════════════════
+   INTEGER ALL FOUR MIXED — PROBLEM GENERATION & PAGE RENDERERS
+   5 add + 5 sub + 5 mul + 5 div, shuffled. Each carries op field.
+   ════════════════════════════════════════════════════════════ */
+function genIntAllMixProblems(){
+  const addProbs = genIntAddProblems().slice(0,5).map(p=>({...p, op:'+'}));
+  const subProbs = genIntSubProblems().slice(0,5).map(p=>({...p, op:'−'}));
+  const mulProbs = genIntMulProblems().slice(0,5).map(p=>({...p, op:'×'}));
+  const divProbs = genIntDivProblems().slice(0,5).map(p=>({...p, op:'÷'}));
+  return shuffle([...addProbs, ...subProbs, ...mulProbs, ...divProbs]);
+}
+
+/* Horizontal cell — delegates to op type for correct blank width */
+function iamAllHorizCell(p,num,key){
+  const SZ=21;
+  const isMulDiv = p.op==='×'||p.op==='÷';
+  const op=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">${p.op}</span>`;
+  const eq=`<span style="font-size:${SZ}px;font-weight:800;color:#1a1a1a;font-family:'Nunito',sans-serif;">=</span>`;
+  const blankCls = isMulDiv ? 'ia-blank ia-blank-lg' : 'ia-blank';
+  const ans=key?iaFmt(p.ans,SZ,true):`<span class="${blankCls}"></span>`;
+  return`<div class="ia-h-cell">
+    <span class="ia-pnum">${num}</span>
+    <span class="ia-expr">${iaFmt(p.a,SZ)}&thinsp;${op}&thinsp;${iaFmt(p.b,SZ)}&thinsp;${eq}&thinsp;${ans}</span>
+  </div>`;
+}
+function iamAllVertCell(p,num,key){
+  const SZ=27, OPW=18, NUMW=60;
+  const ntd=(n,isAns=false)=>`<td class="ia-v-numcol${isAns?' key':''}" style="width:${NUMW}px;">${iaFmt(n,SZ,isAns)}</td>`;
+  const optd=sym=>`<td class="ia-v-opcol" style="width:${OPW}px;">${sym}</td>`;
+  const blank=()=>`<td style="width:${OPW}px;"></td>`;
+  const rule=`<tr class="ia-v-rule"><td colspan="2" style="padding:2px 0 0;"><div style="height:2px;background:#1a1a1a;"></div></td></tr>`;
+  const ansRow=key?`<tr>${blank()}${ntd(p.ans,true)}</tr>`:`<tr class="ia-v-ansrow"><td colspan="2"></td></tr>`;
+  return`<div class="ia-v-cell">
+    <div class="ia-v-num">${num}</div>
+    <table class="ia-v-tbl">
+      <tr>${blank()}${ntd(p.a)}</tr>
+      <tr>${optd(p.op)}${ntd(p.b)}</tr>
+      ${rule}${ansRow}
+    </table>
+  </div>`;
+}
+function _iamAllRows(probs,key){
+  const hProbs=probs.slice(0,12), vProbs=probs.slice(12,20);
+  const hRows=[0,1,2,3].map(r=>{
+    const cells=hProbs.slice(r*3,r*3+3).map((p,ci)=>iamAllHorizCell(p,r*3+ci+1,key)).join('');
+    return`<div class="ia-h-row">${cells}</div>`;
+  }).join('');
+  const vRows=[0,1].map(r=>{
+    const cells=vProbs.slice(r*4,r*4+4).map((p,ci)=>iamAllVertCell(p,12+r*4+ci+1,key)).join('');
+    return`<div class="ia-v-row">${cells}</div>`;
+  }).join('');
+  return{hRows,vRows};
+}
+
+/* Condensed combined reference: number line + sign rules side by side */
+const ALL_MIX_REF=`<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:6px;">
+  <div style="flex:1">${/* number line injected at render time — see page fn */'__NL__'}</div>
+  <div class="sr-box" style="flex-shrink:0;min-width:160px;">
+    <div class="sr-hdr">Sign Rules — × / ÷</div>
+    <div class="sr-body">
+      <span class="sr-rule">Same signs → <em>(+)</em></span>
+      <span class="sr-rule">Diff. signs → <em>(−)</em></span>
+    </div>
+  </div>
+</div>`;
+
+function iamAllProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_iamAllRows(probs,key);
+  const ref=ALL_MIX_REF.replace('__NL__', iaNumberLine());
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Integer Computation — All Four Operations&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${ref}
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Compute.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+function iamAllTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  const{hRows,vRows}=_iamAllRows(probs,key);
+  const ref=ALL_MIX_REF.replace('__NL__', iaNumberLine());
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Integer Computation — All Four Operations&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    ${ref}
+    <div class="ia-tip">💡 Add/Sub: use the number line &nbsp;·&nbsp; Mul/Div: same signs → <em>positive</em>, different signs → <em>negative</em></div>
+    <div class="ia-problems">
+      <div class="ia-h-sect">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:2px;">Compute.</div>
+        ${hRows}
+      </div>
+      <hr class="ia-div">
+      <div class="ia-v-sect">${vRows}</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
    AREA OF RECTANGLES — PROBLEM GENERATION & PAGE RENDERERS
    ════════════════════════════════════════════════════════════ */
 
@@ -1745,6 +2210,156 @@ function arTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
 }
 
 /* ════════════════════════════════════════════════════════════
+   AREA OF TRIANGLES — PROBLEM GENERATION & PAGE RENDERERS
+   6 problems per page: 4–5 acute, 1–2 obtuse.
+   apexFrac: foot-of-altitude as fraction of base width.
+     0–1   → acute  (foot inside base)
+     < 0   → obtuse (foot extends left of base)
+   ~1/3 of problems carry a distractor (slant side value).
+   b × h ≤ 144 so multiplication stays in range.
+   ════════════════════════════════════════════════════════════ */
+function genAreaTriProblems(){
+  const pairs=[];
+  // Build pool of valid (base, height) pairs: b*h ≤ 144, both 4–18
+  for(let b=4;b<=18;b++) for(let h=4;h<=18;h++){
+    if(b*h<=144 && Math.abs(b-h)>1) pairs.push([b,h]);
+  }
+
+  const chosen=shuffle(pairs).slice(0,6);
+  const numObtuse = ri(1,2);
+  const obtuseIdx = shuffle([0,1,2,3,4,5]).slice(0,numObtuse);
+  const distractorIdx = shuffle([0,1,2,3,4,5]).slice(0,2);
+
+  return chosen.map(([base,height],i)=>{
+    const obtuse = obtuseIdx.includes(i);
+    const apexFrac = obtuse
+      ? -(Math.random()*0.18+0.08)          // −0.08 to −0.26
+      : (Math.random()*0.38+0.22);           // 0.22 to 0.60
+
+    // distractor: a slant-side-like value, different from base/height
+    let distractor = null;
+    if(distractorIdx.includes(i)){
+      let dval;
+      do { dval = ri(Math.min(base,height)+1, Math.max(base,height)+6); }
+      while(dval===base || dval===height);
+      distractor = { side: Math.random()<0.5?'left':'right', value:dval };
+    }
+
+    return { base, height, apexFrac, distractor, answer: base*height/2 };
+  });
+}
+
+/* SVG renderer — matches sample page geometry */
+function triSVG(prob, key){
+  const { base, height, apexFrac, distractor } = prob;
+
+  const VW=220, VH=260;
+  const PAD_T=16, PAD_B=26, PAD_L=36, PAD_R=22;
+  const DW=VW-PAD_L-PAD_R;
+  const DH=VH-PAD_T-PAD_B;
+
+  const overhangFrac = apexFrac < 0 ? -apexFrac : 0;
+  const totalWidthFrac = 1 + overhangFrac;
+  const scale = Math.min(DW / (base * totalWidthFrac), DH / height);
+  const bPx = base * scale;
+  const hPx = height * scale;
+
+  const origX = PAD_L + overhangFrac * bPx;
+  const origY = PAD_T + DH;
+  const Ax = origX,             Ay = origY;
+  const Bx = origX + bPx,       By = origY;
+  const Cx = origX + apexFrac * bPx;
+  const Cy = origY - hPx;
+  const Fx = Cx, Fy = origY;
+
+  const ff = n => Math.round(n*10)/10;
+  const INK='#1a1a1a', FILL='#EEF2FA', EXTC='#bbb', DASHC='#555';
+  const SQ=5;
+
+  let s=`<svg viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg" overflow="visible">`;
+  s+=`<polygon points="${ff(Ax)},${ff(Ay)} ${ff(Bx)},${ff(By)} ${ff(Cx)},${ff(Cy)}" fill="${FILL}" stroke="none"/>`;
+  if(apexFrac<0)
+    s+=`<line x1="${ff(Fx)}" y1="${ff(Fy)}" x2="${ff(Ax)}" y2="${ff(Ay)}" stroke="${EXTC}" stroke-width="1.5"/>`;
+  s+=`<line x1="${ff(Ax)}" y1="${ff(Ay)}" x2="${ff(Bx)}" y2="${ff(By)}" stroke="${INK}" stroke-width="2.5"/>`;
+  s+=`<line x1="${ff(Ax)}" y1="${ff(Ay)}" x2="${ff(Cx)}" y2="${ff(Cy)}" stroke="${INK}" stroke-width="2.5"/>`;
+  s+=`<line x1="${ff(Bx)}" y1="${ff(By)}" x2="${ff(Cx)}" y2="${ff(Cy)}" stroke="${INK}" stroke-width="2.5"/>`;
+  s+=`<line x1="${ff(Cx)}" y1="${ff(Cy)}" x2="${ff(Fx)}" y2="${ff(Fy)}" stroke="${DASHC}" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+
+  // right-angle square toward base interior
+  const sqR = Cx <= (Ax+Bx)/2;
+  const sqS = sqR ? SQ : -SQ;
+  s+=`<polyline points="${ff(Fx+sqS)},${ff(Fy)} ${ff(Fx+sqS)},${ff(Fy-SQ)} ${ff(Fx)},${ff(Fy-SQ)}" fill="none" stroke="${INK}" stroke-width="1.5"/>`;
+
+  // Height label
+  const hMidY = ff((Cy+Fy)/2+4);
+  if(sqR){
+    const lx=Cx-5;
+    s += lx>4
+      ? `<text x="${ff(lx)}" y="${hMidY}" text-anchor="end" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${INK}">${height}</text>`
+      : `<text x="${ff(Cx+5)}" y="${hMidY}" text-anchor="start" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${INK}">${height}</text>`;
+  } else {
+    s+=`<text x="${ff(Cx+5)}" y="${hMidY}" text-anchor="start" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${INK}">${height}</text>`;
+  }
+
+  // Base label
+  s+=`<text x="${ff((Ax+Bx)/2)}" y="${ff(Ay+17)}" text-anchor="middle" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${INK}">${base}</text>`;
+
+  // Distractor — same style as base/height labels
+  if(distractor){
+    const {side,value}=distractor;
+    const x1=side==='left'?Ax:Bx, y1=side==='left'?Ay:By;
+    const mx=(x1+Cx)/2, my=(y1+Cy)/2;
+    const off=10;
+    s += side==='left'
+      ? `<text x="${ff(mx-off)}" y="${ff(my+4)}" text-anchor="end" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${INK}">${value}</text>`
+      : `<text x="${ff(mx+off)}" y="${ff(my+4)}" text-anchor="start" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${INK}">${value}</text>`;
+  }
+  s+='</svg>';
+  return s;
+}
+
+/* Cell HTML */
+function triCellHTML(prob, idx, key){
+  const ans = key
+    ? `A = <span class="tri-ans-val">${prob.answer}</span>`
+    : `A = <span class="tri-blank"></span>`;
+  return`<div class="tri-cell">
+    <span class="tri-pnum">${idx+1}</span>
+    <div class="tri-diag">${triSVG(prob,key)}</div>
+    <div class="tri-ans">${ans}</div>
+  </div>`;
+}
+
+function triProbePageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge probe">Timed Probe</span>
+        <span>Area of Triangles&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="wb-dir">Find the area of each triangle.</div>
+    <div class="tri-grid">${probs.map((p,i)=>triCellHTML(p,i,key)).join('')}</div>
+  </div>`;
+}
+
+function triTargetPageHTML(probs,key,pgNum,cycleNum,dayLabel){
+  const keyLbl=key?' — ANSWER KEY':'';
+  return`<div class="wb-page">
+    <div class="wb-hdr">
+      <div class="wb-hdr-l"><span class="wb-badge target">Target Skill</span>
+        <span>Area of Triangles&nbsp;·&nbsp;Cycle ${cycleNum}${keyLbl}</span></div>
+      <span class="pg-num">${pgNum}</span>
+    </div>
+    ${metaRowHTML(dayLabel)}
+    <div class="ia-tip">💡 A = ½ × base × height &nbsp;·&nbsp; Identify the base and its corresponding height — they must meet at a right angle.</div>
+    <div class="wb-dir">Find the area of each triangle.</div>
+    <div class="tri-grid">${probs.map((p,i)=>triCellHTML(p,i,key)).join('')}</div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
    PAGE HTML GENERATORS
    ════════════════════════════════════════════════════════════ */
 function metaRowHTML(dayLabel){
@@ -1804,7 +2419,7 @@ function puzzlePageHTML(puzzles, renderFn, puzLabel, dirs, key, pgNum, cycleNum,
 }
 
 function coverPageHTML(){
-  const sub = (ACTIVE_SKILL==='intadd'||ACTIVE_SKILL==='intsub'||ACTIVE_SKILL==='intmul'||ACTIVE_SKILL==='intdiv'||ACTIVE_SKILL==='intaddsubmix'||ACTIVE_SKILL==='intmuldivmix'||ACTIVE_SKILL==='arearect')
+  const sub = (ACTIVE_SKILL==='evalexp'||ACTIVE_SKILL==='benchpct1'||ACTIVE_SKILL==='benchpct2'||ACTIVE_SKILL==='areatri'||ACTIVE_SKILL==='intadd'||ACTIVE_SKILL==='intsub'||ACTIVE_SKILL==='intmul'||ACTIVE_SKILL==='intdiv'||ACTIVE_SKILL==='intaddsubmix'||ACTIVE_SKILL==='intmuldivmix'||ACTIVE_SKILL==='intallmix'||ACTIVE_SKILL==='arearect')
     ? 'M.I.N.D. 2.0 — Facts on Fire'
     : 'Fluency to 12 &nbsp;·&nbsp; M.I.N.D. 2.0 — Facts on Fire';
   return`<div class="wb-page wb-cover">
@@ -1837,6 +2452,8 @@ function trackingPageHTML(schedule, weeks){
       const isProbe=dy.type==='probe';
       const probeLabel = ACTIVE_SKILL==='arearect'
         ? `<span class="wb-cr-s">Number Correct (/ 8):</span><div class="wb-cr-ans"></div>`
+        : ACTIVE_SKILL==='areatri'
+        ? `<span class="wb-cr-s">Number Correct (/ 6):</span><div class="wb-cr-ans"></div>`
         : `<span class="wb-cr-s">Number Correct:</span><div class="wb-cr-ans"></div>`;
       const score=isProbe
         ? probeLabel
@@ -1889,38 +2506,58 @@ async function buildWorkbook(key){
       const dayLabel=`Day ${d+1} — ${dy.type==='probe'?'Timed Probe':dy.type==='target'?'Target Skill Practice':PUZ_CONFIG[dy.puzzle]?.label||'Puzzle'}`;
 
       if(dy.type==='probe'){
-        const probs = ACTIVE_SKILL==='intadd'       ? genIntAddProblems()
+        const probs = ACTIVE_SKILL==='evalexp'      ? genExpProblems()
+                    : ACTIVE_SKILL==='benchpct1'    ? null
+                    : ACTIVE_SKILL==='benchpct2'    ? null
+                    : ACTIVE_SKILL==='areatri'      ? genAreaTriProblems()
+                    : ACTIVE_SKILL==='intadd'       ? genIntAddProblems()
                     : ACTIVE_SKILL==='intsub'       ? genIntSubProblems()
                     : ACTIVE_SKILL==='intmul'       ? genIntMulProblems()
                     : ACTIVE_SKILL==='intdiv'       ? genIntDivProblems()
                     : ACTIVE_SKILL==='intaddsubmix' ? genIntAddSubMixProblems()
                     : ACTIVE_SKILL==='intmuldivmix' ? genIntMulDivMixProblems()
+                    : ACTIVE_SKILL==='intallmix'    ? genIntAllMixProblems()
                     : ACTIVE_SKILL==='arearect'     ? genAreaRectProblems()
                     : genProblems(20);
-        const html  = ACTIVE_SKILL==='intadd'       ? iaProbePageHTML(probs,key,pg,cyc,dayLabel)
+        const html  = ACTIVE_SKILL==='evalexp'      ? expProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='benchpct1'    ? pctProbePageHTML(PCT_DATA_1,key,pg,cyc,dayLabel,'Benchmark Percents 1')
+                    : ACTIVE_SKILL==='benchpct2'    ? pctProbePageHTML(PCT_DATA_2,key,pg,cyc,dayLabel,'Benchmark Percents 2')
+                    : ACTIVE_SKILL==='areatri'      ? triProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intadd'       ? iaProbePageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intsub'       ? isProbePageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intmul'       ? imProbePageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intdiv'       ? idProbePageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intaddsubmix' ? iasMixProbePageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intmuldivmix' ? imdMixProbePageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intallmix'    ? iamAllProbePageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='arearect'     ? arProbePageHTML(probs,key,pg,cyc,dayLabel)
                     : probePageHTML(probs,key,pg,cyc,dayLabel);
         pages.push({html, label:`Wk${cyc} D${d+1} Probe`});
       } else if(dy.type==='target'){
-        const probs = ACTIVE_SKILL==='intadd'       ? genIntAddProblems()
+        const probs = ACTIVE_SKILL==='evalexp'      ? genExpProblems()
+                    : ACTIVE_SKILL==='benchpct1'    ? null
+                    : ACTIVE_SKILL==='benchpct2'    ? null
+                    : ACTIVE_SKILL==='areatri'      ? genAreaTriProblems()
+                    : ACTIVE_SKILL==='intadd'       ? genIntAddProblems()
                     : ACTIVE_SKILL==='intsub'       ? genIntSubProblems()
                     : ACTIVE_SKILL==='intmul'       ? genIntMulProblems()
                     : ACTIVE_SKILL==='intdiv'       ? genIntDivProblems()
                     : ACTIVE_SKILL==='intaddsubmix' ? genIntAddSubMixProblems()
                     : ACTIVE_SKILL==='intmuldivmix' ? genIntMulDivMixProblems()
+                    : ACTIVE_SKILL==='intallmix'    ? genIntAllMixProblems()
                     : ACTIVE_SKILL==='arearect'     ? genAreaRectProblems()
                     : genProblems(20);
-        const html  = ACTIVE_SKILL==='intadd'       ? iaTargetPageHTML(probs,key,pg,cyc,dayLabel)
+        const html  = ACTIVE_SKILL==='evalexp'      ? expTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='benchpct1'    ? pctTargetPageHTML(PCT_DATA_1,key,pg,cyc,dayLabel,'Benchmark Percents 1','Benchmark Percents — Set 1')
+                    : ACTIVE_SKILL==='benchpct2'    ? pctTargetPageHTML(PCT_DATA_2,key,pg,cyc,dayLabel,'Benchmark Percents 2','Benchmark Percents — Set 2')
+                    : ACTIVE_SKILL==='areatri'      ? triTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intadd'       ? iaTargetPageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intsub'       ? isTargetPageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intmul'       ? imTargetPageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intdiv'       ? idTargetPageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intaddsubmix' ? iasMixTargetPageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='intmuldivmix' ? imdMixTargetPageHTML(probs,key,pg,cyc,dayLabel)
+                    : ACTIVE_SKILL==='intallmix'    ? iamAllTargetPageHTML(probs,key,pg,cyc,dayLabel)
                     : ACTIVE_SKILL==='arearect'     ? arTargetPageHTML(probs,key,pg,cyc,dayLabel)
                     : targetPageHTML(probs,key,pg,cyc,dayLabel);
         pages.push({html, label:`Wk${cyc} D${d+1} Target`});
@@ -2003,9 +2640,14 @@ async function downloadBook(key){
     pLbl.textContent=`✅ Done! ${pages.length} pages saved.`;
 
     const suffix=key?'-teacher-key':'-student-book';
-    const slug = ACTIVE_SKILL==='intadd'   ? 'integer-addition'
-               : ACTIVE_SKILL==='intsub'   ? 'integer-subtraction'
-               : ACTIVE_SKILL==='arearect' ? 'area-rectangles-squares'
+    const slug = ACTIVE_SKILL==='intadd'       ? 'integer-addition'
+               : ACTIVE_SKILL==='intsub'       ? 'integer-subtraction'
+               : ACTIVE_SKILL==='intmul'       ? 'integer-multiplication'
+               : ACTIVE_SKILL==='intdiv'       ? 'integer-division'
+               : ACTIVE_SKILL==='intaddsubmix' ? 'integer-add-sub-mixed'
+               : ACTIVE_SKILL==='intmuldivmix' ? 'integer-mul-div-mixed'
+               : ACTIVE_SKILL==='intallmix'    ? 'integer-all-four-mixed'
+               : ACTIVE_SKILL==='arearect'     ? 'area-rectangles-squares'
                : 'perfect-squares-roots';
     pdf.save(`${slug}${suffix}.pdf`);
 
@@ -2076,6 +2718,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closePreview();});
 function selectSkill(id){
   ACTIVE_SKILL = id || 'squares';
   document.getElementById('skill-sq').classList.toggle('selected', ACTIVE_SKILL==='squares');
+  document.getElementById('skill-ee').classList.toggle('selected', ACTIVE_SKILL==='evalexp');
+  document.getElementById('skill-bp1').classList.toggle('selected', ACTIVE_SKILL==='benchpct1');
+  document.getElementById('skill-bp2').classList.toggle('selected', ACTIVE_SKILL==='benchpct2');
+  document.getElementById('skill-atri').classList.toggle('selected', ACTIVE_SKILL==='areatri');
   document.getElementById('skill-ia').classList.toggle('selected', ACTIVE_SKILL==='intadd');
   document.getElementById('skill-is').classList.toggle('selected', ACTIVE_SKILL==='intsub');
   document.getElementById('skill-ar').classList.toggle('selected', ACTIVE_SKILL==='arearect');
@@ -2083,6 +2729,7 @@ function selectSkill(id){
   document.getElementById('skill-id').classList.toggle('selected', ACTIVE_SKILL==='intdiv');
   document.getElementById('skill-ias').classList.toggle('selected', ACTIVE_SKILL==='intaddsubmix');
   document.getElementById('skill-imd').classList.toggle('selected', ACTIVE_SKILL==='intmuldivmix');
+  document.getElementById('skill-all').classList.toggle('selected', ACTIVE_SKILL==='intallmix');
 }
 
 function changeWeeks(delta){
@@ -2103,7 +2750,7 @@ function rebuildScheduleTable(){
   ];
 
   // Skills with no puzzles yet
-  const isIntSkill = ACTIVE_SKILL==='intadd' || ACTIVE_SKILL==='intsub' || ACTIVE_SKILL==='intmul' || ACTIVE_SKILL==='intdiv' || ACTIVE_SKILL==='intaddsubmix' || ACTIVE_SKILL==='intmuldivmix' || ACTIVE_SKILL==='arearect';
+  const isIntSkill = ACTIVE_SKILL==='evalexp' || ACTIVE_SKILL==='benchpct1' || ACTIVE_SKILL==='benchpct2' || ACTIVE_SKILL==='areatri' || ACTIVE_SKILL==='intadd' || ACTIVE_SKILL==='intsub' || ACTIVE_SKILL==='intmul' || ACTIVE_SKILL==='intdiv' || ACTIVE_SKILL==='intaddsubmix' || ACTIVE_SKILL==='intmuldivmix' || ACTIVE_SKILL==='intallmix' || ACTIVE_SKILL==='arearect';
   const filteredTypeOpts = isIntSkill
     ? typeOpts.filter(o=>o.val!=='puzzle')
     : typeOpts;
@@ -2144,7 +2791,7 @@ function onPuzChange(d,val){DAY_SCHEDULE[d].puzzle=val;}
 function buildRefinePanel(){
   const body=document.getElementById('refine-body');
 
-  if(ACTIVE_SKILL==='intadd'||ACTIVE_SKILL==='intsub'||ACTIVE_SKILL==='intmul'||ACTIVE_SKILL==='intdiv'||ACTIVE_SKILL==='intaddsubmix'||ACTIVE_SKILL==='intmuldivmix'||ACTIVE_SKILL==='arearect'){
+  if(ACTIVE_SKILL==='evalexp'||ACTIVE_SKILL==='benchpct1'||ACTIVE_SKILL==='benchpct2'||ACTIVE_SKILL==='areatri'||ACTIVE_SKILL==='intadd'||ACTIVE_SKILL==='intsub'||ACTIVE_SKILL==='intmul'||ACTIVE_SKILL==='intdiv'||ACTIVE_SKILL==='intaddsubmix'||ACTIVE_SKILL==='intmuldivmix'||ACTIVE_SKILL==='intallmix'||ACTIVE_SKILL==='arearect'){
     body.innerHTML='<p class="refine-skip">No puzzle days are available for this skill yet. Probes and target practice pages are ready to go!</p>';
     return;
   }
