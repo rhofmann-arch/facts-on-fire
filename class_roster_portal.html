@@ -939,21 +939,6 @@ let activeTeacherId = null;
 let activeClassId   = null;
 let csvImportData   = null;
 
-// ══════════════════════════════════════════════════════════════════
-// DATA MODEL
-// ══════════════════════════════════════════════════════════════════
-
-const TEACHER_COLORS = ['#FF4F00','#1B4FCC','#10B981','#7C3AED','#F59E0B','#EC4899'];
-
-let data = {
-  teachers: [],
-  sheetsConfig: { clientId: '', spreadsheetId: '' }
-};
-
-let activeTeacherId = null;
-let activeClassId   = null;
-let csvImportData   = null;
-
 // ── IDs ─────────────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2,9); }
 
