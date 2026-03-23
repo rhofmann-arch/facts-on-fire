@@ -76,16 +76,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-heig
 .toast.show{transform:translateY(0);opacity:1}
 .toast.green{border-left:4px solid var(--green)}
 
-/* ════════════════════════════════════════════════════════════
-   PRINT STYLES  — hide UI, show pages only
-   ════════════════════════════════════════════════════════════ */
-@media print {
-  .topbar,.sidebar,.preview-header,.print-preview .preview-label,
-  .preview-page-wrap { box-shadow:none !important }
-  body > *:not(#print-root) { display:none !important }
-  #print-root { display:block !important }
-  .print-root-page { page-break-after:always }
-}
+/* print-root kept in DOM but not used for browser print */
 #print-root { display:none }
 
 /* ════════════════════════════════════════════════════════════
@@ -117,6 +108,9 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-heig
 .md-wb-table{width:100%;border-collapse:collapse;table-layout:fixed}
 .md-wb-table td{width:25%;vertical-align:middle;text-align:center;padding:2px 0;border:none}
 </style>
+<!-- PDF generation libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -128,7 +122,23 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-heig
   <span class="topbar-title">Differentiated Probe Set</span>
   <div class="topbar-spacer"></div>
   <button class="topbar-btn" onclick="window.location.href='class_roster_portal.html'">← Roster</button>
-  <button class="topbar-btn fire" id="print-btn" onclick="doPrint()" disabled>🖨 Print / Save PDF</button>
+  <button class="topbar-btn fire" id="print-btn" onclick="doPDF()" disabled>⬇ Save PDF</button>
+</div>
+
+<!-- Hidden render stage: pages are injected here one at a time for html2canvas -->
+<div id="render-stage" style="position:fixed;left:-9999px;top:0;width:816px;height:1056px;overflow:hidden;background:#fff;z-index:-1"></div>
+
+<!-- PDF progress modal -->
+<div id="pdf-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:36px 44px;min-width:340px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3)">
+    <div style="font-size:2.2rem;margin-bottom:12px">📄</div>
+    <div style="font-family:var(--font-head);font-size:16px;color:var(--ink);margin-bottom:8px" id="pdf-title">Generating PDF…</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px" id="pdf-sub">Rendering page 1 of —</div>
+    <div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden;margin-bottom:8px">
+      <div id="pdf-bar" style="height:100%;background:var(--fire);border-radius:99px;width:0%;transition:width .2s"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted)" id="pdf-pct">0%</div>
+  </div>
 </div>
 
 <div class="layout">
@@ -540,12 +550,97 @@ function renderPreview(samplePages, totalPages, dateDisplay) {
 }
 
 function buildPrintRoot(pages) {
+  // No longer needed — pages are stored in probePages array and
+  // rendered one-at-a-time into #render-stage during PDF generation.
+  // Keep print-root empty.
   const root = document.getElementById('print-root');
-  root.innerHTML = pages.map(p => `<div class="print-root-page">${p.html}</div>`).join('');
+  if (root) root.innerHTML = '';
 }
 
-function doPrint() {
-  window.print();
+async function doPDF() {
+  if (!probePages || probePages.length === 0) return;
+
+  const btn = document.getElementById('print-btn');
+  btn.disabled = true;
+
+  // Show progress modal
+  const modal  = document.getElementById('pdf-modal');
+  const barEl  = document.getElementById('pdf-bar');
+  const subEl  = document.getElementById('pdf-sub');
+  const pctEl  = document.getElementById('pdf-pct');
+  const titleEl= document.getElementById('pdf-title');
+  modal.style.display = 'flex';
+
+  // Derive filename
+  const teacherSlug = activeTeacher ? activeTeacher.name.replace(/[^a-z0-9]/gi,'_') : 'Probes';
+  const classSlug   = activeClass   ? activeClass.period.replace(/[^a-z0-9]/gi,'_') : '';
+  const dateVal     = document.getElementById('probe-date').value || 'NoDate';
+  const filename    = `${teacherSlug}_${classSlug}_${dateVal}_Probes.pdf`;
+
+  const { jsPDF } = window.jspdf;
+  // Letter portrait in inches
+  const pdf = new jsPDF({ orientation:'portrait', unit:'in', format:'letter' });
+
+  const stage = document.getElementById('render-stage');
+  const total = probePages.length;
+
+  try {
+    for (let i = 0; i < total; i++) {
+      const page = probePages[i];
+
+      // Update progress
+      const pct = Math.round((i / total) * 100);
+      barEl.style.width = pct + '%';
+      subEl.textContent = `Rendering page ${i + 1} of ${total}: ${page.label}`;
+      pctEl.textContent = pct + '%';
+
+      // Inject page HTML into the render stage
+      stage.innerHTML = page.html;
+
+      // Yield to browser so the DOM paints
+      await new Promise(r => setTimeout(r, 0));
+
+      // Render to canvas — scale:2 for sharp output
+      const canvas = await html2canvas(stage, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        width:  816,
+        height: 1056,
+        windowWidth: 816,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+      // Add page to PDF (first page is already created by jsPDF)
+      if (i > 0) pdf.addPage('letter', 'portrait');
+      pdf.addImage(imgData, 'JPEG', 0, 0, 8.5, 11);
+    }
+
+    // Final progress
+    barEl.style.width = '100%';
+    pctEl.textContent = '100%';
+    titleEl.textContent = 'Done!';
+    subEl.textContent = `${total} pages · downloading…`;
+
+    await new Promise(r => setTimeout(r, 400));
+
+    pdf.save(filename);
+    toast(`PDF saved: ${filename}`, 'green');
+
+  } catch(err) {
+    console.error('PDF generation error:', err);
+    titleEl.textContent = 'Error';
+    subEl.textContent   = err.message;
+    await new Promise(r => setTimeout(r, 2000));
+    toast('PDF generation failed — see console', 'fire');
+  } finally {
+    stage.innerHTML = '';
+    modal.style.display = 'none';
+    btn.disabled = false;
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
