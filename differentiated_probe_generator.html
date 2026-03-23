@@ -156,11 +156,18 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-heig
       <div class="form-group">
         <label class="form-label">Include</label>
         <select class="form-select" id="sel-include" onchange="onIncludeChange()">
-          <option value="both">Probe + Target Practice (both)</option>
           <option value="probe">Probe only</option>
           <option value="target">Target Practice only</option>
+          <option value="both">Probe + Target Practice (both)</option>
         </select>
-        <div class="form-hint">Target practice uses same format, different problems</div>
+        <div class="form-hint">Each student gets their own page with unique problems</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Page Order</label>
+        <select class="form-select" id="sel-order" onchange="onIncludeChange()">
+          <option value="roster">By roster # (1, 2, 3… — hand out in order)</option>
+          <option value="group">By skill group (easier to copy extras)</option>
+        </select>
       </div>
     </div>
 
@@ -249,7 +256,8 @@ let activeTeacher = null;
 let activeClass   = null;
 let skillGroups   = [];
 let probePages    = [];
-let includeMode   = 'both';
+let includeMode   = 'probe';
+let pageOrder     = 'roster';
 
 function loadRoster() {
   try {
@@ -320,6 +328,7 @@ function onClassChange() {
 function onDateChange() { if (activeClass) buildGroupSummary(); }
 function onIncludeChange() {
   includeMode = document.getElementById('sel-include').value;
+  pageOrder   = document.getElementById('sel-order').value;
   if (activeClass) buildGroupSummary();
 }
 
@@ -377,27 +386,106 @@ function generatePreview() {
   const date = document.getElementById('probe-date').value;
   const dateDisplay = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) : 'No date';
 
-  const pages = [];
-  // Page 1: Cover / Score Sheet
-  pages.push({ label:'Cover / Score Sheet', html: buildCoverSheet(dateDisplay) });
-
+  // Build group lookup: skillName → { gen, color, letter, groupIdx }
+  const groupMeta = {};
   skillGroups.forEach((g, i) => {
-    const gen = SKILL_GEN_MAP[g.skillName];
-    if (!gen) return;
-    const color = GROUP_COLORS[i % GROUP_COLORS.length];
-    const letter = GROUP_LETTERS[i];
-    const label = `Group ${letter} — ${g.skillName}`;
+    groupMeta[g.skillName] = {
+      gen:      SKILL_GEN_MAP[g.skillName],
+      color:    GROUP_COLORS[i % GROUP_COLORS.length],
+      letter:   GROUP_LETTERS[i],
+      groupIdx: i,
+    };
+  });
 
-    if (includeMode === 'both' || includeMode === 'probe') {
-      pages.push({ label:`${label} · Probe`, html: buildProbePage(gen, g.skillName, 'Probe', color, letter) });
+  const active = activeClass.students.filter(s => !s.inactive);
+
+  // Build per-student page entries
+  // Each student gets freshly generated problems (unique set)
+  let studentPages = [];
+  active.forEach(s => {
+    const skill   = normalizeSkill(s.currentSkill, activeClass.grade);
+    const sName   = skill ? skill.name : null;
+    const meta    = sName ? groupMeta[sName] : null;
+    if (!meta || !meta.gen) return; // skip unassigned / no generator
+
+    // Parse name: "Last, First" → display as "First Last" on sheet
+    const parts = s.name.split(',').map(x => x.trim());
+    const displayName = parts.length >= 2 ? `${parts[1]} ${parts[0]}` : s.name;
+
+    const student = { id: s.id, number: s.number, name: s.name, displayName };
+
+    if (includeMode === 'probe' || includeMode === 'both') {
+      studentPages.push({
+        student,
+        gen:      meta.gen,
+        skillName: sName,
+        pageType: 'Probe',
+        color:    meta.color,
+        letter:   meta.letter,
+      });
     }
-    if (includeMode === 'both' || includeMode === 'target') {
-      pages.push({ label:`${label} · Target Practice`, html: buildProbePage(gen, g.skillName, 'Target Practice', color, letter) });
+    if (includeMode === 'target' || includeMode === 'both') {
+      studentPages.push({
+        student,
+        gen:      meta.gen,
+        skillName: sName,
+        pageType: 'Target Practice',
+        color:    meta.color,
+        letter:   meta.letter,
+      });
     }
   });
 
+  // Sort pages
+  if (pageOrder === 'group') {
+    // Group A probe, Group A target, Group B probe…
+    // Within group: roster order
+    studentPages.sort((a, b) => {
+      const gA = skillGroups.findIndex(g => g.skillName === a.skillName);
+      const gB = skillGroups.findIndex(g => g.skillName === b.skillName);
+      if (gA !== gB) return gA - gB;
+      const typeOrder = { Probe: 0, 'Target Practice': 1 };
+      if (a.pageType !== b.pageType) return typeOrder[a.pageType] - typeOrder[b.pageType];
+      return a.student.number - b.student.number;
+    });
+  } else {
+    // Roster order: student 1 probe (+ target), student 2 probe (+ target)…
+    studentPages.sort((a, b) => {
+      if (a.student.number !== b.student.number) return a.student.number - b.student.number;
+      const typeOrder = { Probe: 0, 'Target Practice': 1 };
+      return typeOrder[a.pageType] - typeOrder[b.pageType];
+    });
+  }
+
+  // Build page HTML objects — generate fresh problems per student
+  const allStudentPageObjects = studentPages.map(sp => {
+    const label = `#${sp.student.number} · ${sp.letter} · ${sp.pageType}`;
+    return {
+      label,
+      html: buildProbePage(sp.gen, sp.skillName, sp.pageType, sp.color, sp.letter, sp.student),
+    };
+  });
+
+  // Cover sheet first
+  const pages = [
+    { label: 'Cover / Score Sheet', html: buildCoverSheet(dateDisplay) },
+    ...allStudentPageObjects,
+  ];
+
   probePages = pages;
-  renderPreview(pages, dateDisplay);
+
+  // Preview: show cover + up to 3 student samples (one per group)
+  const seenGroups = new Set();
+  const samplePages = [pages[0]]; // always cover
+  for (const sp of studentPages) {
+    if (!seenGroups.has(sp.letter) && samplePages.length < 4) {
+      seenGroups.add(sp.letter);
+      const idx = allStudentPageObjects.findIndex(p => p.label === `#${sp.student.number} · ${sp.letter} · ${sp.pageType}`);
+      if (idx >= 0) samplePages.push(allStudentPageObjects[idx]);
+    }
+  }
+
+  renderPreview(samplePages, pages.length, dateDisplay);
   buildPrintRoot(pages);
   document.getElementById('print-btn').disabled = false;
 }
@@ -412,29 +500,42 @@ function clearPreview() {
   document.getElementById('print-btn').disabled = true;
 }
 
-function renderPreview(pages, dateDisplay) {
+function renderPreview(samplePages, totalPages, dateDisplay) {
   const main = document.getElementById('main-area');
   const SCALE = 0.62;
-  const PW = 816, PH = 1056; // letter at 96dpi
+  const PW = 816, PH = 1056;
+  const studentCount = activeClass.students.filter(s => !s.inactive).length;
 
   main.innerHTML = `
     <div class="preview-header">
       <div>
         <div class="preview-title">${activeTeacher.name} — ${activeClass.period}</div>
-        <div class="preview-sub">${dateDisplay} · Grade ${activeClass.grade} · ${activeClass.students.filter(s=>!s.inactive).length} students</div>
+        <div class="preview-sub">${dateDisplay} · Grade ${activeClass.grade} · ${studentCount} students · ${totalPages} pages total</div>
       </div>
-      <span class="page-count-badge">${pages.length} page${pages.length!==1?'s':''}</span>
+      <span class="page-count-badge">🖨 ${totalPages} pages</span>
     </div>
+
+    <div style="background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;padding:10px 16px;font-size:12px;color:var(--blue);margin-bottom:20px;display:flex;align-items:center;gap:8px">
+      <span>👤</span>
+      <span>Each student gets their own page with a unique problem set and their name pre-printed.
+      Previewing cover + ${samplePages.length - 1} sample page${samplePages.length > 2 ? 's' : ''} (one per skill group).
+      ${totalPages - samplePages.length > 0 ? `<strong>${totalPages - samplePages.length} more pages</strong> ready — click Print to generate all.` : ''}</span>
+    </div>
+
     <div class="print-preview" id="preview-container">
-      ${pages.map((p,i) => `
+      ${samplePages.map((p, i) => `
         <div>
-          <div class="preview-label">Page ${i+1}: ${p.label}</div>
+          <div class="preview-label">Page ${i === 0 ? '1' : '…'}: ${p.label}</div>
           <div class="preview-page-wrap" style="width:${Math.round(PW*SCALE)}px;height:${Math.round(PH*SCALE)}px;overflow:hidden">
             <div style="transform:scale(${SCALE});transform-origin:top left;width:${PW}px;height:${PH}px;overflow:hidden">
               ${p.html}
             </div>
           </div>
         </div>`).join('')}
+      ${totalPages - samplePages.length > 0 ? `
+        <div style="display:flex;align-items:center;justify-content:center;height:120px;background:rgba(255,255,255,.15);border-radius:8px;color:#ddd;font-size:13px;font-weight:700">
+          + ${totalPages - samplePages.length} more student pages (all generated, click Print)
+        </div>` : ''}
     </div>`;
 }
 
@@ -608,7 +709,7 @@ function genProblems(gen, n) {
 // PAGE RENDERERS  (derived from workbook-generator.html locked formats)
 // ══════════════════════════════════════════════════════════════════
 
-function probPageHTML(problems, label, title, rightAlign=false) {
+function probPageHTML(problems, label, title, rightAlign=false, student=null) {
   const n = Math.min(problems.length,20);
   let rows='';
   for(let r=0;r<4;r++){
@@ -631,10 +732,16 @@ function probPageHTML(problems, label, title, rightAlign=false) {
     }
     rows+=`<tr>${cells}</tr>`;
   }
+  const nameLine = student
+    ? `<span style="font-weight:bold;font-size:13px;color:#1a1a1a">${student.displayName}</span>`
+    : `<span class="wb-line long"></span>`;
+  const numLine = student
+    ? `<span style="font-weight:bold;font-size:13px;color:#1a1a1a">&nbsp;${student.number}</span>`
+    : `<span class="wb-line" style="width:32px"></span>`;
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} — ${label}</div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span>&nbsp;#&nbsp;<span class="wb-line" style="width:32px"></span></span>
+    <span>Name:&nbsp;${nameLine}&nbsp;#${numLine}</span>
     <span class="wb-meta-act">${label}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;/ ${n}&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -642,7 +749,7 @@ function probPageHTML(problems, label, title, rightAlign=false) {
 </div>`;
 }
 
-function probPageHTMLMult(problems, label, title) {
+function probPageHTMLMult(problems, label, title, student=null) {
   const n=Math.min(problems.length,30);
   let rows='';
   for(let r=0;r<5;r++){
@@ -651,7 +758,6 @@ function probPageHTMLMult(problems, label, title) {
       const idx=r*6+c;
       if(idx<n){
         const p=problems[idx];
-        const ans=p.op==='×'?p.a*p.b:p.ans;
         const op=p.op==='÷'?'÷':'×';
         cells+=`<td><div class="wb-pr-wrap">
           <div class="wb-pr-n">${idx+1}</div>
@@ -664,10 +770,16 @@ function probPageHTMLMult(problems, label, title) {
     }
     rows+=`<tr>${cells}</tr>`;
   }
+  const nameLine = student
+    ? `<span style="font-weight:bold;font-size:13px;color:#1a1a1a">${student.displayName}</span>`
+    : `<span class="wb-line long"></span>`;
+  const numLine = student
+    ? `<span style="font-weight:bold;font-size:13px;color:#1a1a1a">&nbsp;${student.number}</span>`
+    : `<span class="wb-line" style="width:32px"></span>`;
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} — ${label}</div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span>&nbsp;#&nbsp;<span class="wb-line" style="width:32px"></span></span>
+    <span>Name:&nbsp;${nameLine}&nbsp;#${numLine}</span>
     <span class="wb-meta-act">${label}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;/ ${n}&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -675,7 +787,7 @@ function probPageHTMLMult(problems, label, title) {
 </div>`;
 }
 
-function mdProbPageHTML(problems, label, title, numDigits=3) {
+function mdProbPageHTML(problems, label, title, numDigits=3, student=null) {
   const n=Math.min(problems.length,16);
   const cfg=numDigits<=2?{fz:42,dw:38,ow:30,ansH:110}:{fz:34,dw:28,ow:26,ansH:128};
   const dS=`display:inline-block;width:${cfg.dw}px;text-align:center;font-size:${cfg.fz}px;font-weight:bold;color:#1a1a1a;line-height:1.1;font-family:Helvetica,Arial,sans-serif;`;
@@ -704,10 +816,16 @@ function mdProbPageHTML(problems, label, title, numDigits=3) {
     }
     rows+=`<tr>${cells}</tr>`;
   }
+  const nameLine = student
+    ? `<span style="font-weight:bold;font-size:13px;color:#1a1a1a">${student.displayName}</span>`
+    : `<span class="wb-line long"></span>`;
+  const numLine = student
+    ? `<span style="font-weight:bold;font-size:13px;color:#1a1a1a">&nbsp;${student.number}</span>`
+    : `<span class="wb-line" style="width:32px"></span>`;
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} — ${label}</div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span>&nbsp;#&nbsp;<span class="wb-line" style="width:32px"></span></span>
+    <span>Name:&nbsp;${nameLine}&nbsp;#${numLine}</span>
     <span class="wb-meta-act">${label}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;/ ${n}&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -716,18 +834,19 @@ function mdProbPageHTML(problems, label, title, numDigits=3) {
 }
 
 // ── Dispatch: pick the right renderer based on genType ──────────────────
-function buildProbePage(gen, skillName, pageType, color, letter) {
-  const label = `Group ${letter} — ${pageType}`;
+function buildProbePage(gen, skillName, pageType, color, letter, student=null) {
+  // Label: skill group badge + page type in header line
+  const label = `Gr ${letter} · ${skillName} · ${pageType}`;
   const n = gen.problems;
-  const problems = genProblems(gen, n);
+  const problems = genProblems(gen, n);   // fresh unique set per call
   const {genType} = gen;
 
   if (genType === 'mult' || genType === 'div') {
-    return probPageHTMLMult(problems, label, skillName);
+    return probPageHTMLMult(problems, label, skillName, student);
   } else if (['multiadd','multiadd2wr','multiadd3wr','multisub','multisub2wr','multisub3wr'].includes(genType)) {
-    return mdProbPageHTML(problems, label, skillName, gen.digits || 3);
+    return mdProbPageHTML(problems, label, skillName, gen.digits || 3, student);
   } else {
-    return probPageHTML(problems, label, skillName, !!gen.rightAlign);
+    return probPageHTML(problems, label, skillName, !!gen.rightAlign, student);
   }
 }
 

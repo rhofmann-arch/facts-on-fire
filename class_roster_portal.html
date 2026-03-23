@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Facts on Fire — Class Roster Portal</title>
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
@@ -609,6 +611,31 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
 .toast.green { border-left: 4px solid var(--green); }
 .toast.fire { border-left: 4px solid var(--fire); }
 
+/* ── SYNC STATUS PILL ── */
+.sync-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1.5px solid #333;
+  color: #999;
+  transition: all .2s;
+  cursor: default;
+  white-space: nowrap;
+}
+.sync-pill.connected   { border-color: #10B981; color: #10B981; }
+.sync-pill.syncing     { border-color: #F59E0B; color: #F59E0B; }
+.sync-pill.error       { border-color: #EF4444; color: #EF4444; cursor: pointer; }
+.sync-pill.needs-auth  { border-color: #1B4FCC; color: #93c5fd; cursor: pointer; }
+.sync-pill .sync-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0;
+}
+.sync-pill.syncing .sync-dot { animation: pulse-dot .9s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+
 /* ── COVER SHEET NOTICE ── */
 .notice-bar {
   background: var(--amber-bg);
@@ -639,8 +666,13 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
   <span class="topbar-sep">›</span>
   <span class="topbar-title">Class Roster Portal</span>
   <div class="topbar-spacer"></div>
-  <button class="topbar-btn sheets" onclick="openModal('sheets-modal')">
-    <span>⬡</span> Google Sheets Sync
+  <!-- Sync status pill — updated by JS -->
+  <div class="sync-pill" id="sync-pill" onclick="handleSyncPillClick()" title="">
+    <span class="sync-dot"></span>
+    <span id="sync-pill-text">Not connected</span>
+  </div>
+  <button class="topbar-btn sheets" id="sheets-btn" onclick="openModal('sheets-modal')">
+    <span>⬡</span> Sheets Setup
   </button>
   <button class="topbar-btn" onclick="openModal('import-modal')">
     ↑ Import CSV
@@ -785,65 +817,62 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
 
 <!-- Google Sheets Modal -->
 <div class="modal-overlay" id="sheets-modal">
-  <div class="modal" style="max-width:620px">
+  <div class="modal" style="max-width:560px">
     <div class="modal-header" style="background:#166534">
       <span>⬡</span>
       <span class="modal-title">Google Sheets Sync</span>
       <button class="modal-close" onclick="closeModal('sheets-modal')">✕</button>
     </div>
-    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
-      <div class="sheets-panel">
-        <div class="sheets-panel-title">📋 How Sheets Integration Works</div>
-        <div class="sheets-panel-text">
-          Rosters are stored in a shared Google Sheet — one tab per teacher. 
-          All teachers and the coach see live data. No login system required beyond Google OAuth.
+    <div class="modal-body">
+
+      <!-- Connection status card -->
+      <div id="sheets-status-card" style="border-radius:10px;padding:16px;margin-bottom:20px;border:1.5px solid var(--border);background:var(--bg)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span id="sheets-status-icon" style="font-size:18px">⚪</span>
+          <span id="sheets-status-title" style="font-size:14px;font-weight:700">Not connected</span>
+        </div>
+        <div id="sheets-status-desc" style="font-size:12px;color:var(--muted);line-height:1.5"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="action-btn primary" id="sheets-signin-btn" onclick="sheetsSignIn()" style="display:none">
+            Sign in with Google
+          </button>
+          <button class="action-btn" id="sheets-signout-btn" onclick="sheetsSignOut()" style="display:none">
+            Sign out
+          </button>
+          <button class="action-btn" id="sheets-reload-btn" onclick="sheetsLoadAll(true)" style="display:none">
+            ↻ Reload from Sheets
+          </button>
         </div>
       </div>
 
-      <div style="font-size:13px;font-weight:700;margin-bottom:12px">Setup Steps (one-time, done by tech coordinator)</div>
-
-      <div class="sheets-step">
-        <div class="sheets-step-num">1</div>
-        <div>Go to <strong>console.cloud.google.com</strong> → create a project → enable the <em>Google Sheets API</em> and <em>Google Drive API</em>.</div>
-      </div>
-      <div class="sheets-step">
-        <div class="sheets-step-num">2</div>
-        <div>Under <em>APIs & Services → Credentials</em>, create an <strong>OAuth 2.0 Client ID</strong> (Web Application). Add your site's URL as an authorized origin.</div>
-      </div>
-      <div class="sheets-step">
-        <div class="sheets-step-num">3</div>
-        <div>Create a master Google Sheet. Copy its Sheet ID from the URL: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px">docs.google.com/spreadsheets/d/<strong>[SHEET_ID]</strong>/edit</code></div>
-      </div>
-      <div class="sheets-step">
-        <div class="sheets-step-num">4</div>
-        <div>Paste your Client ID and Sheet ID into the fields below and click Save.</div>
-      </div>
-
-      <div class="code-block">// Expected sheet structure — one tab per teacher
-// Tab name = Teacher name (e.g., "Ms. Martinez")
-// Columns:  Number | Last Name | First Name | Grade | Class Period | Current Skill | Notes</div>
-
-      <div style="margin-top:20px">
+      <!-- Config fields -->
+      <div id="sheets-config-section">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px">Configuration</div>
         <div class="form-group">
           <label class="form-label">Google OAuth Client ID</label>
-          <input class="form-input" id="sheets-client-id" placeholder="xxxxxxxx.apps.googleusercontent.com"
-            value="" />
+          <input class="form-input" id="sheets-client-id" placeholder="184972933333-bhcf5032nv8mb5j7c5rb1scbl493q3jd.apps.googleusercontent.com" />
           <div class="form-hint">From Google Cloud Console → Credentials</div>
         </div>
         <div class="form-group">
           <label class="form-label">Master Spreadsheet ID</label>
           <input class="form-input" id="sheets-spreadsheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
-          <div class="form-hint">Copied from the Google Sheets URL</div>
+          <div class="form-hint">From the Google Sheets URL: /spreadsheets/d/<strong>[ID]</strong>/edit</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="action-btn primary" onclick="saveSheetsConfig()">Save & Connect</button>
+          <button class="action-btn" onclick="closeModal('sheets-modal')">Cancel</button>
         </div>
       </div>
 
-      <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;padding:12px;font-size:12px;color:#92400e;margin-top:4px">
-        ⚠️ <strong>Current status:</strong> Rosters are saved locally in your browser. Once Client ID and Sheet ID are saved, the app will read/write directly to Google Sheets on every change.
+      <!-- Sheet structure reference -->
+      <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Sheet Structure (auto-created)</div>
+        <div class="code-block" style="font-size:10px">// One tab per teacher (tab name = teacher name)
+// _meta tab stores teacher & class metadata
+// Student columns:
+//   StudentID | ClassID | # | Last | First | Grade
+//   Period | Room | SkillID | SkillName | Scores | Inactive</div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="action-btn" onclick="closeModal('sheets-modal')">Close</button>
-      <button class="action-btn primary" onclick="saveSheetsConfig()">Save Sheets Config</button>
     </div>
   </div>
 </div>
@@ -910,10 +939,463 @@ let activeTeacherId = null;
 let activeClassId   = null;
 let csvImportData   = null;
 
-// ── Persistence ────────────────────────────────────────────────────
-function save() {
+// ══════════════════════════════════════════════════════════════════
+// DATA MODEL
+// ══════════════════════════════════════════════════════════════════
+
+const TEACHER_COLORS = ['#FF4F00','#1B4FCC','#10B981','#7C3AED','#F59E0B','#EC4899'];
+
+let data = {
+  teachers: [],
+  sheetsConfig: { clientId: '', spreadsheetId: '' }
+};
+
+let activeTeacherId = null;
+let activeClassId   = null;
+let csvImportData   = null;
+
+// ── IDs ─────────────────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2,9); }
+
+// ══════════════════════════════════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// Primary source of truth. localStorage used as offline fallback.
+// Auth: Google Identity Services (GIS) token client.
+// Sheet layout: one tab per teacher + _meta tab.
+// ══════════════════════════════════════════════════════════════════
+
+const SHEETS_SCOPE   = 'https://www.googleapis.com/auth/spreadsheets';
+const SHEETS_API     = 'https://sheets.googleapis.com/v4/spreadsheets';
+const META_TAB       = '_meta';
+const STUDENT_COLS   = ['StudentID','ClassID','Number','LastName','FirstName',
+                        'Grade','Period','Room','SkillID','SkillName','SkillSeq',
+                        'Scores','Inactive'];
+
+let gisTokenClient = null;   // GIS token client instance
+let accessToken    = null;   // current OAuth access token
+let tokenExpiry    = 0;      // timestamp when token expires
+let syncPending    = false;  // debounce flag
+
+// ── Auth state helpers ─────────────────────────────────────────────
+function isConfigured() {
+  const cfg = data.sheetsConfig;
+  return !!(cfg && cfg.clientId && cfg.spreadsheetId);
+}
+function isSignedIn() {
+  return !!(accessToken && Date.now() < tokenExpiry);
+}
+
+// ── Sync status pill ───────────────────────────────────────────────
+function setSyncStatus(state, text, detail) {
+  const pill  = document.getElementById('sync-pill');
+  const label = document.getElementById('sync-pill-text');
+  if (!pill) return;
+  pill.className = `sync-pill ${state}`;
+  label.textContent = text;
+  pill.title = detail || '';
+}
+
+function updateSheetsModal() {
+  const icon    = document.getElementById('sheets-status-icon');
+  const title   = document.getElementById('sheets-status-title');
+  const desc    = document.getElementById('sheets-status-desc');
+  const signIn  = document.getElementById('sheets-signin-btn');
+  const signOut = document.getElementById('sheets-signout-btn');
+  const reload  = document.getElementById('sheets-reload-btn');
+  const cfgSec  = document.getElementById('sheets-config-section');
+  const card    = document.getElementById('sheets-status-card');
+
+  if (!isConfigured()) {
+    icon.textContent  = '⚙️';
+    title.textContent = 'Not configured';
+    desc.textContent  = 'Enter your OAuth Client ID and Spreadsheet ID below to get started.';
+    card.style.background = 'var(--bg)';
+    card.style.borderColor = 'var(--border)';
+    signIn.style.display  = 'none';
+    signOut.style.display = 'none';
+    reload.style.display  = 'none';
+    cfgSec.style.display  = 'block';
+  } else if (!isSignedIn()) {
+    icon.textContent  = '🔑';
+    title.textContent = 'Ready to connect';
+    desc.textContent  = 'Config saved. Sign in with the school Google account to activate live sync.';
+    card.style.background = 'var(--blue-bg)';
+    card.style.borderColor = 'var(--blue-border)';
+    signIn.style.display  = 'inline-flex';
+    signOut.style.display = 'none';
+    reload.style.display  = 'none';
+    cfgSec.style.display  = 'none';
+  } else {
+    icon.textContent  = '✅';
+    title.textContent = 'Connected — live sync active';
+    desc.textContent  = `Reading and writing to Google Sheet: ${data.sheetsConfig.spreadsheetId.slice(0,20)}…`;
+    card.style.background = 'var(--green-bg)';
+    card.style.borderColor = 'var(--green-border)';
+    signIn.style.display  = 'none';
+    signOut.style.display = 'inline-flex';
+    reload.style.display  = 'inline-flex';
+    cfgSec.style.display  = 'none';
+  }
+}
+
+function handleSyncPillClick() {
+  if (isConfigured() && !isSignedIn()) sheetsSignIn();
+  else openModal('sheets-modal');
+}
+
+// ── GIS initialisation ─────────────────────────────────────────────
+function initGoogleAuth() {
+  if (!isConfigured()) return;
+  if (typeof google === 'undefined' || !google.accounts) {
+    // GIS library not loaded yet — retry in 800ms
+    setTimeout(initGoogleAuth, 800);
+    return;
+  }
+  gisTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: data.sheetsConfig.clientId,
+    scope: SHEETS_SCOPE,
+    callback: handleTokenResponse,
+  });
+  setSyncStatus('needs-auth', 'Sign in to sync', 'Click to sign in with Google');
+  updateSheetsModal();
+}
+
+function handleTokenResponse(resp) {
+  if (resp.error) {
+    setSyncStatus('error', 'Auth error', resp.error);
+    toast('Google sign-in failed: ' + resp.error, 'fire');
+    return;
+  }
+  accessToken = resp.access_token;
+  tokenExpiry = Date.now() + (resp.expires_in - 60) * 1000; // 60s safety margin
+  setSyncStatus('syncing', 'Loading…', 'Reading from Google Sheets');
+  updateSheetsModal();
+  sheetsLoadAll(false);
+}
+
+function sheetsSignIn() {
+  if (!gisTokenClient) { initGoogleAuth(); setTimeout(sheetsSignIn, 900); return; }
+  gisTokenClient.requestAccessToken();
+}
+
+function sheetsSignOut() {
+  if (accessToken) google.accounts.oauth2.revoke(accessToken, () => {});
+  accessToken = null; tokenExpiry = 0;
+  setSyncStatus('needs-auth', 'Sign in to sync', 'Click to sign in with Google');
+  updateSheetsModal();
+  toast('Signed out of Google Sheets', 'fire');
+}
+
+// ── Sheets API helpers ─────────────────────────────────────────────
+async function sheetsGet(range) {
+  const id  = data.sheetsConfig.spreadsheetId;
+  const url = `${SHEETS_API}/${id}/values/${encodeURIComponent(range)}?majorDimension=ROWS`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (!res.ok) throw new Error(`Sheets GET failed: ${res.status}`);
+  return res.json();
+}
+
+async function sheetsPut(range, values) {
+  const id  = data.sheetsConfig.spreadsheetId;
+  const url = `${SHEETS_API}/${id}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ range, majorDimension: 'ROWS', values }),
+  });
+  if (!res.ok) throw new Error(`Sheets PUT failed: ${res.status}`);
+  return res.json();
+}
+
+async function sheetsClear(range) {
+  const id  = data.sheetsConfig.spreadsheetId;
+  const url = `${SHEETS_API}/${id}/values/${encodeURIComponent(range)}:clear`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+  });
+  if (!res.ok) throw new Error(`Sheets CLEAR failed: ${res.status}`);
+}
+
+async function sheetsAddTab(title) {
+  const id  = data.sheetsConfig.spreadsheetId;
+  const url = `${SHEETS_API}/${id}:batchUpdate`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requests: [{ addSheet: { properties: { title } } }] }),
+  });
+  if (!res.ok) {
+    const body = await res.json();
+    // Ignore "already exists" errors
+    if (!JSON.stringify(body).includes('already exists')) throw new Error(`Add tab failed: ${res.status}`);
+  }
+}
+
+async function sheetsGetTabNames() {
+  const id  = data.sheetsConfig.spreadsheetId;
+  const url = `${SHEETS_API}/${id}?fields=sheets.properties.title`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (!res.ok) throw new Error(`Get tabs failed: ${res.status}`);
+  const body = await res.json();
+  return (body.sheets || []).map(s => s.properties.title);
+}
+
+// ── Data ↔ Rows conversion ─────────────────────────────────────────
+function teacherToRows(teacher) {
+  const rows = [STUDENT_COLS]; // header
+  teacher.classes.forEach(cls => {
+    cls.students.forEach(s => {
+      const skill = normalizeSkill(s.currentSkill, cls.grade);
+      const parts = s.name.split(',').map(x => x.trim());
+      rows.push([
+        s.id,
+        cls.id,
+        s.number,
+        parts[0] || s.name,
+        parts[1] || '',
+        cls.grade,
+        cls.period,
+        cls.room || '',
+        skill ? skill.id   : '',
+        skill ? skill.name : '',
+        skill ? (skill.seq ?? '') : '',
+        (s.scores || []).join(';'),
+        s.inactive ? '1' : '0',
+      ]);
+    });
+  });
+  return rows;
+}
+
+function rowsToTeacher(teacher, rows) {
+  if (!rows || rows.length < 2) return; // header only or empty
+  const hdr = rows[0];
+  const idx = {};
+  hdr.forEach((h, i) => idx[h] = i);
+
+  const classMap = {};
+  // Preserve existing class metadata (period, grade, room)
+  teacher.classes.forEach(c => { classMap[c.id] = c; });
+
+  const newClasses = {};
+  rows.slice(1).forEach(row => {
+    if (!row || row.length < 3) return;
+    const get = (col) => (row[idx[col]] ?? '').toString().trim();
+
+    const cid    = get('ClassID')   || uid();
+    const grade  = get('Grade')     || teacher.grade?.replace(/\D/g,'') || '5';
+    const period = get('Period')    || 'Period 1';
+    const room   = get('Room')      || '';
+
+    if (!newClasses[cid]) {
+      newClasses[cid] = classMap[cid] || { id: cid, period, grade, room, students: [] };
+      newClasses[cid].students = [];
+    }
+
+    const sid      = get('StudentID') || uid();
+    const lastName = get('LastName');
+    const first    = get('FirstName');
+    const name     = first ? `${lastName}, ${first}` : lastName;
+    const skillId  = get('SkillID');
+    const skillName= get('SkillName');
+    const skillSeq = parseInt(get('SkillSeq') || '-1', 10);
+    const scoresRaw= get('Scores');
+    const inactive = get('Inactive') === '1';
+
+    const skill = skillId && skillName
+      ? { id: skillId, name: skillName, grade, seq: skillSeq }
+      : null;
+
+    newClasses[cid].students.push({
+      id:           sid,
+      number:       parseInt(get('Number') || '0', 10),
+      name,
+      currentSkill: skill,
+      scores:       scoresRaw ? scoresRaw.split(';').map(Number).filter(n => !isNaN(n)) : [],
+      inactive,
+    });
+  });
+
+  teacher.classes = Object.values(newClasses);
+}
+
+function metaToRows() {
+  const rows = [['TeacherID','TeacherName','TeacherGrade','TeacherColor','ClassID','ClassPeriod','ClassGrade','ClassRoom']];
+  data.teachers.forEach(t => {
+    if (t.classes.length === 0) {
+      rows.push([t.id, t.name, t.grade, t.color, '', '', '', '']);
+    } else {
+      t.classes.forEach(c => {
+        rows.push([t.id, t.name, t.grade, t.color, c.id, c.period, c.grade, c.room || '']);
+      });
+    }
+  });
+  return rows;
+}
+
+function rowsToMeta(rows) {
+  if (!rows || rows.length < 2) return;
+  const hdr = rows[0];
+  const idx = {};
+  hdr.forEach((h, i) => idx[h] = i);
+  const get = (row, col) => (row[idx[col]] ?? '').toString().trim();
+
+  const teacherMap = {};
+  rows.slice(1).forEach(row => {
+    if (!row || !row[0]) return;
+    const tid = get(row, 'TeacherID');
+    if (!teacherMap[tid]) {
+      teacherMap[tid] = {
+        id:      tid,
+        name:    get(row, 'TeacherName'),
+        grade:   get(row, 'TeacherGrade'),
+        color:   get(row, 'TeacherColor') || TEACHER_COLORS[Object.keys(teacherMap).length % TEACHER_COLORS.length],
+        classes: [],
+      };
+    }
+    const cid = get(row, 'ClassID');
+    if (cid) {
+      const existing = teacherMap[tid].classes.find(c => c.id === cid);
+      if (!existing) {
+        teacherMap[tid].classes.push({
+          id:      cid,
+          period:  get(row, 'ClassPeriod'),
+          grade:   get(row, 'ClassGrade'),
+          room:    get(row, 'ClassRoom'),
+          students: [],
+        });
+      }
+    }
+  });
+  return Object.values(teacherMap);
+}
+
+// ── Load all data from Sheets ──────────────────────────────────────
+async function sheetsLoadAll(showToast) {
+  if (!isSignedIn()) return;
+  setSyncStatus('syncing', 'Loading…', 'Reading Google Sheets');
+  try {
+    // 1. Ensure _meta tab exists; read it
+    const tabs = await sheetsGetTabNames();
+    if (!tabs.includes(META_TAB)) {
+      await sheetsAddTab(META_TAB);
+      // Fresh sheet — write current data
+      await sheetsSaveAll();
+      setSyncStatus('connected', 'Synced', 'Google Sheets is the source of truth');
+      if (showToast) toast('Sheet initialised — data written', 'green');
+      return;
+    }
+
+    const metaResp = await sheetsGet(`${META_TAB}!A:H`);
+    const teachers = rowsToMeta(metaResp.values || []);
+    if (!teachers || teachers.length === 0) {
+      // _meta exists but empty — write our data
+      await sheetsSaveAll();
+      setSyncStatus('connected', 'Synced', 'Google Sheets is the source of truth');
+      if (showToast) toast('Sheet was empty — data written', 'green');
+      return;
+    }
+
+    // 2. For each teacher tab, read students
+    for (const t of teachers) {
+      const tabName = t.name;
+      if (!tabs.includes(tabName)) continue;
+      try {
+        const resp = await sheetsGet(`${tabName}!A:M`);
+        rowsToTeacher(t, resp.values || []);
+      } catch(e) {
+        console.warn(`Could not read tab "${tabName}":`, e);
+      }
+    }
+
+    // 3. Merge with local config (preserve sheetsConfig)
+    const cfg = data.sheetsConfig;
+    data = { teachers, sheetsConfig: cfg };
+    saveLocal();
+
+    setSyncStatus('connected', 'Synced', 'Live sync active — Google Sheets is source of truth');
+    updateSheetsModal();
+    renderSidebar();
+    if (data.teachers.length > 0) selectTeacher(data.teachers[0].id);
+    if (showToast) toast('Roster loaded from Google Sheets', 'green');
+
+  } catch(e) {
+    console.error('sheetsLoadAll error:', e);
+    setSyncStatus('error', 'Sync error', e.message);
+    toast('Sheets sync error — using local data. Click sync pill for details.', 'fire');
+  }
+}
+
+// ── Write one teacher tab ──────────────────────────────────────────
+async function sheetsWriteTeacher(teacher) {
+  if (!isSignedIn()) return;
+  try {
+    const tabName = teacher.name;
+    const tabs = await sheetsGetTabNames();
+    if (!tabs.includes(tabName)) await sheetsAddTab(tabName);
+    await sheetsClear(`${tabName}!A:M`);
+    const rows = teacherToRows(teacher);
+    await sheetsPut(`${tabName}!A1`, rows);
+  } catch(e) {
+    console.error('sheetsWriteTeacher error:', e);
+    setSyncStatus('error', 'Write error', e.message);
+  }
+}
+
+// ── Write _meta tab ────────────────────────────────────────────────
+async function sheetsWriteMeta() {
+  if (!isSignedIn()) return;
+  try {
+    const tabs = await sheetsGetTabNames();
+    if (!tabs.includes(META_TAB)) await sheetsAddTab(META_TAB);
+    await sheetsClear(`${META_TAB}!A:H`);
+    await sheetsPut(`${META_TAB}!A1`, metaToRows());
+  } catch(e) {
+    console.error('sheetsWriteMeta error:', e);
+  }
+}
+
+// ── Save all to Sheets ─────────────────────────────────────────────
+async function sheetsSaveAll() {
+  await sheetsWriteMeta();
+  for (const t of data.teachers) await sheetsWriteTeacher(t);
+}
+
+// ── Debounced write triggered after every data change ──────────────
+let _syncTimer = null;
+async function triggerSync(teacherId) {
+  if (!isSignedIn()) return;
+  setSyncStatus('syncing', 'Saving…', 'Writing to Google Sheets');
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(async () => {
+    try {
+      await sheetsWriteMeta();
+      if (teacherId) {
+        const t = data.teachers.find(x => x.id === teacherId);
+        if (t) await sheetsWriteTeacher(t);
+      } else {
+        for (const t of data.teachers) await sheetsWriteTeacher(t);
+      }
+      setSyncStatus('connected', 'Synced', 'Live sync active');
+    } catch(e) {
+      console.error('triggerSync error:', e);
+      setSyncStatus('error', 'Sync error — click to retry', e.message);
+    }
+  }, 800); // 800ms debounce
+}
+
+// ── Persistence: localStorage as fallback cache ────────────────────
+function saveLocal() {
   try { localStorage.setItem('fof_roster_v1', JSON.stringify(data)); } catch(e) {}
 }
+
+// save() = write to localStorage immediately + trigger async Sheets write
+function save(teacherId) {
+  saveLocal();
+  triggerSync(teacherId || activeTeacherId);
+}
+
 function load() {
   try {
     const raw = localStorage.getItem('fof_roster_v1');
@@ -921,8 +1403,19 @@ function load() {
   } catch(e) {}
 }
 
-// ── IDs ─────────────────────────────────────────────────────────────
-function uid() { return Math.random().toString(36).slice(2,9); }
+// ── Config save / connect ──────────────────────────────────────────
+function saveSheetsConfig() {
+  const cid = document.getElementById('sheets-client-id').value.trim();
+  const sid = document.getElementById('sheets-spreadsheet-id').value.trim();
+  if (!cid || !sid) { toast('Both Client ID and Spreadsheet ID are required', 'fire'); return; }
+  data.sheetsConfig.clientId      = cid;
+  data.sheetsConfig.spreadsheetId = sid;
+  saveLocal();
+  closeModal('sheets-modal');
+  initGoogleAuth();
+  toast('Config saved — click "Sign in with Google" to connect', 'green');
+  setTimeout(() => openModal('sheets-modal'), 400);
+}
 
 // ══════════════════════════════════════════════════════════════════
 // SKILL SEQUENCE  (K–8, ordered)
@@ -1718,47 +2211,38 @@ function confirmDeleteClass() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// GOOGLE SHEETS CONFIG
+// INIT
 // ══════════════════════════════════════════════════════════════════
 
-function saveSheetsConfig() {
-  data.sheetsConfig.clientId = document.getElementById('sheets-client-id').value.trim();
-  data.sheetsConfig.spreadsheetId = document.getElementById('sheets-spreadsheet-id').value.trim();
-  save();
-  closeModal('sheets-modal');
-  toast('Sheets config saved — connect your OAuth Client ID to activate sync', 'green');
+load(); // load from localStorage first (instant)
+
+// Restore config field values
+if (data.sheetsConfig) {
+  const ci = document.getElementById('sheets-client-id');
+  const si = document.getElementById('sheets-spreadsheet-id');
+  if (ci) ci.value = data.sheetsConfig.clientId || '';
+  if (si) si.value = data.sheetsConfig.spreadsheetId || '';
 }
 
-// ══════════════════════════════════════════════════════════════════
-// DRAG-OVER on drop zone
-// ══════════════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  const dz = document.getElementById('drop-zone');
-  ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-over'); }));
-  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { dz.classList.remove('drag-over'); }));
-  dz.addEventListener('drop', e => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.name.endsWith('.csv')) {
-      const fakeEvent = { target: { files: [file] } };
-      handleCSV(fakeEvent);
-    }
-  });
+// Render from local data immediately so UI is responsive
+if (data.teachers.length > 0) {
+  renderSidebar();
+  selectTeacher(data.teachers[0].id);
+} else {
+  renderSidebar();
+}
+
+// Initial sync status
+if (!isConfigured()) {
+  setSyncStatus('', 'Local only', 'Configure Google Sheets to enable cloud sync');
+} else {
+  setSyncStatus('needs-auth', 'Sign in to sync', 'Click to sign in with Google');
+}
+
+// Init Google Auth after GIS library loads
+window.addEventListener('load', () => {
+  if (isConfigured()) initGoogleAuth();
 });
-
-// ══════════════════════════════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════════════════════════════
-
-function toast(msg, type='green') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = `toast ${type} show`;
-  setTimeout(() => el.classList.remove('show'), 3000);
-}
-
-// ══════════════════════════════════════════════════════════════════
-// SCORE ENTRY
 // ══════════════════════════════════════════════════════════════════
 
 // Total problems per skill genType — mirrors SKILL_GEN_MAP in probe generator
@@ -1919,9 +2403,30 @@ function recordProbeScore(sid, classId, pct) {
   return { advanced, oldSkill, newSkill, scores: s.scores };
 }
 
-load();
+// ── Drag-over on CSV drop zone ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('drop-zone');
+  if (!dz) return;
+  ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-over'); }));
+  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { dz.classList.remove('drag-over'); }));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.csv')) handleCSV({ target: { files: [file] } });
+  });
+});
 
-// Restore sheets config inputs
+// ── Toast ──────────────────────────────────────────────────────────
+function toast(msg, type='green') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+load(); // localStorage first — instant render
+
 if (data.sheetsConfig) {
   const ci = document.getElementById('sheets-client-id');
   const si = document.getElementById('sheets-spreadsheet-id');
@@ -1935,6 +2440,16 @@ if (data.teachers.length > 0) {
 } else {
   renderSidebar();
 }
+
+if (!isConfigured()) {
+  setSyncStatus('', 'Local only', 'Configure Google Sheets to enable cloud sync');
+} else {
+  setSyncStatus('needs-auth', 'Sign in to sync', 'Click to sign in with Google');
+}
+
+window.addEventListener('load', () => {
+  if (isConfigured()) initGoogleAuth();
+});
 
 </script>
 </body>
