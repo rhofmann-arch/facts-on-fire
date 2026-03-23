@@ -79,6 +79,8 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 .wb-hdr-line{font-size:13px;font-weight:bold;color:#1a1a1a;border-bottom:2px solid #1a1a1a;padding-bottom:3px;margin-bottom:5px;white-space:nowrap}
 .wb-meta{display:flex;align-items:baseline;margin-bottom:8px;font-size:12px;font-weight:bold;color:#1a1a1a}
 .wb-meta-act{flex:1;text-align:center;font-size:12px;font-weight:bold}
+.wb-name-row{font-size:12px;font-weight:bold;color:#1a1a1a;display:flex;align-items:flex-end;margin-bottom:5px;margin-top:1px}
+.wb-name-line{flex:1;border-bottom:1.5px solid #555;height:40px;margin-left:4px}
 .wb-line{display:inline-block;border-bottom:1.5px solid #555;vertical-align:baseline;height:11px}
 .wb-line.long{width:150px}.wb-line.med{width:90px}.wb-line.short{width:46px}
 .wb-dir{font-size:11px;font-weight:bold;color:#333;margin-bottom:10px;padding-bottom:6px;border-bottom:1.5px solid #e0e0e0}
@@ -2031,8 +2033,8 @@ function probPageHTML(problems, key, pageNum, cycleNum, dayLabel, title, rightAl
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2076,8 +2078,8 @@ function probPageHTMLMult(problems, key, pageNum, cycleNum, dayLabel, title) {
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2148,8 +2150,8 @@ function mdProbPageHTML(problems, key, pageNum, cycleNum, dayLabel, title, numDi
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2217,8 +2219,8 @@ function mdProbPageHTML_2plus1(problems, key, pageNum, cycleNum, dayLabel, title
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2288,8 +2290,8 @@ function mdProbPageHTML_2minus1(problems, key, pageNum, cycleNum, dayLabel, titl
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2368,8 +2370,8 @@ function mdCCCPageHTML(problems, key, pageNum, cycleNum, dayLabel, title, numDig
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2478,8 +2480,8 @@ function mdFFPageHTML(families, cycleNum, dayLabel, title) {
     : 'Use the triangle to write the addition facts. Fill in the missing numbers.';
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2582,8 +2584,8 @@ function mdTSPageHTML(problems, key, pageNum, cycleNum, dayLabel, title, numDigi
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2602,8 +2604,8 @@ function puzzlePageHTML(puzzle, key, pageNum, cycleNum, dayLabel, title) {
     .map(r=>`<div class="wb-puz-cell">${r}</div>`).join('');
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2633,8 +2635,8 @@ function puzzlePageHTML4(puzzles, dirs, key, pageNum, cycleNum, dayLabel, title)
     `<div class="wb-puz-cell" style="${minHStyle}display:flex;align-items:center;justify-content:center;">${renderPuz(p, key, large)}</div>`).join('');
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2742,8 +2744,8 @@ function cccPageHTML(problems, op, pageNum, cycleNum, dayLabel, title, key) {
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -2970,8 +2972,8 @@ function ffScaffoldPageHTML(families, cycleNum, dayLabel, title, op='+') {
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -3050,8 +3052,8 @@ function ffScMDPageHTML(families, cycleNum, dayLabel, title, op) {
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -3105,8 +3107,8 @@ function ffPageHTML(families, op, pageNum, cycleNum, dayLabel, title, key) {
   const opName = op==='-'?'Subtraction':op==='×'?'Multiplication':op==='÷'?'Division':'Addition';
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span class="wb-meta-name">Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span class="wb-meta-right">Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -3149,8 +3151,8 @@ function cccMixedPageHTML(problems, pageNum, cycleNum, dayLabel, title, key) {
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -3183,8 +3185,8 @@ function ffMixedPageHTML(families, pageNum, cycleNum, dayLabel, title, key) {
     f ? ffTriangleHTML(f.a, f.b, f.op, i+1, key) : '').join('');
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span class="wb-meta-name">Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span class="wb-meta-right">Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -3273,8 +3275,8 @@ function tmPageHTML(problems, headerDigits, cycleNum, dayLabel, title, op='+') {
   }
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycleNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -4025,7 +4027,7 @@ async function nwDownload() {
       if (i > 0) pdf.addPage();
       const scale = Math.min(PW/canvas.width, PH/canvas.height);
       const iw = canvas.width*scale, ih = canvas.height*scale;
-      pdf.addImage(canvas.toDataURL('image/jpeg',0.93),'JPEG',(PW-iw)/2,(PH-ih)/2,iw,ih);
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.93),'JPEG',(PW-iw)/2,0,iw,ih);
     }
     target.innerHTML = '';
     fill.style.width = '100%';
@@ -4116,8 +4118,8 @@ async function factFamilyPageHTML(k, cycNum, dayLabel) {
 
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -4239,8 +4241,8 @@ function warpWeftPageHTML(grids, pageNum, cycNum, dayLabel, title, key) {
   const blocks = grids.map((cells, i) => wwBlockHTML(cells, i + 1, key)).join('');
   return `<div class="wb-page">
   <div class="wb-hdr-line">Facts on Fire: ${title} Cycle ${cycNum}</div>
+  <div class="wb-name-row">Name:&nbsp;<span class="wb-name-line"></span></div>
   <div class="wb-meta">
-    <span>Name:&nbsp;<span class="wb-line long"></span></span>
     <span class="wb-meta-act">${dayLabel}</span>
     <span>Score:&nbsp;<span class="wb-line short"></span>&nbsp;&nbsp;Date:&nbsp;<span class="wb-line med"></span></span>
   </div>
@@ -4620,7 +4622,7 @@ async function downloadBook(key){
       if(i>0) pdf.addPage();
       const scale = Math.min(PW/canvas.width, PH/canvas.height);
       const iw=canvas.width*scale, ih=canvas.height*scale;
-      pdf.addImage(canvas.toDataURL('image/jpeg',0.93),'JPEG',(PW-iw)/2,(PH-ih)/2,iw,ih);
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.93),'JPEG',(PW-iw)/2,0,iw,ih);
     }
 
     target.innerHTML = '';
