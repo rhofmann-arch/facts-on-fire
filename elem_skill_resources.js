@@ -11,31 +11,41 @@
  *
  * Resource types:
  *   puzzle       — generated puzzle sheet (id matches workbook-generator.html puzzle ids)
- *   game         — interactive game or digital tool (id to be assigned when built)
- *   intervention — targeted intervention activity   (id to be assigned when built)
+ *   game         — interactive whole-class game or digital tool
+ *   intervention — targeted intervention activity
  *
  * Adding a new linkage:
  *   1. Find or create the skill key (matches SKILLS[].id in workbook-generator.html).
  *   2. Push an entry into the appropriate array (puzzles / games / interventions).
  *   3. Each entry: { id, label, notes }
- *      - id     : machine key used to invoke the puzzle  (e.g. 'honeycomb')
+ *      - id     : machine key used to invoke the resource (e.g. 'honeycomb', 'ohno99')
  *      - label  : human-readable display name            (e.g. 'Honeycomb Path')
- *      - notes  : optional context for teacher guides    (e.g. 'good for early intro')
+ *      - notes  : optional context for teacher guides
  *
- * Puzzle pool reference (for pool-aware UI warnings):
+ * Game registry fields:
+ *   - id        : machine key
+ *   - label     : display name
+ *   - url       : filename to launch  (e.g. 'oh-no-99.html')
+ *   - category  : short description of skill area
+ *   - status    : 'live' | 'soon'  (default 'live')
+ *   - universal : true if the tool works with ANY skill set.
+ *                 Universal tools are NOT listed per-skill in games[].
+ *                 They are displayed automatically on every skill row by the UI.
+ *
+ * Puzzle pool reference:
  *   early      → Honeycomb Path, Cross-Number, Number Maze, 100 Triangles
  *   addsub     → + Mismo, Two-Out, X-Out, Factor Blob
  *   multdiv    → Mismo, Mega Mismo, Two-Out, X-Out, Factor Blob, Number Maze, 100 Triangles, Cross-Number
  *   multidigit → Cross-Number, Cryptarithms, Mismo, Mega Mismo, Factor Blob, Two-Out, Number Maze
  *
- * Last updated: Session 8 — 2026-03-23
+ * Last updated: Session 9 — 2026-03-25
  */
 
 const ELEM_SKILL_RESOURCES = {
 
   // ── DOT TOTALS ─────────────────────────────────────────────────────────────
   // Pool: early (Honeycomb Path, Cross-Number, Number Maze, 100 Triangles)
-  // No puzzle linkages defined yet — add here when ready.
+  // No puzzle or game linkages defined yet — add here when ready.
 
 
   // ── ADDITION FACTS ─────────────────────────────────────────────────────────
@@ -46,7 +56,11 @@ const ELEM_SKILL_RESOURCES = {
     puzzles: [
       { id: 'honeycomb', label: 'Honeycomb Path', notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fillstairs',  label: 'Fill the Stairs', notes: 'great number ordering warmup' },
+      { id: 'fourstrikes', label: 'Four Strikes',    notes: 'use addition fact set' },
+    ],
+    interventions: []
   },
 
   sums10: {
@@ -56,7 +70,13 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'honeycomb', label: 'Honeycomb Path', notes: '' },
       { id: 'crossnum',  label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fillstairs',  label: 'Fill the Stairs', notes: '' },
+      { id: 'savetwenty',  label: 'Save Twenty',     notes: 'dice sum stays ≤ 20' },
+      { id: 'fourstrikes', label: 'Four Strikes',    notes: 'use addition fact set' },
+      { id: 'strikeout',   label: 'Strike it Out',   notes: 'number line 0–20, add and subtract' },
+    ],
+    interventions: []
   },
 
   sums18: {
@@ -67,7 +87,13 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'crossnum',  label: 'Cross-Number',   notes: '' },
       { id: 'triangle',  label: '100 Triangles',  notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fillstairs',  label: 'Fill the Stairs', notes: '' },
+      { id: 'savetwenty',  label: 'Save Twenty',     notes: '' },
+      { id: 'ohno99',      label: 'Oh No! 99!',      notes: 'running total to 99; good mental math challenge' },
+      { id: 'fourstrikes', label: 'Four Strikes',    notes: 'use addition fact set' },
+    ],
+    interventions: []
   },
 
   sums30: {
@@ -78,7 +104,12 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'crossnum',  label: 'Cross-Number',   notes: '' },
       { id: 'triangle',  label: '100 Triangles',  notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'savetwenty',  label: 'Save Twenty',  notes: '' },
+      { id: 'ohno99',      label: 'Oh No! 99!',   notes: '' },
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use addition fact set' },
+    ],
+    interventions: []
   },
 
 
@@ -91,7 +122,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'honeycomb', label: 'Honeycomb Path', notes: '' },
       { id: 'crossnum',  label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use subtraction fact set' },
+      { id: 'strikeout',   label: 'Strike it Out', notes: 'number line 0–20, sum and difference' },
+    ],
+    interventions: []
   },
 
   sub18: {
@@ -102,7 +137,10 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'crossnum',  label: 'Cross-Number',   notes: '' },
       { id: 'mismo',     label: 'Mismo',          notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use subtraction fact set' },
+    ],
+    interventions: []
   },
 
   sub30: {
@@ -113,7 +151,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'crossnum',  label: 'Cross-Number',   notes: '' },
       { id: 'mismo',     label: 'Mismo',          notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'ohno99',      label: 'Oh No! 99!',   notes: 'Jacks subtract 10 — good sub practice' },
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use subtraction fact set' },
+    ],
+    interventions: []
   },
 
 
@@ -128,7 +170,8 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'crypto',   label: 'Cryptarithms',  notes: '' },
       { id: 'twoout',   label: 'Two-Out',       notes: '' },
     ],
-    games: [], interventions: []
+    games: [],
+    interventions: []
   },
 
   md_add_2wr: {
@@ -141,7 +184,10 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'factorblob', label: 'Factor Blob', notes: '' },
       { id: 'crypto',     label: 'Cryptarithms',notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'ohno99', label: 'Oh No! 99!', notes: 'running 2-digit totals; connects directly to regrouping skills' },
+    ],
+    interventions: []
   },
 
   md_add_3wr: {
@@ -153,7 +199,10 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'megamismo', label: 'Mega Mismo',   notes: '' },
       { id: 'twoout',    label: 'Two-Out',      notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'ohno99', label: 'Oh No! 99!', notes: '' },
+    ],
+    interventions: []
   },
 
 
@@ -168,7 +217,8 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'crypto',   label: 'Cryptarithms',  notes: '' },
       { id: 'twoout',   label: 'Two-Out',       notes: '' },
     ],
-    games: [], interventions: []
+    games: [],
+    interventions: []
   },
 
   md_sub_2wr: {
@@ -181,7 +231,10 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'factorblob', label: 'Factor Blob', notes: '' },
       { id: 'crypto',     label: 'Cryptarithms',notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'ohno99', label: 'Oh No! 99!', notes: 'Jacks subtract 10; mirrors regrouping mechanics' },
+    ],
+    interventions: []
   },
 
   md_sub_3wr: {
@@ -193,7 +246,10 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'megamismo', label: 'Mega Mismo',   notes: '' },
       { id: 'twoout',    label: 'Two-Out',      notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'ohno99', label: 'Oh No! 99!', notes: '' },
+    ],
+    interventions: []
   },
 
 
@@ -210,7 +266,13 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'seqpuzzles',  label: 'Sequence Puzzles', notes: 'skip-count sequences ×2–×4 intro' },
+      { id: 'choralcount', label: 'Choral Counting',  notes: 'use ×2–×4 intervals' },
+      { id: 'fourstrikes', label: 'Four Strikes',     notes: 'use multiplication fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all mult fact levels' },
+    ],
+    interventions: []
   },
 
   mult36: {
@@ -226,7 +288,13 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'seqpuzzles',  label: 'Sequence Puzzles', notes: 'skip-count sequences ×2–×6' },
+      { id: 'choralcount', label: 'Choral Counting',  notes: 'use ×2–×6 intervals' },
+      { id: 'fourstrikes', label: 'Four Strikes',     notes: 'use multiplication fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all mult fact levels' },
+    ],
+    interventions: []
   },
 
   mult49: {
@@ -242,7 +310,12 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'seqpuzzles',  label: 'Sequence Puzzles', notes: 'skip-count sequences ×2–×7' },
+      { id: 'fourstrikes', label: 'Four Strikes',     notes: 'use multiplication fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all mult fact levels' },
+    ],
+    interventions: []
   },
 
   mult100: {
@@ -258,7 +331,13 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'seqpuzzles',  label: 'Sequence Puzzles', notes: 'skip-count sequences ×2–×10' },
+      { id: 'choralcount', label: 'Choral Counting',  notes: 'use ×2–×10 intervals' },
+      { id: 'fourstrikes', label: 'Four Strikes',     notes: 'use multiplication fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all mult fact levels' },
+    ],
+    interventions: []
   },
 
   mult144: {
@@ -274,7 +353,12 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'seqpuzzles',  label: 'Sequence Puzzles', notes: 'skip-count sequences ×2–×12' },
+      { id: 'fourstrikes', label: 'Four Strikes',     notes: 'use multiplication fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all mult fact levels' },
+    ],
+    interventions: []
   },
 
   mult225: {
@@ -290,7 +374,12 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'seqpuzzles',  label: 'Sequence Puzzles', notes: 'all skip-count levels' },
+      { id: 'fourstrikes', label: 'Four Strikes',     notes: 'use multiplication fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all mult fact levels' },
+    ],
+    interventions: []
   },
 
   mult400: {
@@ -306,7 +395,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use multiplication fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all mult fact levels' },
+    ],
+    interventions: []
   },
 
 
@@ -325,7 +418,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use division fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all div fact levels' },
+    ],
+    interventions: []
   },
 
   div36: {
@@ -341,7 +438,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use division fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all div fact levels' },
+    ],
+    interventions: []
   },
 
   div49: {
@@ -357,7 +458,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use division fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all div fact levels' },
+    ],
+    interventions: []
   },
 
   div100: {
@@ -373,7 +478,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use division fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all div fact levels' },
+    ],
+    interventions: []
   },
 
   div144: {
@@ -389,7 +498,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use division fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all div fact levels' },
+    ],
+    interventions: []
   },
 
   div225: {
@@ -405,7 +518,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use division fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all div fact levels' },
+    ],
+    interventions: []
   },
 
   div400: {
@@ -421,7 +538,11 @@ const ELEM_SKILL_RESOURCES = {
       { id: 'triangle',   label: '100 Triangles',  notes: '' },
       { id: 'crossnum',   label: 'Cross-Number',   notes: '' },
     ],
-    games: [], interventions: []
+    games: [
+      { id: 'fourstrikes', label: 'Four Strikes', notes: 'use division fact set' },
+      { id: 'oddsthrees', label: 'Odds & Threes', notes: 'all div fact levels' },
+    ],
+    interventions: []
   },
 
 };
@@ -446,9 +567,83 @@ const ELEM_PUZZLE_REGISTRY = {
 
 
 // ── GAME REGISTRY ─────────────────────────────────────────────────────────────
-// Extend as K–4 games are built.
+// Fields:
+//   label     : display name shown in UI chips
+//   url       : filename of the game (relative to index.html)
+//   category  : short description of skill area
+//   status    : 'live' | 'soon'
+//   universal : true = applies to all skills; UI shows these on every row automatically.
+//               Do NOT add universal games to individual skill games[] arrays.
 
-const ELEM_GAME_REGISTRY = {};
+const ELEM_GAME_REGISTRY = {
+
+  // ── Specific-skill games ────────────────────────────────────────────────────
+  fourstrikes: {
+    label:    'Four Strikes',
+    url:      'four-strikes.html',
+    category: 'any fact set',
+    status:   'live',
+  },
+  ohno99: {
+    label:    'Oh No! 99!',
+    url:      'oh-no-99.html',
+    category: 'mental add/sub · multidigit',
+    status:   'live',
+  },
+  fillstairs: {
+    label:    'Fill the Stairs',
+    url:      'fill-the-stairs.html',
+    category: 'number sense · ordering',
+    status:   'live',
+  },
+  savetwenty: {
+    label:    'Save Twenty',
+    url:      'save-twenty.html',
+    category: 'addition · estimation',
+    status:   'live',
+  },
+  seqpuzzles: {
+    label:    'Sequence Puzzles',
+    url:      'sequence_puzzles.html',
+    category: 'mult readiness · skip-counting',
+    status:   'live',
+  },
+  choralcount: {
+    label:    'Choral Counting',
+    url:      'choral_counting.html',
+    category: 'mult readiness · skip-counting',
+    status:   'live',
+  },
+  strikeout: {
+    label:    'Strike it Out',
+    url:      'strike-it-out.html',
+    category: 'addition · subtraction · number sense',
+    status:   'live',
+  },
+  oddsthrees: {
+    label:    'Odds & Threes',
+    url:      'odds-and-threes.html',
+    category: 'multiplication · division · number properties',
+    status:   'live',
+  },
+
+  // ── Universal tools (shown on every skill row automatically) ────────────────
+  beatthetape: {
+    label:     'Beat the Tape',
+    url:       'beat_the_tape.html',
+    category:  'any fact set · choral drill',
+    status:    'live',
+    universal: true,
+  },
+  classchallenge: {
+    label:     'Class Challenge',
+    url:       'class_reward_app.html',
+    category:  'any fact set · reward reveal',
+    status:    'live',
+    universal: true,
+  },
+
+};
 
 
 // ── INTERVENTION REGISTRY ────────────────────────────────────────────────────
@@ -467,11 +662,23 @@ const ELEM_INTERVENTION_REGISTRY = {
 
 /**
  * Get all resources linked to a given skill ID.
+ * Note: universal games from ELEM_GAME_REGISTRY are NOT included here —
+ * they apply to every skill. Use getElemUniversalGames() for those.
  * @param {string} skillId — e.g. 'sums10', 'mult36', 'md_add_3wr'
- * @returns {object|null} resource object or null if not found
+ * @returns {object|null}
  */
 function getElemResourcesForSkill(skillId) {
   return ELEM_SKILL_RESOURCES[skillId] || null;
+}
+
+/**
+ * Get all universal games (tools that work with any skill).
+ * @returns {Array<{id: string, entry: object}>}
+ */
+function getElemUniversalGames() {
+  return Object.entries(ELEM_GAME_REGISTRY)
+    .filter(([, v]) => v.universal === true)
+    .map(([id, entry]) => ({ id, ...entry }));
 }
 
 /**
@@ -482,5 +689,16 @@ function getElemResourcesForSkill(skillId) {
 function getElemSkillsForPuzzle(puzzleId) {
   return Object.entries(ELEM_SKILL_RESOURCES)
     .filter(([, v]) => v.puzzles.some(p => p.id === puzzleId))
+    .map(([k]) => k);
+}
+
+/**
+ * Get all skills that have a given game linked (non-universal linkages only).
+ * @param {string} gameId — e.g. 'ohno99', 'fourstrikes'
+ * @returns {string[]} array of skill IDs
+ */
+function getElemSkillsForGame(gameId) {
+  return Object.entries(ELEM_SKILL_RESOURCES)
+    .filter(([, v]) => v.games.some(g => g.id === gameId))
     .map(([k]) => k);
 }

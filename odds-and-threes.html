@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odds &amp; Threes — Facts on Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #FAFAF7;
+  --surface:  #FFFFFF;
+  --ink:      #0E1117;
+  --ink2:     #3A4150;
+  --muted:    #8A94A0;
+  --border:   #E4E6EA;
+  --fire:     #FF4F00;
+  --fire2:    #FF9000;
+  --ember:    #FFF0E8;
+  --teal:     #007A6E;
+  --teal-lt:  #E6F4F2;
+  --blue:     #1B4FCC;
+  --gold:     #B87800;
+  --green:    #15803d;
+  --green-lt: #f0fdf4;
+  --red:      #B91C1C;
+  --red-lt:   #FEF2F2;
+  --shadow-lg:0 8px 36px rgba(0,0,0,.12);
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Archivo',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── HEADER ── */
+header {
+  background:var(--ink);
+  padding:0 24px;
+  height:52px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-bottom:3px solid var(--fire);
+  flex-shrink:0;
+}
+.logo {
+  font-family:'Archivo Black',sans-serif;
+  font-size:.78rem;
+  color:rgba(255,255,255,.4);
+  text-decoration:none;
+  display:flex; align-items:center; gap:6px;
+  transition:.15s; white-space:nowrap;
+}
+.logo:hover { color:rgba(255,255,255,.7); }
+.hdr-sep { width:1px; height:16px; background:rgba(255,255,255,.1); flex-shrink:0; }
+.game-title {
+  font-family:'Archivo Black',sans-serif;
+  font-size:.95rem; color:#fff; letter-spacing:-.02em; white-space:nowrap;
+}
+.hdr-spacer { flex:1; }
+.round-pill {
+  font-family:'Archivo Black',sans-serif;
+  font-size:.75rem; color:#fff;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.12);
+  border-radius:20px; padding:3px 12px;
+  white-space:nowrap; display:flex; align-items:center; gap:5px;
+}
+.rpip { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.18); transition:background .3s; }
+.rpip.done { background:var(--fire2); }
+.practice-badge {
+  font-family:'Archivo Black',sans-serif; font-size:.72rem;
+  color:var(--ink); background:var(--fire2); border-radius:20px; padding:2px 10px;
+}
+.btn-icon {
+  background:none; border:1.5px solid rgba(255,255,255,.18); color:rgba(255,255,255,.45);
+  border-radius:50%; width:26px; height:26px; font-size:.75rem; cursor:pointer;
+  font-family:'Archivo Black',sans-serif; transition:.15s; flex-shrink:0;
+}
+.btn-icon:hover { border-color:#fff; color:#fff; }
+
+/* ── PREGAME ── */
+.pregame {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:22px; padding:20px;
+}
+.pg-title { font-family:'Archivo Black',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); letter-spacing:-.03em; text-align:center; }
+.pg-sub { font-size:.95rem; color:var(--ink2); text-align:center; max-width:460px; line-height:1.6; }
+.pg-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
+.pg-label { font-size:.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; }
+.pc-btn {
+  width:40px; height:40px; border-radius:9px; border:2px solid var(--border);
+  background:#fff; font-family:'Archivo Black',sans-serif; font-size:1rem;
+  color:var(--ink2); cursor:pointer; transition:.13s;
+}
+.pc-btn:hover { border-color:var(--ink); color:var(--ink); }
+.pc-btn.active { background:var(--fire); border-color:var(--fire); color:#fff; }
+.pg-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+.btn-pg {
+  border:none; border-radius:12px; font-family:'Archivo Black',sans-serif;
+  font-size:1rem; padding:12px 28px; cursor:pointer; letter-spacing:-.01em; transition:.15s;
+}
+.btn-pg.primary { background:var(--fire); color:#fff; box-shadow:0 4px 16px rgba(255,79,0,.3); }
+.btn-pg.primary:hover { background:#e04400; transform:translateY(-1px); }
+.btn-pg.secondary { background:var(--surface); color:var(--ink2); border:2px solid var(--border); }
+.btn-pg.secondary:hover { border-color:var(--ink2); color:var(--ink); }
+
+/* ── STATIONS GRID ── */
+.stations {
+  flex:1; display:grid; gap:10px; padding:10px; min-height:0; overflow:hidden;
+}
+.stations[data-p="2"] { grid-template-columns:1fr 1fr; }
+.stations[data-p="3"] { grid-template-columns:repeat(3,1fr); }
+.stations[data-p="4"] { grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
+
+/* ── STATION ── */
+.station {
+  background:var(--surface); border:2.5px solid var(--border); border-radius:14px;
+  display:flex; flex-direction:column; padding:11px 13px; gap:8px;
+  min-height:0; overflow:hidden; transition:border-color .2s, background .2s;
+}
+.station.t1 { border-color:#FFCDB0; }
+.station.t2 { border-color:#99DBD5; }
+.station.t3 { border-color:#BFDBFE; }
+.station.t4 { border-color:#FDE68A; }
+.station.done-ok    { background:#f7fef9; border-color:var(--green) !important; }
+.station.done-wrong { background:#fff8f8; border-color:#fca5a5 !important; }
+.station.done-pass  { background:#FAFAF7; }
+
+.stn-head { display:flex; align-items:center; gap:7px; flex-shrink:0; }
+.stn-badge {
+  font-family:'Archivo Black',sans-serif; font-size:.75rem; color:#fff;
+  padding:3px 11px; border-radius:20px; white-space:nowrap; flex-shrink:0;
+}
+.stn-badge.t1 { background:var(--fire); }
+.stn-badge.t2 { background:var(--teal); }
+.stn-badge.t3 { background:var(--blue); }
+.stn-badge.t4 { background:var(--gold); }
+.stn-dots { display:flex; gap:4px; align-items:center; }
+.sdot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:background .3s; flex-shrink:0; }
+.sdot.fill-t1 { background:var(--fire); }
+.sdot.fill-t2 { background:var(--teal); }
+.sdot.fill-t3 { background:var(--blue); }
+.sdot.fill-t4 { background:var(--gold); }
+.stn-pts { font-family:'Archivo Black',sans-serif; font-size:.82rem; color:var(--ink); margin-left:4px; white-space:nowrap; flex-shrink:0; }
+.stn-delta { font-size:.68rem; font-weight:700; color:var(--green); margin-left:3px; }
+.stn-delta.zero { color:var(--muted); }
+
+/* Cards */
+.stn-cards { display:flex; gap:8px; flex-shrink:0; align-items:center; }
+.play-card {
+  background:#fff; border:1.5px solid #DDE1E7; border-radius:8px;
+  box-shadow:0 2px 7px rgba(0,0,0,.09);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative; flex-shrink:0;
+  width:clamp(34px,3.8vw,56px); aspect-ratio:2/3;
+}
+.play-card.red { color:#C0392B; }
+.play-card.black { color:#1a1a2e; }
+.play-card .cv { font-family:'Archivo Black',sans-serif; font-size:clamp(13px,1.8vw,24px); line-height:1; }
+.play-card .cs { font-size:clamp(10px,1.3vw,17px); margin-top:1px; }
+.play-card .ctl { position:absolute; top:2px; left:3px; font-family:'Archivo Black',sans-serif; font-size:clamp(6px,.65vw,9px); }
+.play-card .cbr { position:absolute; bottom:2px; right:3px; font-family:'Archivo Black',sans-serif; font-size:clamp(6px,.65vw,9px); transform:rotate(180deg); }
+
+/* ── COMPETITIVE INPUT AREA ── */
+.stn-input-area { display:flex; flex-direction:column; gap:7px; flex:1; min-height:0; }
+.stn-banked { display:flex; flex-wrap:wrap; gap:5px; min-height:22px; align-items:center; }
+.banked-chip {
+  font-family:'Archivo Black',sans-serif; font-size:.82rem;
+  background:var(--green-lt); color:var(--green); border:1.5px solid #86efac;
+  border-radius:6px; padding:2px 10px; white-space:nowrap;
+  animation:chipIn .25s ease;
+}
+@keyframes chipIn { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
+.banked-empty { font-size:.75rem; color:var(--muted); font-style:italic; }
+.inp-row { display:flex; gap:6px; align-items:center; flex-shrink:0; }
+.ans-input {
+  flex:1; min-width:0;
+  padding:8px 12px; border:2px solid var(--border); border-radius:9px;
+  font-family:'Archivo Black',sans-serif; font-size:clamp(1rem,2vw,1.5rem);
+  color:var(--ink); background:#fff; outline:none; transition:border-color .15s;
+  -moz-appearance:textfield;
+}
+.ans-input::-webkit-outer-spin-button,
+.ans-input::-webkit-inner-spin-button { -webkit-appearance:none; }
+.ans-input:focus { border-color:var(--fire); }
+.ans-input.err { border-color:var(--red); animation:inputShake .35s ease; }
+.ans-input.ok  { border-color:var(--green); }
+@keyframes inputShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 60%{transform:translateX(7px)} 80%{transform:translateX(-3px)} }
+.btn-submit {
+  padding:8px 14px; background:var(--fire); color:#fff; border:none; border-radius:9px;
+  font-family:'Archivo Black',sans-serif; font-size:clamp(.78rem,1.1vw,.95rem);
+  cursor:pointer; white-space:nowrap; transition:background .13s; flex-shrink:0;
+}
+.btn-submit:hover { background:#e04400; }
+.btn-pass {
+  width:100%; padding:7px;
+  background:var(--surface); color:var(--teal); border:1.5px solid var(--teal);
+  border-radius:9px; font-family:'Archivo',sans-serif; font-size:clamp(.72rem,1vw,.85rem);
+  font-weight:700; cursor:pointer; transition:.13s; flex-shrink:0;
+}
+.btn-pass:hover { background:var(--teal-lt); }
+
+/* Done states */
+.stn-done-body { display:flex; flex-direction:column; gap:6px; flex:1; min-height:0; }
+.done-row { display:flex; align-items:flex-start; gap:6px; font-size:clamp(.73rem,1vw,.86rem); line-height:1.4; }
+.done-icon { flex-shrink:0; font-size:.9rem; }
+.done-txt { color:var(--ink2); }
+.done-txt.good { color:var(--green); font-weight:700; }
+.done-txt.bad  { color:var(--red);   font-weight:700; }
+.wrong-entry {
+  font-family:'Archivo Black',sans-serif; font-size:clamp(.88rem,1.4vw,1.15rem);
+  color:var(--red); background:var(--red-lt); border:1.5px solid #fca5a5;
+  border-radius:7px; padding:3px 10px; display:inline-block; text-decoration:line-through;
+}
+.stn-reveal {
+  margin-top:2px; padding:5px 9px; background:var(--bg);
+  border-radius:7px; border:1px solid var(--border);
+  font-size:clamp(.66rem,.88vw,.78rem); color:var(--muted); line-height:1.5; flex-shrink:0;
+}
+.stn-reveal strong { color:var(--ink2); }
+
+/* ── PRACTICE CHIPS ── */
+.opts-area { flex:1; display:flex; flex-wrap:wrap; gap:5px; align-content:flex-start; min-height:0; overflow:hidden; }
+.opt-chip {
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+  padding:4px 9px; border-radius:7px; border:1.5px solid var(--border); background:#F8F9FA;
+  cursor:pointer; transition:transform .12s, box-shadow .12s, background .12s, border-color .12s, opacity .12s;
+  min-width:50px; flex-shrink:0;
+}
+.opt-chip:hover { transform:translateY(-2px); box-shadow:0 5px 12px rgba(0,0,0,.1); }
+.opt-chip.scoring { background:var(--green-lt); border-color:#86efac; }
+.opt-chip.scoring:hover { background:#dcfce7; border-color:var(--green); }
+.opt-chip.chosen { transform:translateY(-2px) scale(1.05); cursor:default; pointer-events:none; z-index:2; border-width:2px; }
+.opt-chip.chosen.scoring { border-color:var(--green); box-shadow:0 5px 16px rgba(21,128,61,.22); }
+.opt-chip.chosen:not(.scoring) { border-color:var(--ink2); }
+.opt-chip.unchosen { opacity:.2; cursor:default; pointer-events:none; transform:none; box-shadow:none; }
+.opt-expr { font-size:clamp(7px,.72vw,10px); color:var(--muted); font-weight:600; white-space:nowrap; }
+.opt-val  { font-family:'Archivo Black',sans-serif; font-size:clamp(11px,1.35vw,19px); white-space:nowrap; }
+.opt-sbadge { font-size:clamp(6px,.58vw,8.5px); font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--green); }
+.practice-note { font-size:clamp(.68rem,.88vw,.8rem); color:var(--muted); font-weight:600; line-height:1.4; flex-shrink:0; }
+.practice-note.warn { color:#c2410c; }
+.practice-note.info { color:var(--teal); }
+
+/* ── CONTROLS BAR ── */
+.controls {
+  border-top:1px solid var(--border); background:var(--surface);
+  padding:8px 20px; display:flex; align-items:center; gap:9px;
+  flex-shrink:0; flex-wrap:wrap;
+}
+.btn {
+  font-family:'Archivo',sans-serif; font-size:.8rem; font-weight:700;
+  padding:6px 15px; border-radius:8px; border:1.5px solid var(--border);
+  background:var(--surface); color:var(--ink2); cursor:pointer; transition:.13s; white-space:nowrap;
+}
+.btn:hover { border-color:var(--ink); color:var(--ink); }
+.btn.fire { background:var(--fire); border-color:var(--fire); color:#fff; }
+.btn.fire:hover { background:#e04400; }
+.btn.disabled { opacity:.32; pointer-events:none; }
+.ctrl-sep { width:1px; height:16px; background:var(--border); flex-shrink:0; }
+.ctrl-note { font-size:.75rem; color:var(--muted); font-weight:500; white-space:nowrap; }
+.ctrl-spacer { flex:1; }
+.pc-row { display:flex; align-items:center; gap:6px; }
+.pc-row-lbl { font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; }
+.pc-sm {
+  width:28px; height:28px; border-radius:6px; border:1.5px solid var(--border);
+  background:#fff; font-family:'Archivo Black',sans-serif; font-size:.82rem;
+  color:var(--ink2); cursor:pointer; transition:.12s;
+}
+.pc-sm:hover { border-color:var(--ink); }
+.pc-sm.active { background:var(--fire); border-color:var(--fire); color:#fff; }
+
+/* ── WIN OVERLAY ── */
+.overlay {
+  position:fixed; inset:0; background:rgba(14,17,23,.72); backdrop-filter:blur(5px);
+  z-index:200; display:flex; align-items:center; justify-content:center;
+  padding:20px; opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.overlay.show { opacity:1; pointer-events:all; }
+.win-card {
+  background:#fff; border-radius:20px; padding:36px 40px; max-width:460px; width:100%;
+  text-align:center; box-shadow:0 24px 80px rgba(0,0,0,.3);
+  transform:translateY(16px); transition:transform .3s;
+}
+.overlay.show .win-card { transform:translateY(0); }
+.win-emoji { font-size:2.4rem; margin-bottom:7px; }
+.win-title { font-family:'Archivo Black',sans-serif; font-size:1.5rem; letter-spacing:-.03em; margin-bottom:5px; }
+.win-sub { font-size:.88rem; color:var(--ink2); line-height:1.5; margin-bottom:14px; }
+.win-tbl { width:100%; border-collapse:collapse; font-size:.85rem; margin-bottom:14px; text-align:left; }
+.win-tbl th { background:var(--ink); color:#fff; padding:6px 11px; font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; }
+.win-tbl td { padding:8px 11px; border-bottom:1px solid var(--border); color:var(--ink2); }
+.win-tbl tr.winner td { background:var(--ember); color:var(--fire); font-weight:700; }
+.win-disc { background:var(--bg); border-radius:9px; padding:11px 14px; font-size:.8rem; color:var(--ink2); line-height:1.6; text-align:left; margin-bottom:16px; }
+.win-disc strong { color:var(--ink); }
+.win-btns { display:flex; gap:9px; }
+.win-btns .btn { flex:1; padding:9px; }
+
+/* ── HELP OVERLAY ── */
+.help-overlay {
+  position:fixed; inset:0; background:rgba(14,17,23,.72); backdrop-filter:blur(5px);
+  z-index:200; display:flex; align-items:center; justify-content:center;
+  padding:20px; opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.help-overlay.show { opacity:1; pointer-events:all; }
+.help-card {
+  background:#fff; border-radius:18px; padding:28px 32px; max-width:480px; width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.3); transform:translateY(16px); transition:transform .3s;
+}
+.help-overlay.show .help-card { transform:translateY(0); }
+.help-title { font-family:'Archivo Black',sans-serif; font-size:1.2rem; letter-spacing:-.02em; margin-bottom:14px; }
+.help-h { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:3px; margin-top:10px; }
+.help-p, .help-li { font-size:.85rem; color:var(--ink2); line-height:1.6; }
+.help-ul { padding-left:15px; }
+.help-div { height:1px; background:var(--border); margin:10px 0; }
+.ex-row { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+.ex-chip { font-size:.75rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1.5px solid var(--border); background:#f8f9fa; }
+.ex-chip.s { background:var(--green-lt); border-color:#86efac; color:var(--green); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:60px; left:50%; transform:translateX(-50%);
+  background:var(--ink); color:#fff; font-size:.82rem; font-weight:600;
+  padding:8px 18px; border-radius:9px; z-index:300; white-space:nowrap;
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <a class="logo" href="index.html">🔥 Facts on Fire</a>
+  <div class="hdr-sep"></div>
+  <div class="game-title">Odds &amp; Threes</div>
+  <div class="hdr-spacer"></div>
+  <div id="hdr-right"></div>
+  <div class="hdr-sep"></div>
+  <button class="btn-icon" onclick="showHelp()" title="How to play">?</button>
+</header>
+
+<!-- ── PREGAME ── -->
+<div id="pregame" class="pregame">
+  <div class="pg-title">Odds &amp; Threes</div>
+  <div class="pg-sub">Score points by making <strong>odd numbers</strong> or numbers <strong>divisible by 3</strong> from your two cards. Add, subtract, multiply, divide — or place the digits side by side.</div>
+  <div class="pg-row">
+    <span class="pg-label">Teams</span>
+    <button class="pc-btn" data-n="2" onclick="setPregamePlayers(2,this)">2</button>
+    <button class="pc-btn active" data-n="3" onclick="setPregamePlayers(3,this)">3</button>
+    <button class="pc-btn" data-n="4" onclick="setPregamePlayers(4,this)">4</button>
+  </div>
+  <div class="pg-btns">
+    <button class="btn-pg secondary" onclick="startPractice()">Practice Round</button>
+    <button class="btn-pg primary" onclick="startGame()">Start 5-Round Game</button>
+  </div>
+</div>
+
+<!-- ── STATIONS ── -->
+<div id="stations" class="stations" data-p="3" style="display:none"></div>
+
+<!-- ── CONTROLS ── -->
+<div id="controls" class="controls" style="display:none">
+  <button class="btn fire" onclick="newGame()">&#8635; New Game</button>
+  <div class="ctrl-sep"></div>
+  <div class="pc-row">
+    <span class="pc-row-lbl">Teams</span>
+    <button class="pc-sm" data-n="2" onclick="changeTeams(2,this)">2</button>
+    <button class="pc-sm active" data-n="3" onclick="changeTeams(3,this)">3</button>
+    <button class="pc-sm" data-n="4" onclick="changeTeams(4,this)">4</button>
+  </div>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-note" id="ctrl-note"></span>
+  <div class="ctrl-spacer"></div>
+  <button class="btn fire disabled" id="btn-next" onclick="dealNext()">Deal Round 2</button>
+</div>
+
+<!-- ── WIN OVERLAY ── -->
+<div class="overlay" id="win-overlay">
+  <div class="win-card">
+    <div class="win-emoji" id="win-emoji">🏆</div>
+    <div class="win-title" id="win-title"></div>
+    <div class="win-sub"   id="win-sub"></div>
+    <table class="win-tbl" id="win-tbl"></table>
+    <div class="win-disc"  id="win-disc"></div>
+    <div class="win-btns">
+      <button class="btn fire" onclick="newGame()">Play Again</button>
+      <button class="btn" onclick="document.getElementById('win-overlay').classList.remove('show')">View Board</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HELP OVERLAY ── -->
+<div class="help-overlay" id="help-overlay" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="help-card">
+    <div class="help-title">How to play</div>
+    <div class="help-h">Setup</div>
+    <p class="help-p">Cards A–10, no face cards. Ace = 1. Two modes available.</p>
+    <div class="help-div"></div>
+    <div class="help-h">Practice Round — scaffolded</div>
+    <p class="help-p">All possible results are shown as chips. Pick one. Green chips score a point. Good for introducing the game.</p>
+    <div class="help-h" style="margin-top:10px">5-Round Game — competitive</div>
+    <ul class="help-ul">
+      <li class="help-li">Each team is dealt <strong>two cards</strong>. No options are shown.</li>
+      <li class="help-li">Type a number you can make from those cards (+, −, ×, ÷, or place digits together).</li>
+      <li class="help-li">Score <strong>1 point</strong> if the number is <strong>odd</strong> or <strong>divisible by 3</strong>.</li>
+      <li class="help-li">Correct? Point awarded — enter another, or <strong>Pass</strong> to bank points and end your turn.</li>
+      <li class="help-li">Wrong (not achievable, not scoring, or already entered)? <strong>Turn over</strong>.</li>
+      <li class="help-li">Find every scoring answer and your turn ends automatically.</li>
+    </ul>
+    <div class="help-div"></div>
+    <div class="help-h">Example — cards 4 and 6</div>
+    <div class="ex-row">
+      <span class="ex-chip">46</span><span class="ex-chip">64</span>
+      <span class="ex-chip">4+6=10</span><span class="ex-chip">6−4=2</span>
+      <span class="ex-chip s">4×6=24 ✓</span>
+    </div>
+    <p class="help-p" style="margin-top:7px">Only <strong>24</strong> scores — divisible by 3. Entering 10 or 2 would end the turn.</p>
+    <button class="btn fire" style="width:100%;margin-top:16px;padding:9px;font-size:.88rem"
+      onclick="document.getElementById('help-overlay').classList.remove('show')">Got it</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────────────────────────────────────
+const TEAMS = [
+  { name:'Team 1', cls:'t1' },
+  { name:'Team 2', cls:'t2' },
+  { name:'Team 3', cls:'t3' },
+  { name:'Team 4', cls:'t4' },
+];
+const RED_SUITS  = new Set(['hearts','diamonds']);
+const SUIT_SYM   = { spades:'♠', clubs:'♣', hearts:'♥', diamonds:'♦' };
+const ALL_SUITS  = ['spades','clubs','hearts','diamonds'];
+const DISP       = v => v === 1 ? 'A' : String(v);
+const MAX_ROUNDS = 5;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+const G = {
+  numPlayers: 3,
+  mode:       'competitive',
+  deck:       [],
+  round:      0,
+  hands:      [],
+  scores:     [],
+  // Practice: chosen chip per player (null | {val, scoring})
+  choices:    [],
+  // Competitive: per-player turn state
+  // { phase:'entering'|'done', answers:number[], wrongEntry:string|null,
+  //   wrongReason:'invalid'|'noscore'|'duplicate'|null, doneReason:'wrong'|'passed'|'exhausted'|null }
+  turns:      [],
+  gamePhase:  'pregame',
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DECK & CARDS
+// ─────────────────────────────────────────────────────────────────────────────
+function buildDeck() {
+  const d = [];
+  ALL_SUITS.forEach(s => { for (let v = 1; v <= 10; v++) d.push({ suit:s, value:v }); });
+  return shuffle(d);
+}
+function shuffle(a) {
+  a = [...a];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function cardHtml(card) {
+  const isRed = RED_SUITS.has(card.suit);
+  const dv    = DISP(card.value);
+  const sym   = SUIT_SYM[card.suit];
+  return `<div class="play-card ${isRed?'red':'black'}">
+    <span class="ctl">${dv}</span>
+    <span class="cv">${dv}</span><span class="cs">${sym}</span>
+    <span class="cbr">${dv}</span>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCORING LOGIC
+// ─────────────────────────────────────────────────────────────────────────────
+function isScoring(n) {
+  return n % 2 !== 0 || n % 3 === 0;
+}
+
+function buildOptionsMap(a, b) {
+  const map = new Map();
+  function add(val, expr) {
+    if (!Number.isInteger(val) || val < 0 || map.has(val)) return;
+    map.set(val, { val, expr, scoring: isScoring(val) });
+  }
+  const ab = parseInt(String(a) + String(b));
+  const ba = parseInt(String(b) + String(a));
+  add(ab, String(a) + String(b) + ' (concat)');
+  if (ba !== ab) add(ba, String(b) + String(a) + ' (concat)');
+  add(a + b, a + ' + ' + b);
+  const hi = Math.max(a,b), lo = Math.min(a,b);
+  add(hi - lo, hi + ' \u2212 ' + lo);
+  add(a * b, a + ' \u00D7 ' + b);
+  if (b !== 0 && a % b === 0) add(a / b, a + ' \u00F7 ' + b);
+  if (a !== 0 && b % a === 0 && b/a !== a/b) add(b / a, b + ' \u00F7 ' + a);
+  return map;
+}
+
+function getOptionsList(a, b) {
+  return [...buildOptionsMap(a,b).values()].sort((x,y) => {
+    if (x.scoring !== y.scoring) return x.scoring ? -1 : 1;
+    return x.val - y.val;
+  });
+}
+
+function getScoringValues(a, b) {
+  return [...buildOptionsMap(a,b).values()].filter(o => o.scoring).map(o => o.val);
+}
+
+function isValidResult(n, a, b) {
+  return buildOptionsMap(a,b).has(n);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PREGAME / GAME SETUP
+// ─────────────────────────────────────────────────────────────────────────────
+function setPregamePlayers(n, btn) {
+  G.numPlayers = n;
+  document.querySelectorAll('.pc-btn').forEach(b => b.classList.toggle('active', b.dataset.n == n));
+}
+
+function startPractice() {
+  G.mode   = 'practice';
+  G.scores = [];
+  G.round  = 0;
+  beginSession();
+}
+
+function startGame() {
+  G.mode   = 'competitive';
+  G.scores = Array(G.numPlayers).fill(0);
+  G.round  = 0;
+  beginSession();
+}
+
+function beginSession() {
+  document.getElementById('pregame').style.display  = 'none';
+  document.getElementById('stations').style.display = '';
+  document.getElementById('controls').style.display = '';
+  document.querySelectorAll('.pc-sm').forEach(b => b.classList.toggle('active', b.dataset.n == G.numPlayers));
+  G.deck = buildDeck();
+  dealRound();
+}
+
+function newGame() {
+  document.getElementById('win-overlay').classList.remove('show');
+  document.getElementById('pregame').style.display  = '';
+  document.getElementById('stations').style.display = 'none';
+  document.getElementById('controls').style.display = 'none';
+  document.getElementById('hdr-right').innerHTML    = '';
+  G.gamePhase = 'pregame';
+}
+
+function changeTeams(n, btn) {
+  G.numPlayers = n;
+  G.scores     = Array(n).fill(0);
+  G.round      = 0;
+  G.deck       = buildDeck();
+  document.querySelectorAll('.pc-sm').forEach(b => b.classList.toggle('active', b.dataset.n == n));
+  dealRound();
+}
+
+function dealRound() {
+  G.round++;
+  if (G.deck.length < G.numPlayers * 2) G.deck = buildDeck();
+  G.hands = [];
+  for (let i = 0; i < G.numPlayers; i++) {
+    G.hands.push({ card1: G.deck.pop(), card2: G.deck.pop() });
+  }
+  if (G.mode === 'practice') {
+    G.choices = Array(G.numPlayers).fill(null);
+  } else {
+    G.turns = Array.from({ length: G.numPlayers }, () => ({
+      phase: 'entering', answers: [], wrongEntry: null, wrongReason: null, doneReason: null,
+    }));
+  }
+  G.gamePhase = 'playing';
+  renderAll();
+}
+
+function dealNext() {
+  if (G.gamePhase !== 'roundDone') return;
+  if (G.mode === 'practice') { newGame(); return; }
+  if (G.round >= MAX_ROUNDS) { endGame(); return; }
+  dealRound();
+}
+
+function endGame() {
+  G.gamePhase = 'gameover';
+  renderAll();
+  setTimeout(showWin, 380);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPETITIVE: SUBMIT ANSWER
+// ─────────────────────────────────────────────────────────────────────────────
+function submitAnswer(idx) {
+  if (G.gamePhase !== 'playing') return;
+  const turn = G.turns[idx];
+  if (turn.phase === 'done') return;
+
+  const inp = document.getElementById('inp-' + idx);
+  if (!inp) return;
+  const raw = inp.value.trim();
+  const n   = parseInt(raw, 10);
+
+  if (raw === '' || isNaN(n) || n < 0) {
+    inp.classList.add('err');
+    setTimeout(() => inp.classList.remove('err'), 400);
+    return;
+  }
+
+  const a = G.hands[idx].card1.value, b = G.hands[idx].card2.value;
+
+  // Duplicate check
+  if (turn.answers.includes(n)) {
+    markWrong(idx, raw, 'duplicate');
+    return;
+  }
+
+  // Validity check (achievable from cards)
+  if (!isValidResult(n, a, b)) {
+    markWrong(idx, raw, 'invalid');
+    return;
+  }
+
+  // Scoring check
+  if (!isScoring(n)) {
+    markWrong(idx, raw, 'noscore');
+    return;
+  }
+
+  // Correct
+  turn.answers.push(n);
+  G.scores[idx]++;
+
+  // Animate the new score dot
+  const dotEl = document.getElementById('dot-' + idx + '-' + (G.scores[idx] - 1));
+  if (dotEl) { dotEl.classList.add('fill-' + TEAMS[idx].cls); setTimeout(() => dotEl.classList.remove('pop'), 350); }
+
+  inp.value = '';
+  inp.classList.add('ok');
+  setTimeout(() => { const el = document.getElementById('inp-' + idx); if(el) el.classList.remove('ok'); }, 500);
+
+  // Check if all scoring options exhausted
+  const remaining = getScoringValues(a, b).filter(v => !turn.answers.includes(v));
+  if (remaining.length === 0) {
+    turn.phase = 'done'; turn.doneReason = 'exhausted';
+    checkRoundDone();
+  }
+
+  renderAll();
+
+  if (turn.phase === 'entering') {
+    const newInp = document.getElementById('inp-' + idx);
+    if (newInp) setTimeout(() => newInp.focus(), 0);
+  }
+}
+
+function markWrong(idx, raw, reason) {
+  const turn = G.turns[idx];
+  turn.phase = 'done'; turn.wrongEntry = raw; turn.wrongReason = reason; turn.doneReason = 'wrong';
+  const inp = document.getElementById('inp-' + idx);
+  if (inp) { inp.classList.add('err'); }
+  setTimeout(() => { checkRoundDone(); renderAll(); }, 320);
+}
+
+function passPlayer(idx) {
+  if (G.gamePhase !== 'playing') return;
+  const turn = G.turns[idx];
+  if (turn.phase === 'done' || turn.answers.length === 0) return;
+  turn.phase = 'done'; turn.doneReason = 'passed';
+  checkRoundDone();
+  renderAll();
+}
+
+function checkRoundDone() {
+  if (!G.turns.every(t => t.phase === 'done')) return;
+  G.gamePhase = 'roundDone';
+  renderAll();
+  if (G.round >= MAX_ROUNDS) setTimeout(endGame, 1200);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PRACTICE: CHIP PICK
+// ─────────────────────────────────────────────────────────────────────────────
+function practicePickOption(idx, val) {
+  if (G.choices[idx] !== null) return;
+  const opts = getOptionsList(G.hands[idx].card1.value, G.hands[idx].card2.value);
+  const opt  = opts.find(o => o.val === val);
+  if (!opt) return;
+  G.choices[idx] = { val, scoring: opt.scoring };
+  if (G.choices.every(c => c !== null)) { G.gamePhase = 'roundDone'; }
+  renderAll();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderGrid(); renderHeader(); renderCtrlNote(); updateNextButton();
+}
+
+function renderHeader() {
+  const el = document.getElementById('hdr-right');
+  if (G.mode === 'practice') { el.innerHTML = '<span class="practice-badge">Practice</span>'; return; }
+  const r = Math.min(G.round, MAX_ROUNDS);
+  let pips = '';
+  for (let i = 1; i <= MAX_ROUNDS; i++) {
+    const done = i < G.round || (i === G.round && G.gamePhase === 'roundDone');
+    pips += '<span class="rpip' + (done ? ' done' : '') + '"></span>';
+  }
+  el.innerHTML = '<div class="round-pill">Round ' + r + ' of ' + MAX_ROUNDS + ' ' + pips + '</div>';
+}
+
+function renderGrid() {
+  const grid = document.getElementById('stations');
+  grid.dataset.p = G.numPlayers;
+  grid.innerHTML = '';
+  for (let i = 0; i < G.numPlayers; i++) {
+    grid.appendChild(G.mode === 'practice' ? buildPracticeStation(i) : buildCompStation(i));
+  }
+}
+
+// ─── Practice Station ────────────────────────────────────────────────────────
+function buildPracticeStation(idx) {
+  const team   = TEAMS[idx];
+  const hand   = G.hands[idx];
+  const choice = G.choices[idx];
+  const a = hand.card1.value, b = hand.card2.value;
+  const opts   = getOptionsList(a, b);
+  const picked = choice !== null;
+
+  const div = document.createElement('div');
+  div.className = 'station ' + team.cls + (picked ? (choice.scoring ? ' done-ok' : ' done-pass') : '');
+
+  let headHtml = '<div class="stn-head"><span class="stn-badge ' + team.cls + '">' + team.name + '</span></div>';
+
+  // Insight note
+  const canScore = opts.some(o => o.scoring);
+  const bothEven = a % 2 === 0 && b % 2 === 0;
+  let noteHtml = '';
+  if (!canScore) {
+    noteHtml = '<div class="practice-note warn">No scoring option this round</div>';
+  } else if (bothEven) {
+    noteHtml = '<div class="practice-note info">Both cards even — can only score via divisible by 3</div>';
+  }
+
+  // Option chips
+  let chipsHtml = '';
+  opts.forEach(function(opt) {
+    const isChosen   = picked && choice.val === opt.val;
+    const isUnchosen = picked && !isChosen;
+    const cls = 'opt-chip' + (opt.scoring ? ' scoring' : '') + (isChosen ? ' chosen' : '') + (isUnchosen ? ' unchosen' : '');
+    const click = !picked ? 'onclick="practicePickOption(' + idx + ',' + opt.val + ')"' : '';
+    const exprClean = opt.expr.replace(' (concat)', '');
+    const badge = opt.scoring ? '<span class="opt-sbadge">' + (isChosen ? '✓ scored' : '✓ scores') + '</span>' : '';
+    chipsHtml += '<div class="' + cls + '" ' + click + '>'
+      + '<span class="opt-expr">' + exprClean + '</span>'
+      + '<span class="opt-val">' + opt.val + '</span>'
+      + badge + '</div>';
+  });
+
+  div.innerHTML = headHtml
+    + '<div class="stn-cards">' + cardHtml(hand.card1) + cardHtml(hand.card2) + '</div>'
+    + noteHtml
+    + '<div class="opts-area">' + chipsHtml + '</div>';
+  return div;
+}
+
+// ─── Competitive Station ─────────────────────────────────────────────────────
+function buildCompStation(idx) {
+  const team  = TEAMS[idx];
+  const hand  = G.hands[idx];
+  const turn  = G.turns[idx];
+  const a = hand.card1.value, b = hand.card2.value;
+  const score = G.scores[idx];
+  const roundPts = turn.answers.length;
+
+  // Station class
+  let stnCls = 'station ' + team.cls;
+  if (turn.phase === 'done') {
+    if      (turn.doneReason === 'exhausted') stnCls += ' done-ok';
+    else if (turn.doneReason === 'wrong')     stnCls += ' done-wrong';
+    else                                      stnCls += ' done-pass';
+  }
+
+  const div = document.createElement('div');
+  div.className = stnCls;
+
+  // Score dots (MAX_ROUNDS slots)
+  let dotsHtml = '';
+  for (let d = 0; d < MAX_ROUNDS; d++) {
+    const filled = d < score;
+    dotsHtml += '<span class="sdot' + (filled ? ' fill-' + team.cls : '') + '" id="dot-' + idx + '-' + d + '"></span>';
+  }
+
+  let deltaHtml = '';
+  if (G.gamePhase === 'roundDone' || turn.phase === 'done') {
+    deltaHtml = roundPts > 0
+      ? '<span class="stn-delta">+' + roundPts + '</span>'
+      : '<span class="stn-delta zero">+0</span>';
+  }
+
+  div.innerHTML = '<div class="stn-head">'
+    + '<span class="stn-badge ' + team.cls + '">' + team.name + '</span>'
+    + '<div class="stn-dots">' + dotsHtml + '</div>'
+    + '<span class="stn-pts">' + score + 'pt' + (score !== 1 ? 's' : '') + deltaHtml + '</span>'
+    + '</div>'
+    + '<div class="stn-cards">' + cardHtml(hand.card1) + cardHtml(hand.card2) + '</div>';
+
+  if (turn.phase === 'entering') {
+    // Banked answers
+    const bankedHtml = turn.answers.length > 0
+      ? turn.answers.map(function(v){ return '<span class="banked-chip">' + v + ' ✓</span>'; }).join('')
+      : '<span class="banked-empty">No points yet this round</span>';
+
+    const passHtml = turn.answers.length > 0
+      ? '<button class="btn-pass" onclick="passPlayer(' + idx + ')">Pass — keep '
+          + roundPts + ' point' + (roundPts !== 1 ? 's' : '') + '</button>'
+      : '';
+
+    div.innerHTML += '<div class="stn-input-area">'
+      + '<div class="stn-banked">' + bankedHtml + '</div>'
+      + '<div class="inp-row">'
+      + '<input type="number" class="ans-input" id="inp-' + idx + '" placeholder="Your answer" min="0" autocomplete="off"'
+      + ' onkeydown="if(event.key===\'Enter\')submitAnswer(' + idx + ')">'
+      + '<button class="btn-submit" onclick="submitAnswer(' + idx + ')">Enter</button>'
+      + '</div>'
+      + passHtml
+      + '</div>';
+
+  } else {
+    // Done — render result summary
+    const bankedChips = turn.answers.map(function(v){ return '<span class="banked-chip">' + v + ' ✓</span>'; }).join('');
+    let doneBody = '';
+
+    if (turn.doneReason === 'wrong') {
+      const reasonMap = { invalid:'not a valid result from those cards', noscore:'valid but does not score', duplicate:'already entered this turn' };
+      const reason = reasonMap[turn.wrongReason] || 'incorrect';
+      doneBody = (bankedChips ? '<div class="stn-banked" style="margin-bottom:4px">' + bankedChips + '</div>' : '')
+        + '<div class="done-row"><span class="done-icon">✕</span>'
+        + '<div><span class="wrong-entry">' + turn.wrongEntry + '</span>'
+        + ' <span class="done-txt bad">' + reason + '. Turn over.</span></div></div>';
+    } else if (turn.doneReason === 'passed') {
+      doneBody = '<div class="stn-banked" style="margin-bottom:4px">' + bankedChips + '</div>'
+        + '<div class="done-row"><span class="done-icon">✔</span>'
+        + '<span class="done-txt good">Passed — ' + roundPts + ' point' + (roundPts !== 1 ? 's' : '') + ' banked</span></div>';
+    } else {
+      doneBody = '<div class="stn-banked" style="margin-bottom:4px">' + bankedChips + '</div>'
+        + '<div class="done-row"><span class="done-icon">⭐</span>'
+        + '<span class="done-txt good">All scoring answers found!</span></div>';
+    }
+
+    // Reveal scoring options once round is done
+    let revealHtml = '';
+    if (G.gamePhase === 'roundDone' || G.gamePhase === 'gameover') {
+      const sco = getScoringValues(a, b);
+      const omap = buildOptionsMap(a, b);
+      if (sco.length > 0) {
+        const parts = sco.map(function(v){ const o = omap.get(v); return o.expr + ' = <strong>' + v + '</strong>'; });
+        revealHtml = '<div class="stn-reveal">Scoring: ' + parts.join(' &nbsp;|&nbsp; ') + '</div>';
+      } else {
+        revealHtml = '<div class="stn-reveal">No scoring options were available this round.</div>';
+      }
+    }
+
+    div.innerHTML += '<div class="stn-done-body">' + doneBody + revealHtml + '</div>';
+  }
+
+  return div;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONTROLS
+// ─────────────────────────────────────────────────────────────────────────────
+function renderCtrlNote() {
+  const el = document.getElementById('ctrl-note');
+  if (!el) return;
+  if (G.mode === 'practice') {
+    const picked = G.choices.filter(function(c){ return c !== null; }).length;
+    el.textContent = G.gamePhase === 'roundDone' ? 'Practice complete' : picked + ' of ' + G.numPlayers + ' teams picked';
+    return;
+  }
+  if (G.gamePhase === 'playing') {
+    const done = G.turns.filter(function(t){ return t.phase === 'done'; }).length;
+    el.textContent = done + ' of ' + G.numPlayers + ' teams done this round';
+  } else if (G.gamePhase === 'roundDone') {
+    const scored = G.turns.filter(function(t){ return t.answers.length > 0; }).length;
+    el.textContent = 'Round ' + G.round + ' complete — ' + scored + ' team' + (scored !== 1 ? 's' : '') + ' scored';
+  }
+}
+
+function updateNextButton() {
+  const btn = document.getElementById('btn-next');
+  if (!btn) return;
+  if (G.gamePhase === 'gameover') { btn.textContent = 'Game Over'; btn.classList.add('disabled'); return; }
+  if (G.gamePhase === 'roundDone') {
+    if (G.mode === 'practice') {
+      btn.textContent = 'Done — Return to Menu';
+    } else if (G.round >= MAX_ROUNDS) {
+      btn.textContent = 'See Results';
+    } else {
+      btn.textContent = 'Deal Round ' + (G.round + 1);
+    }
+    btn.classList.remove('disabled');
+    btn.onclick = dealNext;
+  } else {
+    btn.textContent = G.mode === 'practice' ? 'Done — Return to Menu'
+      : (G.round >= MAX_ROUNDS ? 'See Results' : 'Deal Round ' + (G.round + 1));
+    btn.classList.add('disabled');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WIN SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
+function showWin() {
+  const s = G.scores;
+  const max = Math.max.apply(null, s);
+  const winners = [];
+  for (let i = 0; i < s.length; i++) { if (s[i] === max) winners.push(i); }
+  const isTie = winners.length > 1;
+
+  document.getElementById('win-emoji').textContent = isTie ? '🤝' : '🏆';
+  document.getElementById('win-title').textContent = isTie
+    ? winners.map(function(i){ return TEAMS[i].name; }).join(' & ') + ' Tie!'
+    : TEAMS[winners[0]].name + ' Wins!';
+  document.getElementById('win-sub').textContent =
+    'After ' + MAX_ROUNDS + ' rounds — ' + max + ' point' + (max !== 1 ? 's' : '') + ' to lead.';
+
+  const sorted = s.map(function(sc,i){ return {sc:sc,i:i}; }).sort(function(a,b){ return b.sc - a.sc; });
+  let th = '<tr><th>Team</th><th>Points</th><th>/ 5 rounds</th></tr>';
+  sorted.forEach(function(row) {
+    const win = row.sc === max;
+    th += '<tr' + (win ? ' class="winner"' : '') + '><td>' + TEAMS[row.i].name + '</td><td>' + row.sc + '</td><td>' + row.sc + ' / ' + MAX_ROUNDS + '</td></tr>';
+  });
+  document.getElementById('win-tbl').innerHTML = th;
+
+  document.getElementById('win-disc').innerHTML =
+    '<strong>Discussion:</strong> Can you predict from your cards if you can make an odd number? ' +
+    'What is the quick test for divisibility by 3? When is it impossible to score?';
+
+  document.getElementById('win-overlay').classList.add('show');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELP & TOAST
+// ─────────────────────────────────────────────────────────────────────────────
+function showHelp() { document.getElementById('help-overlay').classList.add('show'); }
+
+let _tt;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(function(){ el.classList.remove('show'); }, 2600);
+}
+</script>
+</body>
+</html>

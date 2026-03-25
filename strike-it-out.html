@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strike it Out — Facts on Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #FAFAF7;
+  --surface: #FFFFFF;
+  --ink:     #0E1117;
+  --ink2:    #3A4150;
+  --muted:   #8A94A0;
+  --border:  #E4E6EA;
+  --fire:    #FF4F00;
+  --fire2:   #FF9000;
+  --ember:   #FFF0E8;
+  --teal:    #007A6E;
+  --teal-lt: #E6F4F2;
+  --green:   #15803d;
+  --green-lt:#f0fdf4;
+  --shadow:  0 2px 12px rgba(0,0,0,.07);
+  --shadow-lg:0 8px 36px rgba(0,0,0,.12);
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family:'Archivo',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden; /* prevent scroll on smartboard */
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────────────── */
+header {
+  background:var(--ink);
+  padding:0 28px;
+  height:56px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  border-bottom:3px solid var(--fire);
+  flex-shrink:0;
+}
+.logo {
+  font-family:'Archivo Black',sans-serif;
+  font-size:.85rem;
+  color:rgba(255,255,255,.5);
+  letter-spacing:-.02em;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  transition:.15s;
+}
+.logo:hover { color:rgba(255,255,255,.75); }
+.hdr-sep { width:1px; height:20px; background:rgba(255,255,255,.12); }
+.game-title {
+  font-family:'Archivo Black',sans-serif;
+  font-size:1.1rem;
+  color:#fff;
+  letter-spacing:-.02em;
+}
+.hdr-spacer { flex:1; }
+.score-wrap { display:flex; align-items:center; gap:8px; }
+.score-pill {
+  font-family:'Archivo Black',sans-serif;
+  font-size:1rem;
+  color:#fff;
+  padding:2px 14px;
+  border-radius:20px;
+  border:1.5px solid rgba(255,255,255,.15);
+  min-width:64px;
+  text-align:center;
+  transition:background .3s;
+}
+.score-pill.t1 { background:rgba(255,79,0,.25); border-color:rgba(255,79,0,.5); }
+.score-pill.t2 { background:rgba(0,122,110,.25); border-color:rgba(0,122,110,.5); }
+.score-pill.t1.leading { background:rgba(255,79,0,.45); }
+.score-pill.t2.leading { background:rgba(0,122,110,.45); }
+.score-vs { font-size:.7rem; color:rgba(255,255,255,.25); font-weight:700; }
+.btn-help {
+  background:none;
+  border:1.5px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.55);
+  border-radius:50%;
+  width:28px; height:28px;
+  font-size:.8rem; font-weight:700;
+  cursor:pointer;
+  font-family:'Archivo Black',sans-serif;
+  transition:.15s;
+}
+.btn-help:hover { border-color:#fff; color:#fff; }
+
+/* ── TURN BANNER ─────────────────────────────────────────────────────────── */
+.turn-banner {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:12px 28px;
+  border-bottom:2px solid var(--border);
+  background:var(--surface);
+  flex-shrink:0;
+  min-height:60px;
+  transition:background .35s, border-color .35s;
+}
+.turn-banner.bt1 { background:var(--ember);   border-bottom-color:#FFD0B5; }
+.turn-banner.bt2 { background:var(--teal-lt); border-bottom-color:#AFDAD5; }
+.turn-banner.bcoop { background:#f0fdf4;      border-bottom-color:#bbf7d0; }
+.turn-banner.bover { background:#F8F9FA;      border-bottom-color:var(--border); }
+
+.team-badge {
+  font-family:'Archivo Black',sans-serif;
+  font-size:.85rem;
+  color:#fff;
+  padding:5px 16px;
+  border-radius:20px;
+  white-space:nowrap;
+  flex-shrink:0;
+  letter-spacing:-.01em;
+}
+.team-badge.t1   { background:var(--fire); }
+.team-badge.t2   { background:var(--teal); }
+.team-badge.coop { background:var(--ink); }
+.team-badge.over { background:var(--muted); }
+
+.inst-main {
+  font-size:clamp(.95rem,1.6vw,1.2rem);
+  font-weight:600;
+  color:var(--ink2);
+  flex:1;
+  line-height:1.3;
+}
+.inst-math {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+  flex-wrap:wrap;
+}
+.eq-chip {
+  font-family:'Archivo Black',sans-serif;
+  font-size:.9rem;
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  padding:3px 12px;
+  white-space:nowrap;
+  color:var(--ink);
+}
+.eq-chip.clickable {
+  background:var(--green-lt);
+  border-color:var(--green);
+  color:var(--green);
+  cursor:pointer;
+  transition:.12s;
+}
+.eq-chip.clickable:hover {
+  background:#dcfce7;
+  transform:translateY(-1px);
+}
+
+/* ── BOARD ───────────────────────────────────────────────────────────────── */
+.board-area {
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px 20px 16px;
+  min-height:0;
+}
+.board {
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:22px 22px 18px;
+  box-shadow:var(--shadow-lg);
+  width:100%;
+  max-width:1160px;
+}
+.board-lbl {
+  font-size:.68rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+
+/* ── NUMBER LINE ─────────────────────────────────────────────────────────── */
+.num-grid {
+  display:grid;
+  grid-template-columns:repeat(21,1fr);
+  gap:5px;
+}
+
+.num-token {
+  aspect-ratio:1;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(13px,2.1vw,30px);
+  border-radius:10px;
+  border:2.5px solid #DDE1E7;
+  background:#fff;
+  cursor:pointer;
+  transition:transform .13s, box-shadow .13s, background .13s, border-color .13s, opacity .13s;
+  user-select:none;
+  overflow:hidden;
+}
+.num-token .nv { position:relative; z-index:1; pointer-events:none; }
+
+/* Available hover */
+.num-token.avail:hover {
+  transform:translateY(-5px) scale(1.1);
+  box-shadow:0 8px 22px rgba(0,0,0,.14);
+  border-color:var(--ink2);
+  z-index:2;
+}
+
+/* Selected — team 1 */
+.num-token.sel1 {
+  background:var(--ember);
+  border-color:var(--fire);
+  border-width:3px;
+  transform:translateY(-4px) scale(1.08);
+  box-shadow:0 8px 22px rgba(255,79,0,.28);
+  z-index:2;
+}
+/* Selected — team 2 */
+.num-token.sel2 {
+  background:var(--teal-lt);
+  border-color:var(--teal);
+  border-width:3px;
+  transform:translateY(-4px) scale(1.08);
+  box-shadow:0 8px 22px rgba(0,122,110,.28);
+  z-index:2;
+}
+/* Required / locked first pick (circled number from previous turn) */
+.num-token.locked1 {
+  background:var(--ember);
+  border-color:var(--fire);
+  border-width:4px;
+  transform:translateY(-4px) scale(1.08);
+  box-shadow:0 8px 22px rgba(255,79,0,.22), 0 0 0 5px rgba(255,79,0,.18);
+  z-index:2;
+  animation:lockPulse1 1.8s ease-in-out infinite;
+}
+.num-token.locked2 {
+  background:var(--teal-lt);
+  border-color:var(--teal);
+  border-width:4px;
+  transform:translateY(-4px) scale(1.08);
+  box-shadow:0 8px 22px rgba(0,122,110,.22), 0 0 0 5px rgba(0,122,110,.18);
+  z-index:2;
+  animation:lockPulse2 1.8s ease-in-out infinite;
+}
+@keyframes lockPulse1 {
+  0%,100% { box-shadow:0 8px 22px rgba(255,79,0,.22), 0 0 0 4px rgba(255,79,0,.2); }
+  50%      { box-shadow:0 8px 22px rgba(255,79,0,.22), 0 0 0 8px rgba(255,79,0,.08); }
+}
+@keyframes lockPulse2 {
+  0%,100% { box-shadow:0 8px 22px rgba(0,122,110,.22), 0 0 0 4px rgba(0,122,110,.2); }
+  50%      { box-shadow:0 8px 22px rgba(0,122,110,.22), 0 0 0 8px rgba(0,122,110,.08); }
+}
+
+/* Circled (previous result — waiting to be used, not yet the active turn) */
+.num-token.circ1 {
+  border-color:var(--fire);
+  border-width:3.5px;
+  animation:circPulse1 2s ease-in-out infinite;
+}
+.num-token.circ2 {
+  border-color:var(--teal);
+  border-width:3.5px;
+  animation:circPulse2 2s ease-in-out infinite;
+}
+@keyframes circPulse1 {
+  0%,100% { box-shadow:0 0 0 3px rgba(255,79,0,.25); }
+  50%      { box-shadow:0 0 0 7px rgba(255,79,0,.1); }
+}
+@keyframes circPulse2 {
+  0%,100% { box-shadow:0 0 0 3px rgba(0,122,110,.25); }
+  50%      { box-shadow:0 0 0 7px rgba(0,122,110,.1); }
+}
+
+/* Pending cross (sel1 + sel2 during pickResult phase) */
+.num-token.pending {
+  opacity:.38;
+  cursor:default;
+  transform:none;
+}
+.num-token.pending .nv { opacity:0.5; }
+.num-token.pending::after {
+  content:'✕';
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.85em;
+  color:var(--muted);
+  font-weight:900;
+}
+
+/* Result option — glowing green clickable */
+.num-token.result {
+  background:var(--green-lt);
+  border-color:var(--green);
+  border-width:3px;
+  cursor:pointer;
+  animation:resultPulse .85s ease-in-out infinite;
+  z-index:2;
+}
+.num-token.result:hover {
+  transform:translateY(-5px) scale(1.12) !important;
+  box-shadow:0 10px 28px rgba(21,128,61,.32) !important;
+  background:#dcfce7 !important;
+}
+@keyframes resultPulse {
+  0%,100% { box-shadow:0 0 0 2px rgba(21,128,61,.3); }
+  50%      { box-shadow:0 0 0 7px rgba(21,128,61,.12); }
+}
+
+/* Crossed */
+.num-token.crossed {
+  background:#F1F3F5;
+  border-color:#CDD3D9;
+  color:#B0B8C1;
+  cursor:default;
+  animation:none !important;
+  transform:none !important;
+  box-shadow:none !important;
+}
+/* Diagonal strikethrough line */
+.num-token.crossed::after {
+  content:'';
+  position:absolute;
+  left:-10%; right:-10%;
+  top:50%;
+  height:2.5px;
+  background:#9CA8B4;
+  transform:rotate(-22deg) translateY(-50%);
+  border-radius:2px;
+}
+
+/* Error shake on a bad token click */
+.err-shake { animation:errShake .4s ease !important; }
+@keyframes errShake {
+  0%,100% { transform:translateX(0); }
+  20%      { transform:translateX(-8px); }
+  60%      { transform:translateX(8px); }
+  80%      { transform:translateX(-4px); }
+}
+
+/* ── CONTROLS ────────────────────────────────────────────────────────────── */
+.controls {
+  border-top:1px solid var(--border);
+  background:var(--surface);
+  padding:10px 28px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+  flex-wrap:wrap;
+}
+.btn {
+  font-family:'Archivo',sans-serif;
+  font-size:.85rem;
+  font-weight:700;
+  padding:7px 18px;
+  border-radius:9px;
+  border:1.5px solid var(--border);
+  background:var(--surface);
+  color:var(--ink2);
+  cursor:pointer;
+  transition:.13s;
+  white-space:nowrap;
+}
+.btn:hover { border-color:var(--ink); color:var(--ink); }
+.btn.fire { background:var(--fire); border-color:var(--fire); color:#fff; }
+.btn.fire:hover { background:#e04400; }
+.btn.toggled { border-color:var(--teal); color:var(--teal); background:var(--teal-lt); }
+.ctrl-sep { width:1px; height:18px; background:var(--border); }
+.ctrl-note { font-size:.78rem; color:var(--muted); font-weight:500; }
+.ctrl-spacer { flex:1; }
+.coop-counter {
+  font-family:'Archivo Black',sans-serif;
+  font-size:.92rem;
+  color:var(--teal);
+  display:none;
+}
+
+/* ── TOAST ───────────────────────────────────────────────────────────────── */
+.toast {
+  position:fixed;
+  bottom:72px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--ink);
+  color:#fff;
+  font-size:.88rem;
+  font-weight:600;
+  padding:9px 22px;
+  border-radius:10px;
+  z-index:300;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s;
+}
+.toast.show { opacity:1; }
+
+/* ── WIN OVERLAY ─────────────────────────────────────────────────────────── */
+.overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(14,17,23,.72);
+  backdrop-filter:blur(5px);
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s;
+}
+.overlay.show { opacity:1; pointer-events:all; }
+.win-card {
+  background:#fff;
+  border-radius:24px;
+  padding:44px 48px;
+  max-width:420px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,.3);
+  transform:translateY(20px);
+  transition:transform .3s;
+}
+.overlay.show .win-card { transform:translateY(0); }
+.win-emoji { font-size:3rem; line-height:1; margin-bottom:10px; }
+.win-headline {
+  font-family:'Archivo Black',sans-serif;
+  font-size:1.7rem;
+  letter-spacing:-.03em;
+  margin-bottom:6px;
+}
+.win-headline.t1 { color:var(--fire); }
+.win-headline.t2 { color:var(--teal); }
+.win-headline.coop { color:var(--ink); }
+.win-sub {
+  font-size:.92rem;
+  color:var(--ink2);
+  line-height:1.6;
+  margin-bottom:18px;
+}
+.win-stat {
+  background:var(--bg);
+  border-radius:12px;
+  padding:13px 18px;
+  margin-bottom:20px;
+  font-size:.88rem;
+  color:var(--ink2);
+  line-height:1.8;
+}
+.win-stat strong {
+  font-family:'Archivo Black',sans-serif;
+  color:var(--ink);
+}
+.win-btns { display:flex; gap:10px; }
+.win-btns .btn { flex:1; padding:10px; font-size:.88rem; }
+
+/* ── HOW TO PLAY OVERLAY ─────────────────────────────────────────────────── */
+.help-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(14,17,23,.72);
+  backdrop-filter:blur(5px);
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s;
+}
+.help-overlay.show { opacity:1; pointer-events:all; }
+.help-card {
+  background:#fff;
+  border-radius:20px;
+  padding:36px 40px;
+  max-width:520px;
+  width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.3);
+  transform:translateY(20px);
+  transition:transform .3s;
+}
+.help-overlay.show .help-card { transform:translateY(0); }
+.help-title {
+  font-family:'Archivo Black',sans-serif;
+  font-size:1.4rem;
+  letter-spacing:-.02em;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.help-section { margin-bottom:14px; }
+.help-section-head {
+  font-size:.72rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.help-section p {
+  font-size:.9rem;
+  color:var(--ink2);
+  line-height:1.6;
+}
+.help-section ul {
+  font-size:.9rem;
+  color:var(--ink2);
+  line-height:1.7;
+  padding-left:18px;
+}
+.help-divider { height:1px; background:var(--border); margin:14px 0; }
+.help-close {
+  width:100%;
+  margin-top:18px;
+  padding:10px;
+  font-size:.9rem;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+@media(max-width:720px) {
+  header        { padding:0 14px; height:50px; }
+  .turn-banner  { padding:10px 14px; min-height:52px; }
+  .board-area   { padding:10px 10px 8px; }
+  .board        { padding:12px 10px 10px; border-radius:14px; }
+  .num-grid     { gap:3px; }
+  .num-token    { border-radius:7px; }
+  .controls     { padding:8px 14px; gap:8px; }
+  .win-card     { padding:28px 22px; }
+  .help-card    { padding:24px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────────────────────── -->
+<header>
+  <a class="logo" href="index.html">🔥 Facts on Fire</a>
+  <div class="hdr-sep"></div>
+  <div class="game-title">Strike it Out</div>
+  <div class="hdr-spacer"></div>
+  <div class="score-wrap" id="score-wrap">
+    <span class="score-pill t1" id="score-t1">T1: 0</span>
+    <span class="score-vs">–</span>
+    <span class="score-pill t2" id="score-t2">T2: 0</span>
+  </div>
+  <div class="hdr-sep"></div>
+  <button class="btn-help" onclick="showHelp()" title="How to play">?</button>
+</header>
+
+<!-- ── TURN BANNER ─────────────────────────────────────────────────────────── -->
+<div class="turn-banner bt1" id="turn-banner">
+  <div class="team-badge t1" id="team-badge">Team 1</div>
+  <div class="inst-main"  id="inst-main">Pick your first number from the line</div>
+  <div class="inst-math"  id="inst-math"></div>
+</div>
+
+<!-- ── BOARD ───────────────────────────────────────────────────────────────── -->
+<div class="board-area">
+  <div class="board">
+    <div class="board-lbl">Number line · 0 to 20</div>
+    <div class="num-grid" id="num-grid"></div>
+  </div>
+</div>
+
+<!-- ── CONTROLS ────────────────────────────────────────────────────────────── -->
+<div class="controls">
+  <button class="btn fire" onclick="newGame()">↺ New Game</button>
+  <div class="ctrl-sep"></div>
+  <button class="btn" id="mode-btn" onclick="toggleMode()">Switch to Cooperative</button>
+  <div class="ctrl-note" id="mode-note">2-player · stop your opponent from moving</div>
+  <div class="ctrl-spacer"></div>
+  <div class="coop-counter" id="coop-counter"></div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── WIN OVERLAY ─────────────────────────────────────────────────────────── -->
+<div class="overlay" id="win-overlay">
+  <div class="win-card">
+    <div class="win-emoji"    id="win-emoji">🏆</div>
+    <div class="win-headline" id="win-headline">Team 1 Wins!</div>
+    <div class="win-sub"      id="win-sub"></div>
+    <div class="win-stat"     id="win-stat"></div>
+    <div class="win-btns">
+      <button class="btn fire" onclick="newGame()">Play Again</button>
+      <button class="btn" onclick="closeWin()">View Board</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOW TO PLAY OVERLAY ──────────────────────────────────────────────────── -->
+<div class="help-overlay" id="help-overlay" onclick="closeHelp(event)">
+  <div class="help-card">
+    <div class="help-title">⚡ How to play</div>
+
+    <div class="help-section">
+      <div class="help-section-head">Setup</div>
+      <p>A number line from <strong>0 to 20</strong>. Two teams take turns.</p>
+    </div>
+
+    <div class="help-divider"></div>
+
+    <div class="help-section">
+      <div class="help-section-head">Team 1 — first turn only</div>
+      <p>Pick any <strong>two numbers</strong>, cross them both out, then <strong>circle</strong> either their sum or their difference. Circled numbers can still be used once more.</p>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-head">All other turns</div>
+      <p>You <strong>must</strong> use the circled number. Pick one more available number, cross both out, then circle the sum or difference.</p>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-head">Winning</div>
+      <p>The winner is the team that <strong>stops their opponent</strong> from being able to take a turn.</p>
+    </div>
+
+    <div class="help-divider"></div>
+
+    <div class="help-section">
+      <div class="help-section-head">Cooperative challenge</div>
+      <p>Switch to <em>Cooperative</em> mode and work together to use as many numbers as possible. Can you use all 21?</p>
+    </div>
+
+    <button class="btn fire help-close" onclick="document.getElementById('help-overlay').classList.remove('show')">Got it</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+// nums: 0 = available, 1 = crossed, 2 = circled (last result — used next turn)
+const G = {
+  nums:      Array(21).fill(0),
+  player:    1,           // 1 or 2
+  phase:     'pick1',     // 'pick1' | 'pick2' | 'pickResult' | 'over'
+  sel1:      null,        // first selected number this turn
+  sel2:      null,        // second selected number
+  circled:   null,        // the currently circled number (null = very first turn)
+  circleBy:  0,           // which player last circled (1 or 2)
+  results:   [],          // valid result numbers for current selection
+  scores:    [0, 0],      // [team1 wins, team2 wins]
+  crossed:   0,           // total numbers crossed out (for coop scoring)
+  mode:      'vs',        // 'vs' | 'coop'
+};
+
+// ── CORE LOGIC ────────────────────────────────────────────────────────────────
+
+/** Returns valid result numbers (sum/diff) for crossing a and b */
+function getResults(a, b) {
+  const sum  = a + b;
+  const diff = Math.abs(a - b);
+  const out  = [];
+
+  function ok(n) {
+    if (n < 0 || n > 20) return false;
+    if (n === a || n === b) return false;
+    // must be available (circled token = G.circled = a, excluded above)
+    return G.nums[n] === 0;
+  }
+
+  if (ok(sum))              out.push(sum);
+  if (ok(diff) && diff !== sum) out.push(diff);
+  return out;
+}
+
+/** Can the current player (with locked circled number c) make any valid move? */
+function canMove(c) {
+  for (let i = 0; i <= 20; i++) {
+    if (i === c)          continue;
+    if (G.nums[i] !== 0)  continue;  // must be available
+    if (getResults(c, i).length > 0) return true;
+  }
+  return false;
+}
+
+// ── CLICK HANDLER ─────────────────────────────────────────────────────────────
+
+function handleClick(n) {
+  if (G.phase === 'over') return;
+
+  // ── PHASE: pick1 ── (first turn only, no locked number yet)
+  if (G.phase === 'pick1') {
+    if (G.nums[n] !== 0) return;
+    G.sel1  = n;
+    G.phase = 'pick2';
+    render();
+    return;
+  }
+
+  // ── PHASE: pick2 ── (player picks second number)
+  if (G.phase === 'pick2') {
+    // Allow deselecting the freely chosen sel1 (first turn only)
+    if (n === G.sel1) {
+      if (G.circled === null) {
+        G.sel1  = null;
+        G.phase = 'pick1';
+        render();
+      }
+      return;
+    }
+    // Must be a fully available number
+    if (G.nums[n] !== 0) return;
+
+    G.sel2 = n;
+    const res = getResults(G.sel1, G.sel2);
+
+    if (res.length === 0) {
+      // No valid result — reject and shake
+      G.sel2 = null;
+      showToast('No valid sum or difference — try another number');
+      errShake(n);
+      return;
+    }
+
+    G.results = res;
+    G.phase   = 'pickResult';
+    render();
+    return;
+  }
+
+  // ── PHASE: pickResult ── (player clicks a glowing result to circle it)
+  if (G.phase === 'pickResult') {
+    if (!G.results.includes(n)) return;
+    commitTurn(n);
+    return;
+  }
+}
+
+// ── COMMIT TURN ───────────────────────────────────────────────────────────────
+
+function commitTurn(resultN) {
+  // Cross both selected numbers
+  G.nums[G.sel1] = 1;
+  G.nums[G.sel2] = 1;
+  G.crossed     += 2;
+
+  // Circle the chosen result
+  G.nums[resultN] = 2;
+  G.circled       = resultN;
+  G.circleBy      = G.player;
+
+  // Switch player (vs mode)
+  if (G.mode === 'vs') {
+    G.player = G.player === 1 ? 2 : 1;
+  }
+
+  // Pre-select the circled number as sel1 for next turn
+  G.sel1    = G.circled;
+  G.sel2    = null;
+  G.results = [];
+
+  // Check if the next player can move
+  if (!canMove(G.circled)) {
+    G.phase = 'over';
+    render();
+
+    if (G.mode === 'vs') {
+      const winner = G.player === 1 ? 2 : 1; // who just played
+      G.scores[winner - 1]++;
+      setTimeout(() => showWin(winner), 380);
+    } else {
+      setTimeout(() => showWinCoop(), 380);
+    }
+    return;
+  }
+
+  G.phase = 'pick2';
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+
+function render() {
+  renderTokens();
+  renderBanner();
+  renderScores();
+  if (G.mode === 'coop') renderCoopCounter();
+}
+
+function renderTokens() {
+  for (let i = 0; i <= 20; i++) {
+    const el = document.getElementById(`t${i}`);
+    let cls  = 'num-token';
+
+    if (G.nums[i] === 1) {
+      // Permanently crossed
+      cls += ' crossed';
+
+    } else if (G.phase === 'pickResult' && (i === G.sel1 || i === G.sel2)) {
+      // About to be crossed — show pending X
+      cls += ' pending';
+
+    } else if (G.phase === 'pickResult' && G.results.includes(i)) {
+      // Glowing result option
+      cls += ' result';
+
+    } else if (i === G.sel1 && G.sel1 !== null) {
+      // First selected number this turn
+      const isLocked = (G.nums[i] === 2); // it's the circled/required number
+      if (isLocked) {
+        cls += ` locked${G.player}`;
+      } else {
+        cls += ` sel${G.player}`;
+      }
+
+    } else if (G.nums[i] === 2) {
+      // Circled from previous turn (waiting display — shouldn't normally render
+      // since circled always = sel1, but guard here just in case)
+      cls += ` circ${G.circleBy}`;
+
+    } else if (G.nums[i] === 0) {
+      cls += ' avail';
+    }
+
+    el.className = cls;
+  }
+}
+
+function renderBanner() {
+  const banner = document.getElementById('turn-banner');
+  const badge  = document.getElementById('team-badge');
+  const main   = document.getElementById('inst-main');
+  const math   = document.getElementById('inst-math');
+
+  math.innerHTML = '';
+  banner.className = 'turn-banner';
+  badge.className  = 'team-badge';
+
+  // Game over state
+  if (G.phase === 'over') {
+    banner.classList.add('bover');
+    badge.classList.add('over');
+    badge.textContent = 'Game Over';
+    if (G.mode === 'vs') {
+      const winner = G.player === 1 ? 2 : 1;
+      main.textContent = `Team ${winner} wins! Team ${G.player} couldn't move.`;
+    } else {
+      const numSuffix = G.crossed !== 1 ? 's' : '';
+      main.textContent = `${G.crossed} number${numSuffix} used \u2014 no more moves possible.`;
+    }
+    return;
+  }
+
+  // Live play
+  const tc = G.mode === 'coop' ? 'coop' : `t${G.player}`;
+  banner.classList.add(G.mode === 'coop' ? 'bcoop' : `bt${G.player}`);
+  badge.classList.add(tc);
+  badge.textContent = G.mode === 'coop' ? 'Class' : `Team ${G.player}`;
+
+  if (G.phase === 'pick1') {
+    main.textContent = 'Pick any two numbers — cross them out and circle the sum or difference';
+
+  } else if (G.phase === 'pick2') {
+    if (G.circled !== null) {
+      main.textContent = `You must use  ${G.circled}  — pick one more number to pair with it`;
+      math.innerHTML   = `<span class="eq-chip">${G.circled} + ? &nbsp;or&nbsp; ${G.circled} − ?</span>`;
+    } else {
+      main.textContent = `You picked  ${G.sel1}  — now pick a second number`;
+      math.innerHTML   = `<span class="eq-chip">${G.sel1} selected</span>`;
+    }
+
+  } else if (G.phase === 'pickResult') {
+    const a = G.sel1, b = G.sel2;
+    const sum  = a + b;
+    const diff = Math.abs(a - b);
+    main.textContent = 'Click a glowing number to circle it:';
+
+    const chips = [];
+    if (G.results.includes(sum)) {
+      chips.push(`<span class="eq-chip clickable" onclick="handleClick(${sum})">${a} + ${b} = <strong>${sum}</strong></span>`);
+    }
+    if (G.results.includes(diff)) {
+      chips.push(`<span class="eq-chip clickable" onclick="handleClick(${diff})">${Math.max(a,b)} − ${Math.min(a,b)} = <strong>${diff}</strong></span>`);
+    }
+    math.innerHTML = chips.join('<span style="color:var(--muted);margin:0 5px;font-size:.85rem">or</span>');
+  }
+}
+
+function renderScores() {
+  const t1 = document.getElementById('score-t1');
+  const t2 = document.getElementById('score-t2');
+  t1.textContent = `T1: ${G.scores[0]}`;
+  t2.textContent = `T2: ${G.scores[1]}`;
+  t1.classList.toggle('leading', G.scores[0] > G.scores[1]);
+  t2.classList.toggle('leading', G.scores[1] > G.scores[0]);
+}
+
+function renderCoopCounter() {
+  const el = document.getElementById('coop-counter');
+  el.textContent = `${G.crossed} / 21 numbers used`;
+}
+
+// ── GAME MANAGEMENT ───────────────────────────────────────────────────────────
+
+function newGame() {
+  G.nums    = Array(21).fill(0);
+  G.player  = 1;
+  G.phase   = 'pick1';
+  G.sel1    = null;
+  G.sel2    = null;
+  G.circled = null;
+  G.circleBy= 0;
+  G.results = [];
+  G.crossed = 0;
+  document.getElementById('win-overlay').classList.remove('show');
+  render();
+}
+
+function toggleMode() {
+  G.mode = G.mode === 'vs' ? 'coop' : 'vs';
+  const btn   = document.getElementById('mode-btn');
+  const note  = document.getElementById('mode-note');
+  const sw    = document.getElementById('score-wrap');
+  const cc    = document.getElementById('coop-counter');
+
+  if (G.mode === 'coop') {
+    btn.textContent   = 'Switch to Competitive';
+    btn.classList.add('toggled');
+    note.textContent  = 'Cooperative · work together to use as many numbers as possible';
+    sw.style.display  = 'none';
+    cc.style.display  = '';
+  } else {
+    btn.textContent   = 'Switch to Cooperative';
+    btn.classList.remove('toggled');
+    note.textContent  = '2-player · stop your opponent from moving';
+    sw.style.display  = '';
+    cc.style.display  = 'none';
+  }
+  newGame();
+}
+
+// ── WIN SCREENS ───────────────────────────────────────────────────────────────
+
+function showWin(winner) {
+  const loser = winner === 1 ? 2 : 1;
+  document.getElementById('win-emoji').textContent    = '🏆';
+  document.getElementById('win-headline').textContent = `Team ${winner} Wins!`;
+  document.getElementById('win-headline').className   = `win-headline t${winner}`;
+  document.getElementById('win-sub').textContent      =
+    `Team ${loser} couldn't make a valid move — no available number works with the circled ${G.circled}.`;
+  document.getElementById('win-stat').innerHTML =
+    `Numbers crossed out: <strong>${G.crossed}</strong> of 21
+     <br>Score — Team 1: <strong>${G.scores[0]}</strong> &nbsp;·&nbsp; Team 2: <strong>${G.scores[1]}</strong>`;
+  document.getElementById('win-overlay').classList.add('show');
+}
+
+function showWinCoop() {
+  const pct = Math.round((G.crossed / 21) * 100);
+  let emoji, headline, sub;
+
+  if (G.crossed === 21) {
+    emoji    = '🎉';
+    headline = 'Amazing — all 21 used!';
+    sub      = "You used every number on the line. That's remarkable!";
+  } else if (G.crossed >= 18) {
+    emoji    = '⭐';
+    headline = 'Excellent run!';
+    sub      = `No more moves possible — but you got very close to using them all.`;
+  } else {
+    emoji    = '🤔';
+    headline = 'Game over';
+    sub      = `No more moves possible. Can you beat ${G.crossed} next time?`;
+  }
+
+  document.getElementById('win-emoji').textContent    = emoji;
+  document.getElementById('win-headline').textContent = headline;
+  document.getElementById('win-headline').className   = 'win-headline coop';
+  document.getElementById('win-sub').textContent      = sub;
+  document.getElementById('win-stat').innerHTML =
+    `Numbers used: <strong>${G.crossed}</strong> out of 21 (${pct}%)
+     <br>The circled number <strong>${G.circled}</strong> had no valid partner left.
+     <br><em>Could a different choice earlier have helped?</em>`;
+  document.getElementById('win-overlay').classList.add('show');
+}
+
+function closeWin() {
+  document.getElementById('win-overlay').classList.remove('show');
+}
+
+// ── HELP OVERLAY ──────────────────────────────────────────────────────────────
+
+function showHelp() {
+  document.getElementById('help-overlay').classList.add('show');
+}
+function closeHelp(e) {
+  if (e.target === document.getElementById('help-overlay')) {
+    document.getElementById('help-overlay').classList.remove('show');
+  }
+}
+
+// ── TOAST / ERROR ─────────────────────────────────────────────────────────────
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function errShake(n) {
+  const el = document.getElementById(`t${n}`);
+  if (!el) return;
+  el.classList.add('err-shake');
+  setTimeout(() => el.classList.remove('err-shake'), 450);
+}
+
+// ── BUILD GRID ────────────────────────────────────────────────────────────────
+
+function buildGrid() {
+  const grid = document.getElementById('num-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i <= 20; i++) {
+    const tok = document.createElement('div');
+    tok.id        = `t${i}`;
+    tok.className = 'num-token avail';
+    tok.innerHTML = `<span class="nv">${i}</span>`;
+    tok.addEventListener('click', () => handleClick(i));
+    grid.appendChild(tok);
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+buildGrid();
+newGame();
+</script>
+</body>
+</html>

@@ -113,6 +113,40 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
   justify-content: center; font-size: 9px; opacity: .45; font-weight: 900; cursor: pointer;
 }
 .chip-remove:hover { opacity: 1; }
+.chip-game-link {
+  text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 4px;
+}
+.chip-game-link:hover .chip-game { background: #D1FAE5; border-color: #6EE7B7; }
+.chip-soon { opacity: .5; cursor: default; pointer-events: none; }
+.chip-soon .chip-remove { display: none; }
+.soon-badge {
+  font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 3px;
+  background: var(--border); color: var(--muted); margin-left: 2px; vertical-align: middle;
+}
+.universal-bar {
+  width: 100%; padding: 5px 12px 5px 14px; display: flex; align-items: center; gap: 6px;
+  background: #F0FDF4; border-top: 1px dashed #A7F3D0; flex-wrap: wrap;
+}
+.universal-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  color: #065F46; white-space: nowrap; flex-shrink: 0;
+}
+.chip-universal {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; padding: 2px 8px 2px 6px;
+  border-radius: 4px; background: #D1FAE5; color: #065F46; border: 1.5px solid #A7F3D0;
+  text-decoration: none;
+}
+.chip-universal:hover { background: #A7F3D0; }
+.chip-universal-soon { opacity: .5; pointer-events: none; }
+.reg-item-url {
+  font-family: 'Courier New', monospace; font-size: 9px; color: #bbb;
+  max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.reg-item-universal {
+  font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+  background: #D1FAE5; color: #065F46; flex-shrink: 0;
+}
 .add-btn {
   display: inline-flex; align-items: center; gap: 3px;
   font-size: 10px; font-weight: 700; color: var(--muted);
@@ -270,11 +304,10 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
 <div class="topbar">
   <div>
     <div class="topbar-title">Skill Resource Manager</div>
-    <div class="topbar-sub">Elementary Automaticity · Grades K–4 · Single source of truth for all resource linkages</div>
+    <div class="topbar-sub">Elementary Automaticity — Facts on Fire / M.I.N.D. 2.0 · Grades K–4</div>
   </div>
   <div class="topbar-spacer"></div>
   <div class="topbar-btns">
-    <a class="btn-topbar" href="elem_scope_sequence_tracker.html">← Tracker</a>
     <button class="btn-topbar" onclick="openRegistry()">⚙ Manage Registries</button>
     <button class="btn-topbar fire" onclick="openExport()">⬆ Export .js</button>
   </div>
@@ -387,16 +420,30 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
       <div class="reg-add-form">
         <div class="reg-add-title">Add New Game / Tool</div>
         <div class="reg-field">
-          <label class="reg-label">ID</label>
+          <label class="reg-label">ID (machine key, no spaces)</label>
           <input class="reg-input" id="new-game-id" placeholder="e.g. factRace">
         </div>
         <div class="reg-field">
-          <label class="reg-label">Label</label>
+          <label class="reg-label">Label (display name)</label>
           <input class="reg-input" id="new-game-label" placeholder="e.g. Fact Race">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">URL / filename</label>
+          <input class="reg-input" id="new-game-url" placeholder="e.g. fact-race.html">
         </div>
         <div class="reg-field">
           <label class="reg-label">Category</label>
           <input class="reg-input" id="new-game-cat" placeholder="e.g. add/sub fluency">
+        </div>
+        <div class="reg-field" style="display:flex;gap:16px;align-items:center">
+          <label class="reg-label" style="margin-bottom:0">Status</label>
+          <select class="reg-select" id="new-game-status" style="width:auto">
+            <option value="live">Live</option>
+            <option value="soon">Coming soon</option>
+          </select>
+          <label class="pool-check" style="margin-left:8px">
+            <input type="checkbox" id="new-game-universal"> Universal (works with any skill)
+          </label>
         </div>
         <button class="btn-reg-add" onclick="addGame()">+ Add Game / Tool</button>
       </div>
@@ -639,7 +686,144 @@ const DEFAULT_INTERVENTION_REGISTRY = {
   warpweft:      { label: 'Warp & Weft',           abbrev: 'WW',  applicableTo: ['addsub'] },
 };
 
-const DEFAULT_GAME_REGISTRY = {};
+const DEFAULT_GAME_REGISTRY = {
+  fourstrikes:    { label: 'Four Strikes',     url: 'four-strikes.html',      category: 'any fact set',                   status: 'live' },
+  ohno99:         { label: 'Oh No! 99!',        url: 'oh-no-99.html',          category: 'mental add/sub · multidigit',    status: 'live' },
+  fillstairs:     { label: 'Fill the Stairs',   url: 'fill-the-stairs.html',   category: 'number sense · ordering',        status: 'live' },
+  savetwenty:     { label: 'Save Twenty',       url: 'save-twenty.html',       category: 'addition · estimation',          status: 'live' },
+  seqpuzzles:     { label: 'Sequence Puzzles',  url: 'sequence_puzzles.html',  category: 'mult readiness · skip-counting', status: 'live' },
+  choralcount:    { label: 'Choral Counting',   url: 'choral_counting.html',   category: 'mult readiness · skip-counting', status: 'live' },
+  strikeout:      { label: 'Strike it Out',     url: 'strike-it-out.html',     category: 'addition · subtraction · number sense', status: 'live' },
+  oddsthrees:     { label: 'Odds & Threes',     url: 'odds-and-threes.html',   category: 'multiplication · division · number properties', status: 'live' },
+  beatthetape:    { label: 'Beat the Tape',     url: 'beat_the_tape.html',     category: 'any fact set · choral drill',    status: 'live', universal: true },
+  classchallenge: { label: 'Class Challenge',   url: 'class_reward_app.html',  category: 'any fact set · reward reveal',   status: 'live', universal: true },
+};
+
+// ─── SEED RULES ───────────────────────────────────────────────────────────────
+// Mirrors the linkages in elem_skill_resources.js.
+// On first load, any week slot with no saved resources gets the matching rule
+// applied automatically. Rules only seed empty slots — user edits are never
+// overwritten. Pattern-matched against SKILLS_RAW name strings.
+const PUZ = (id, label) => ({ id, label, notes: '' });
+const GM  = (id, label, notes = '') => ({ id, label, notes });
+const SKILL_SEED_RULES = [
+
+  // ── ADDITION FACTS ──────────────────────────────────────────────────────────
+  { match: s => s.includes('Sums to 6'),
+    puzzles: [PUZ('honeycomb','Honeycomb Path')],
+    games:   [GM('fillstairs','Fill the Stairs','great number ordering warmup'), GM('fourstrikes','Four Strikes','use addition fact set')] },
+
+  { match: s => s.includes('Sums to 10'),
+    puzzles: [PUZ('honeycomb','Honeycomb Path'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fillstairs','Fill the Stairs'), GM('savetwenty','Save Twenty','dice sum stays ≤ 20'), GM('fourstrikes','Four Strikes','use addition fact set'), GM('strikeout','Strike it Out','number line 0–20, add and subtract')] },
+
+  { match: s => s.includes('Sums to 18'),
+    puzzles: [PUZ('honeycomb','Honeycomb Path'), PUZ('crossnum','Cross-Number'), PUZ('triangle','100 Triangles')],
+    games:   [GM('fillstairs','Fill the Stairs'), GM('savetwenty','Save Twenty'), GM('ohno99','Oh No! 99!','running total to 99; good mental math challenge'), GM('fourstrikes','Four Strikes','use addition fact set')] },
+
+  { match: s => s.includes('Sums to 30'),
+    puzzles: [PUZ('honeycomb','Honeycomb Path'), PUZ('crossnum','Cross-Number'), PUZ('triangle','100 Triangles')],
+    games:   [GM('savetwenty','Save Twenty'), GM('ohno99','Oh No! 99!'), GM('fourstrikes','Four Strikes','use addition fact set')] },
+
+  // ── SUBTRACTION FACTS ───────────────────────────────────────────────────────
+  { match: s => s.includes('Subtract from 10'),
+    puzzles: [PUZ('honeycomb','Honeycomb Path'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use subtraction fact set'), GM('strikeout','Strike it Out','number line 0–20, sum and difference')] },
+
+  { match: s => s.includes('Subtract from 18'),
+    puzzles: [PUZ('honeycomb','Honeycomb Path'), PUZ('crossnum','Cross-Number'), PUZ('mismo','Mismo')],
+    games:   [GM('fourstrikes','Four Strikes','use subtraction fact set')] },
+
+  { match: s => s.includes('Subtract from 30'),
+    puzzles: [PUZ('honeycomb','Honeycomb Path'), PUZ('crossnum','Cross-Number'), PUZ('mismo','Mismo')],
+    games:   [GM('ohno99','Oh No! 99!','Jacks subtract 10 — good sub practice'), GM('fourstrikes','Four Strikes','use subtraction fact set')] },
+
+  // ── MULTIDIGIT ADD — NO REGROUPING ──────────────────────────────────────────
+  { match: s => s.includes('Digit Addition, No Regrouping'),
+    puzzles: [PUZ('crossnum','Cross-Number'), PUZ('mismo','Mismo'), PUZ('crypto','Cryptarithms'), PUZ('twoout','Two-Out')] },
+
+  // ── MULTIDIGIT ADD — 2-DIGIT WITH REGROUPING ────────────────────────────────
+  { match: s => s.includes('2-Digit Addition, With Regrouping'),
+    puzzles: [PUZ('twoout','Two-Out'), PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('factorblob','Factor Blob'), PUZ('crypto','Cryptarithms')],
+    games:   [GM('ohno99','Oh No! 99!','running 2-digit totals; connects directly to regrouping skills')] },
+
+  // ── MULTIDIGIT ADD — 3-DIGIT WITH REGROUPING ────────────────────────────────
+  { match: s => s.includes('3-Digit Addition, With Regrouping'),
+    puzzles: [PUZ('crypto','Cryptarithms'), PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out')],
+    games:   [GM('ohno99','Oh No! 99!')] },
+
+  // ── MULTIDIGIT SUB — NO REGROUPING ──────────────────────────────────────────
+  { match: s => s.includes('Digit Subtraction, No Regrouping'),
+    puzzles: [PUZ('crossnum','Cross-Number'), PUZ('mismo','Mismo'), PUZ('crypto','Cryptarithms'), PUZ('twoout','Two-Out')] },
+
+  // ── MULTIDIGIT SUB — 2-DIGIT WITH REGROUPING ────────────────────────────────
+  { match: s => s.includes('2-Digit Subtraction, With Regrouping'),
+    puzzles: [PUZ('twoout','Two-Out'), PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('factorblob','Factor Blob'), PUZ('crypto','Cryptarithms')],
+    games:   [GM('ohno99','Oh No! 99!','Jacks subtract 10; mirrors regrouping mechanics')] },
+
+  // ── MULTIDIGIT SUB — 3-DIGIT WITH REGROUPING ────────────────────────────────
+  { match: s => s.includes('3-Digit Subtraction, With Regrouping'),
+    puzzles: [PUZ('crypto','Cryptarithms'), PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out')],
+    games:   [GM('ohno99','Oh No! 99!')] },
+
+  // ── MULTIPLICATION FACTS ────────────────────────────────────────────────────
+  { match: s => s.includes('Multiplication facts (to 18)') || s.includes('Multiplication facts to 18'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('seqpuzzles','Sequence Puzzles','skip-count sequences ×2–×4 intro'), GM('choralcount','Choral Counting','use ×2–×4 intervals'), GM('fourstrikes','Four Strikes','use multiplication fact set'), GM('oddsthrees','Odds & Threes','mult fact practice')] },
+
+  { match: s => s.includes('Multiplication facts (to 36)') || s.includes('Multiplication facts to 36'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('seqpuzzles','Sequence Puzzles','skip-count sequences ×2–×6'), GM('choralcount','Choral Counting','use ×2–×6 intervals'), GM('fourstrikes','Four Strikes','use multiplication fact set'), GM('oddsthrees','Odds & Threes','mult fact practice')] },
+
+  { match: s => s.includes('Multiplication facts (to 49)') || s.includes('Multiplication facts to 49'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('seqpuzzles','Sequence Puzzles','skip-count sequences ×2–×7'), GM('fourstrikes','Four Strikes','use multiplication fact set'), GM('oddsthrees','Odds & Threes','mult fact practice')] },
+
+  { match: s => s.includes('Multiplication facts (to 100)') || s.includes('Multiplication facts to 100'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('seqpuzzles','Sequence Puzzles','skip-count sequences ×2–×10'), GM('choralcount','Choral Counting','use ×2–×10 intervals'), GM('fourstrikes','Four Strikes','use multiplication fact set'), GM('oddsthrees','Odds & Threes','mult fact practice')] },
+
+  { match: s => s.includes('Multiplication facts (to 144)') || s.includes('Multiplication facts to 144'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('seqpuzzles','Sequence Puzzles','skip-count sequences ×2–×12'), GM('fourstrikes','Four Strikes','use multiplication fact set'), GM('oddsthrees','Odds & Threes','mult fact practice')] },
+
+  { match: s => s.includes('Multiplication facts (to 225)') || s.includes('Multiplication facts to 225'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('seqpuzzles','Sequence Puzzles','all skip-count levels'), GM('fourstrikes','Four Strikes','use multiplication fact set'), GM('oddsthrees','Odds & Threes','mult fact practice')] },
+
+  { match: s => s.includes('Multiplication facts (to 400)') || s.includes('Multiplication facts to 400'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use multiplication fact set'), GM('oddsthrees','Odds & Threes','mult fact practice')] },
+
+  // ── DIVISION FACTS ──────────────────────────────────────────────────────────
+  { match: s => s.includes('Division facts (to 18)') || s.includes('Division facts to 18'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use division fact set'), GM('oddsthrees','Odds & Threes','div fact practice')] },
+
+  { match: s => s.includes('Division facts (to 36)') || s.includes('Division facts to 36'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use division fact set'), GM('oddsthrees','Odds & Threes','div fact practice')] },
+
+  { match: s => s.includes('Division facts (to 49)') || s.includes('Division facts to 49'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use division fact set'), GM('oddsthrees','Odds & Threes','div fact practice')] },
+
+  { match: s => s.includes('Division facts (to 100)') || s.includes('Division facts to 100'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use division fact set'), GM('oddsthrees','Odds & Threes','div fact practice')] },
+
+  { match: s => s.includes('Division facts (to 144)') || s.includes('Division facts to 144'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use division fact set'), GM('oddsthrees','Odds & Threes','div fact practice')] },
+
+  { match: s => s.includes('Division facts (to 225)') || s.includes('Division facts to 225'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use division fact set'), GM('oddsthrees','Odds & Threes','div fact practice')] },
+
+  { match: s => s.includes('Division facts (to 400)') || s.includes('Division facts to 400'),
+    puzzles: [PUZ('mismo','Mismo'), PUZ('megamismo','Mega Mismo'), PUZ('twoout','Two-Out'), PUZ('xout','X-Out'), PUZ('factorblob','Factor Blob'), PUZ('maze','Number Maze'), PUZ('triangle','100 Triangles'), PUZ('crossnum','Cross-Number')],
+    games:   [GM('fourstrikes','Four Strikes','use division fact set'), GM('oddsthrees','Odds & Threes','div fact practice')] },
+];
 
 // ─── POOL LABELS ─────────────────────────────────────────────────────────────
 const POOL_LABELS = {
@@ -654,7 +838,7 @@ const POOL_LABELS = {
 let resources     = {};   // g{grade}w{week} → { puzzles, games, interventions }
 let puzzleReg     = {};   // id → { label, category, pool[] }
 let interventionReg = {}; // id → { label, abbrev, applicableTo[] }
-let gameReg       = {};   // id → { label, category }
+let gameReg       = {};   // id → { label, category, url?, status?, universal? }
 let filterGrade   = 'all';
 let filterType    = 'all';
 let modalSkillKey = null;
@@ -693,6 +877,33 @@ async function loadState() {
     interventionReg = JSON.parse(JSON.stringify(DEFAULT_INTERVENTION_REGISTRY));
     gameReg   = JSON.parse(JSON.stringify(DEFAULT_GAME_REGISTRY));
   }
+
+  // Migrate: if gameReg is empty but defaults are now populated, seed from defaults.
+  // This handles the upgrade from the original empty DEFAULT_GAME_REGISTRY.
+  let seeded = false;
+  if (Object.keys(gameReg).length === 0 && Object.keys(DEFAULT_GAME_REGISTRY).length > 0) {
+    gameReg = JSON.parse(JSON.stringify(DEFAULT_GAME_REGISTRY));
+    seeded = true;
+  }
+
+  // Apply seed rules to any slot that has no resources yet (puzzles) or no games yet.
+  // Puzzle seeds: only for fully empty slots — preserves existing user edits.
+  // Game seeds: apply to any slot with empty games array (migration pass for existing data).
+  SKILLS_RAW.forEach(([g, w, name]) => {
+    const k = skillKey(g, w);
+    const rule = SKILL_SEED_RULES.find(r => r.match(name));
+    if (!rule) return;
+    ensureKey(k);
+    if (!hasAnyResource(k) && rule.puzzles) {
+      resources[k].puzzles = rule.puzzles.map(p => ({ ...p }));
+      seeded = true;
+    }
+    if ((resources[k].games || []).length === 0 && rule.games) {
+      resources[k].games = rule.games.map(g => ({ ...g }));
+      seeded = true;
+    }
+  });
+  if (seeded) await saveState();
 }
 
 async function saveState() {
@@ -714,18 +925,20 @@ function renderStats() {
     if ((r.interventions||[]).length) withInt++;
     if (hasAnyResource(k)) withAny++;
   });
+  const universalCount = Object.values(gameReg).filter(v => v.universal).length;
   document.getElementById('statsbar').innerHTML = `
     <div class="stat"><div class="stat-val">${SKILLS_RAW.length}</div><div class="stat-label">Total<br>Skills</div></div>
     <div class="stat"><div class="stat-val" style="color:var(--fire)">${withAny}</div><div class="stat-label">Skills<br>Linked</div></div>
     <div class="stat"><div class="stat-dot" style="background:var(--puz-color)"></div>
       <div class="stat-val" style="color:var(--puz-color)">${withPuz}</div><div class="stat-label">Have<br>Puzzle</div></div>
     <div class="stat"><div class="stat-dot" style="background:var(--game-color)"></div>
-      <div class="stat-val" style="color:var(--game-color)">${withGame}</div><div class="stat-label">Have<br>Game</div></div>
+      <div class="stat-val" style="color:var(--game-color)">${withGame}</div><div class="stat-label">Have<br>Specific Game</div></div>
     <div class="stat"><div class="stat-dot" style="background:var(--int-color)"></div>
       <div class="stat-val" style="color:var(--int-color)">${withInt}</div><div class="stat-label">Have<br>Intervention</div></div>
     <div class="stat" style="margin-left:auto;font-size:11px;color:var(--muted);font-weight:600">
       Puzzle types: ${Object.keys(puzzleReg).length} &nbsp;·&nbsp;
-      Intervention types: ${Object.keys(interventionReg).length}
+      Games: ${Object.keys(gameReg).length} (${universalCount} universal) &nbsp;·&nbsp;
+      Interventions: ${Object.keys(interventionReg).length}
     </div>
   `;
 }
@@ -789,14 +1002,40 @@ function renderTable() {
         `<span class="chip chip-puz" title="${p.notes||''}">🧩 ${p.label}
           <span class="chip-remove" onclick="removeResource('${k}','puzzles',${i},event)">✕</span></span>`
       ).join('');
-      const gameChips = r.games.map((p,i) =>
-        `<span class="chip chip-game" title="${p.notes||''}">🎮 ${p.label}
-          <span class="chip-remove" onclick="removeResource('${k}','games',${i},event)">✕</span></span>`
-      ).join('');
+
+      const gameChips = r.games.map((p,i) => {
+        const reg = gameReg[p.id] || {};
+        const soon = reg.status === 'soon';
+        const url  = reg.url || '';
+        const inner = `<span class="chip chip-game${soon?' chip-soon':''}" title="${p.notes||''}">🎮 ${p.label}${soon?'<span class=\'soon-badge\'>Soon</span>':''}
+          <span class="chip-remove" onclick="removeResource('${k}','games',${i},event)">✕</span></span>`;
+        return url && !soon
+          ? `<a class="chip-game-link" href="${url}" target="_blank" title="Launch ${p.label}">${inner}</a>`
+          : inner;
+      }).join('');
+
       const intChips = r.interventions.map((p,i) =>
         `<span class="chip chip-int" title="${p.notes||''}">🎯 ${p.label}
           <span class="chip-remove" onclick="removeResource('${k}','interventions',${i},event)">✕</span></span>`
       ).join('');
+
+      // Universal tools bar — shown on every row, read-only chips from registry
+      const universalGames = Object.entries(gameReg).filter(([,v]) => v.universal);
+      const universalBar = universalGames.length ? `
+        <tr class="skill-row">
+          <td colspan="2"></td>
+          <td style="padding:0">
+            <div class="universal-bar">
+              <span class="universal-label">∞ Universal</span>
+              ${universalGames.map(([id, v]) => {
+                const soon = v.status === 'soon';
+                return v.url && !soon
+                  ? `<a class="chip-universal" href="${v.url}" target="_blank" title="${v.category}">🎮 ${v.label} ↗</a>`
+                  : `<span class="chip-universal chip-universal-soon">🎮 ${v.label}<span class="soon-badge">Soon</span></span>`;
+              }).join('')}
+            </div>
+          </td>
+        </tr>` : '';
 
       const poolLabel = POOL_LABELS[pool] || pool;
       const poolClass = pool === 'none' ? '' : 'pool-badge';
@@ -814,7 +1053,7 @@ function renderTable() {
             <button class="add-btn" onclick="openModal('${k}','${name.replace(/'/g,"\\'")}','${pool}')">+ Add</button>
           </div>
         </td>
-      </tr>`;
+      </tr>${universalBar}`;
     });
     html += `</table></div>`;
   });
@@ -882,12 +1121,14 @@ function selectType(type, pool) {
       ).join('');
   } else {
     idLabel.textContent = 'Game / Tool';
-    if (Object.keys(gameReg).length) {
+    const nonUniversal = Object.entries(gameReg).filter(([,v]) => !v.universal);
+    if (nonUniversal.length) {
       select.style.display = ''; textIn.style.display = 'none';
       select.innerHTML = '<option value="">— select game —</option>' +
-        Object.entries(gameReg).map(([id, v]) =>
-          `<option value="${id}">${v.label}</option>`
-        ).join('');
+        nonUniversal.map(([id, v]) => {
+          const soonMark = v.status === 'soon' ? ' (coming soon)' : '';
+          return `<option value="${id}">${v.label}${soonMark}</option>`;
+        }).join('');
     } else {
       select.style.display = 'none'; textIn.style.display = '';
       textIn.placeholder = 'Game ID (e.g. factRace)';
@@ -964,14 +1205,20 @@ function renderRegList(tab) {
     ).join('') || '<li style="color:var(--muted);font-size:12px;padding:8px 10px">No intervention types yet.</li>';
   } else {
     const ul = document.getElementById('reg-items-game');
-    ul.innerHTML = Object.entries(gameReg).map(([id, v]) =>
-      `<li class="reg-item">
+    ul.innerHTML = Object.entries(gameReg).map(([id, v]) => {
+      const universalBadge = v.universal ? `<span class="reg-item-universal">∞ universal</span>` : '';
+      const soonBadge = v.status === 'soon' ? `<span class="soon-badge" style="font-size:9px;padding:2px 5px">Soon</span>` : '';
+      const urlEl = v.url
+        ? `<a class="reg-item-url" href="${v.url}" target="_blank" title="Launch">${v.url} ↗</a>`
+        : `<span class="reg-item-url">—</span>`;
+      return `<li class="reg-item">
         <span class="reg-item-id">${id}</span>
-        <span class="reg-item-label">${v.label}</span>
-        <span class="reg-item-cat">${v.category||''}</span>
+        <span class="reg-item-label">${v.label} ${soonBadge}</span>
+        ${universalBadge}
+        ${urlEl}
         <button class="reg-item-del" onclick="deleteGame('${id}')" title="Remove">✕</button>
-      </li>`
-    ).join('') || '<li style="color:var(--muted);font-size:12px;padding:8px 10px">No games yet.</li>';
+      </li>`;
+    }).join('') || '<li style="color:var(--muted);font-size:12px;padding:8px 10px">No games yet.</li>';
   }
 }
 
@@ -1013,16 +1260,25 @@ function addIntervention() {
 }
 
 function addGame() {
-  const id    = document.getElementById('new-game-id').value.trim().replace(/\s/g,'');
-  const label = document.getElementById('new-game-label').value.trim();
-  const cat   = document.getElementById('new-game-cat').value.trim();
+  const id        = document.getElementById('new-game-id').value.trim().replace(/\s/g,'');
+  const label     = document.getElementById('new-game-label').value.trim();
+  const url       = document.getElementById('new-game-url').value.trim();
+  const cat       = document.getElementById('new-game-cat').value.trim();
+  const status    = document.getElementById('new-game-status').value;
+  const universal = document.getElementById('new-game-universal').checked;
   if (!id || !label) { toast('ID and label are required'); return; }
   if (gameReg[id]) { toast('ID already exists'); return; }
-  gameReg[id] = { label, category: cat };
-  saveState(); renderRegList('game'); renderStats();
+  const entry = { label, category: cat, status };
+  if (url)       entry.url = url;
+  if (universal) entry.universal = true;
+  gameReg[id] = entry;
+  saveState(); renderRegList('game'); renderStats(); renderTable();
   document.getElementById('new-game-id').value = '';
   document.getElementById('new-game-label').value = '';
+  document.getElementById('new-game-url').value = '';
   document.getElementById('new-game-cat').value = '';
+  document.getElementById('new-game-status').value = 'live';
+  document.getElementById('new-game-universal').checked = false;
   toast(`Game "${label}" added ✓`);
 }
 
@@ -1101,10 +1357,33 @@ function refreshExportCode() {
     lines.push('};');
     code.textContent = lines.join('\n');
   } else {
-    const lines = ['const GAME_REGISTRY = {'];
-    Object.entries(gameReg).forEach(([id, v]) => {
-      lines.push(`  ${id}: { label: '${v.label.replace(/'/g,"\\'")}', category: '${v.category||''}' },`);
-    });
+    const lines = ['const ELEM_GAME_REGISTRY = {'];
+    const specific  = Object.entries(gameReg).filter(([,v]) => !v.universal);
+    const universal = Object.entries(gameReg).filter(([,v]) =>  v.universal);
+    if (specific.length) {
+      lines.push('');
+      lines.push('  // ── Specific-skill games ──────────────────────────────────────────────────');
+      specific.forEach(([id, v]) => {
+        const parts = [`label: '${v.label.replace(/'/g,"\\'")}'`];
+        if (v.url)      parts.push(`url: '${v.url}'`);
+        parts.push(`category: '${(v.category||'').replace(/'/g,"\\'")}'`);
+        parts.push(`status: '${v.status||'live'}'`);
+        lines.push(`  ${id}: { ${parts.join(', ')} },`);
+      });
+    }
+    if (universal.length) {
+      lines.push('');
+      lines.push('  // ── Universal tools (shown on every skill row automatically) ──────────────');
+      universal.forEach(([id, v]) => {
+        const parts = [`label: '${v.label.replace(/'/g,"\\'")}'`];
+        if (v.url)  parts.push(`url: '${v.url}'`);
+        parts.push(`category: '${(v.category||'').replace(/'/g,"\\'")}'`);
+        parts.push(`status: '${v.status||'live'}'`);
+        parts.push('universal: true');
+        lines.push(`  ${id}: { ${parts.join(', ')} },`);
+      });
+    }
+    lines.push('');
     lines.push('};');
     code.textContent = lines.join('\n');
   }
