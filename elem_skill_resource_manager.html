@@ -260,6 +260,27 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
 }
 .toast.show { opacity: 1; }
 .hidden { display: none !important; }
+
+/* GITHUB SETTINGS MODAL */
+.gh-token-hint {
+  font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5;
+}
+.gh-token-hint a { color: #1B4FCC; text-decoration: none; }
+.gh-token-hint a:hover { text-decoration: underline; }
+.gh-status {
+  margin-top: 14px; padding: 10px 12px; border-radius: 7px;
+  font-size: 12px; font-weight: 600; line-height: 1.5; display: none;
+}
+.gh-status.ok   { background: #ECFDF5; color: #065F46; border: 1.5px solid #A7F3D0; display: block; }
+.gh-status.err  { background: #FEF2F2; color: #991B1B; border: 1.5px solid #FECACA; display: block; }
+.gh-status.busy { background: #F0F4FF; color: #1B4FCC; border: 1.5px solid #BFDBFE; display: block; }
+.btn-github {
+  flex: 1; padding: 9px; background: #1a1a1a; color: #fff; border: none;
+  border-radius: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: .15s;
+}
+.btn-github:hover { background: #333; }
+.btn-github:disabled { opacity: .5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -273,7 +294,8 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
   <div class="topbar-spacer"></div>
   <div class="topbar-btns">
     <button class="btn-topbar" onclick="openRegistry()">⚙ Manage Registries</button>
-    <button class="btn-topbar fire" onclick="downloadExport()">⬇ Download .js</button>
+    <button class="btn-topbar" onclick="downloadExport()">⬇ Download .js</button>
+    <button class="btn-topbar fire" onclick="openGitHubSettings()">⬆ Push to GitHub</button>
   </div>
 </div>
 
@@ -1256,7 +1278,7 @@ function deleteGame(id) {
 }
 
 // ─── EXPORT — DOWNLOAD ────────────────────────────────────────────────────────
-function downloadExport() {
+function buildFileContent() {
   const now    = new Date();
   const dateStr = now.getFullYear() + '-'
     + String(now.getMonth()+1).padStart(2,'0') + '-'
@@ -1425,8 +1447,12 @@ function downloadExport() {
   lines.push('    .map(([k]) => k);');
   lines.push('}');
 
-  // ── TRIGGER DOWNLOAD ─────────────────────────────────────────────────────────
-  const content  = lines.join('\n');
+  // ── RETURN CONTENT ────────────────────────────────────────────────────────
+  return lines.join('\n');
+}
+
+function downloadExport() {
+  const content  = buildFileContent();
   const blob     = new Blob([content], { type: 'text/javascript' });
   const url      = URL.createObjectURL(blob);
   const a        = document.createElement('a');
@@ -1447,6 +1473,110 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2200);
 }
 
+// ─── GITHUB DEPLOY ────────────────────────────────────────────────────────────
+const GH_STORAGE_KEY = 'ghSettings_elemSkillMgr';
+
+function openGitHubSettings() {
+  const saved = JSON.parse(localStorage.getItem(GH_STORAGE_KEY) || '{}');
+  document.getElementById('gh-repo').value   = saved.repo   || '';
+  document.getElementById('gh-branch').value = saved.branch || 'main';
+  document.getElementById('gh-path').value   = saved.path   || 'elem_skill_resources.js';
+  document.getElementById('gh-token').value  = saved.token  || '';
+  setGhStatus('', '');
+  document.getElementById('gh-modal').classList.remove('hidden');
+}
+
+function closeGitHubSettings() {
+  document.getElementById('gh-modal').classList.add('hidden');
+}
+
+function setGhStatus(type, msg) {
+  const el = document.getElementById('gh-status');
+  el.className = 'gh-status' + (type ? ' ' + type : '');
+  el.textContent = msg;
+}
+
+async function pushToGitHub() {
+  const repo   = document.getElementById('gh-repo').value.trim();
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  const path   = document.getElementById('gh-path').value.trim() || 'elem_skill_resources.js';
+  const token  = document.getElementById('gh-token').value.trim();
+
+  if (!repo || !token) {
+    setGhStatus('err', '✗ Repository and token are both required.');
+    return;
+  }
+
+  // Persist settings (token included — stays in browser localStorage only)
+  localStorage.setItem(GH_STORAGE_KEY, JSON.stringify({ repo, branch, path, token }));
+
+  const btn = document.getElementById('gh-push-btn');
+  btn.disabled = true;
+  setGhStatus('busy', '⏳ Connecting to GitHub…');
+
+  const apiBase = `https://api.github.com/repos/${repo}/contents/${path}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type': 'application/json'
+  };
+
+  try {
+    // Step 1 — get the current file SHA (required for updates; null if file is new)
+    setGhStatus('busy', '⏳ Fetching current file SHA…');
+    let sha = null;
+    const getRes = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) {
+      const data = await getRes.json();
+      sha = data.sha;
+    } else if (getRes.status !== 404) {
+      const err = await getRes.json().catch(() => ({}));
+      throw new Error(`GitHub API error ${getRes.status}: ${err.message || getRes.statusText}`);
+    }
+
+    // Step 2 — build file content and base64-encode it
+    setGhStatus('busy', '⏳ Building file…');
+    const content = buildFileContent();
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+
+    // Step 3 — commit via PUT
+    setGhStatus('busy', '⏳ Pushing commit…');
+    const now = new Date().toISOString().slice(0, 10);
+    const body = {
+      message: `Update elem_skill_resources.js — ${now} (Skill Resource Manager)`,
+      content: encoded,
+      branch
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiBase, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(body)
+    });
+
+    if (!putRes.ok) {
+      const err = await putRes.json().catch(() => ({}));
+      throw new Error(`GitHub API error ${putRes.status}: ${err.message || putRes.statusText}`);
+    }
+
+    const result = await putRes.json();
+    const commitUrl = result.commit?.html_url || `https://github.com/${repo}/blob/${branch}/${path}`;
+    setGhStatus('ok', `✓ Pushed successfully! View commit: ${commitUrl}`);
+
+    // Make the commit URL a clickable link
+    const statusEl = document.getElementById('gh-status');
+    statusEl.innerHTML = `✓ Pushed successfully! <a href="${commitUrl}" target="_blank" style="color:#065F46;font-weight:700;">View commit ↗</a>`;
+
+    toast('Pushed to GitHub \u2713');
+  } catch (e) {
+    setGhStatus('err', `✗ ${e.message}`);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 (async function init() {
   await loadState();
@@ -1454,5 +1584,43 @@ function toast(msg) {
   renderTable();
 })();
 </script>
+
+<!-- GitHub Settings Modal -->
+<div class="modal-overlay hidden" id="gh-modal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-title">⬆ Push to GitHub</div>
+    <div class="modal-sub">Commits <code>elem_skill_resources.js</code> directly to your repo via the GitHub Contents API. Settings are saved in your browser's <code>localStorage</code> — your token never leaves your machine.</div>
+
+    <div class="form-group">
+      <label class="form-label">Repository (owner/repo)</label>
+      <input class="form-input" id="gh-repo" placeholder="e.g. janedoe/facts-on-fire" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Branch</label>
+      <input class="form-input" id="gh-branch" placeholder="main" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="form-group">
+      <label class="form-label">File path in repo</label>
+      <input class="form-input" id="gh-path" placeholder="elem_skill_resources.js" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Personal Access Token</label>
+      <input class="form-input" id="gh-token" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+      <div class="gh-token-hint">
+        Needs <strong>Contents: Read &amp; Write</strong> scope (fine-grained) or <strong>repo</strong> scope (classic).
+        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">Create a fine-grained token ↗</a>
+      </div>
+    </div>
+
+    <div id="gh-status" class="gh-status"></div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeGitHubSettings()">Cancel</button>
+      <button class="btn-github" id="gh-push-btn" onclick="pushToGitHub()">⬆ Push Now</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 </body>
 </html>
