@@ -38,14 +38,43 @@
  *   multdiv    → Mismo, Mega Mismo, Two-Out, X-Out, Factor Blob, Number Maze, 100 Triangles, Cross-Number
  *   multidigit → Cross-Number, Cryptarithms, Mismo, Mega Mismo, Factor Blob, Two-Out, Number Maze
  *
- * Last updated: Session 9 — 2026-03-25
+ * Last updated: Session 10 — 2026-03-25
  */
 
 const ELEM_SKILL_RESOURCES = {
 
-  // ── DOT TOTALS ─────────────────────────────────────────────────────────────
-  // Pool: early (Honeycomb Path, Cross-Number, Number Maze, 100 Triangles)
-  // No puzzle or game linkages defined yet — add here when ready.
+  // ── NUMBER WRITING / EARLY ──────────────────────────────────────────────────
+  // Pool: 'none' / 'early' — K counting and number recognition skills
+
+  num1_5: {
+    skill: 'Numbers 1–5',
+    pool: 'none',
+    puzzles: [],
+    games: [
+      { id: 'fillstairs', label: 'Fill the Stairs', notes: 'use Kindergarten mode — 5 stairs, die rolls 1–10' },
+    ],
+    interventions: []
+  },
+
+  num6_10: {
+    skill: 'Numbers 6–10',
+    pool: 'none',
+    puzzles: [],
+    games: [
+      { id: 'fillstairs', label: 'Fill the Stairs', notes: 'use Kindergarten mode — 5 or 7 stairs, die rolls 1–10' },
+    ],
+    interventions: []
+  },
+
+  dot_totals: {
+    skill: 'Dot Totals',
+    pool: 'early',
+    puzzles: [],
+    games: [
+      { id: 'fillstairs', label: 'Fill the Stairs', notes: 'use Kindergarten mode — great intro to ordering numbers 1–10' },
+    ],
+    interventions: []
+  },
 
 
   // ── ADDITION FACTS ─────────────────────────────────────────────────────────
@@ -593,7 +622,7 @@ const ELEM_GAME_REGISTRY = {
   fillstairs: {
     label:    'Fill the Stairs',
     url:      'fill-the-stairs.html',
-    category: 'number sense · ordering',
+    category: 'number sense · ordering · K mode 1–10',
     status:   'live',
   },
   savetwenty: {

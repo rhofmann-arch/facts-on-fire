@@ -251,42 +251,6 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
 }
 .btn-secondary:hover { border-color: var(--muted); color: var(--ink); }
 
-/* EXPORT PANEL */
-.export-panel {
-  position: fixed; inset: 0; background: rgba(0,0,0,.55);
-  z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.export-panel.hidden { display: none; }
-.export-box {
-  background: var(--ink); border-radius: 12px; padding: 24px;
-  max-width: 720px; width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,.5);
-}
-.export-title { font-family: var(--font-head); font-size: 15px; color: #fff; margin-bottom: 4px; }
-.export-sub { font-size: 12px; color: #aaa; margin-bottom: 14px; }
-.export-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-.exp-tab {
-  padding: 5px 12px; border: 1.5px solid #444; border-radius: 5px;
-  font-size: 11px; font-weight: 700; color: #aaa; cursor: pointer; transition: .12s;
-}
-.exp-tab.active { border-color: var(--fire); color: var(--fire); background: rgba(255,79,0,.1); }
-.export-code {
-  background: #0D0D0D; border-radius: 8px; padding: 14px;
-  font-family: 'Courier New', monospace; font-size: 11px; color: #7DD3FC;
-  max-height: 360px; overflow-y: auto; white-space: pre; line-height: 1.6; border: 1px solid #333;
-}
-.export-actions { display: flex; gap: 10px; margin-top: 14px; }
-.btn-copy {
-  flex: 1; padding: 9px; background: var(--fire); color: #fff; border: none;
-  border-radius: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
-}
-.btn-copy:hover { background: #e04400; }
-.btn-close-export {
-  padding: 9px 16px; background: transparent; color: #aaa;
-  border: 1.5px solid #444; border-radius: 7px;
-  font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
-}
-.btn-close-export:hover { border-color: #aaa; color: #fff; }
-
 /* TOAST */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -309,7 +273,7 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
   <div class="topbar-spacer"></div>
   <div class="topbar-btns">
     <button class="btn-topbar" onclick="openRegistry()">⚙ Manage Registries</button>
-    <button class="btn-topbar fire" onclick="openExport()">⬆ Export .js</button>
+    <button class="btn-topbar fire" onclick="downloadExport()">⬇ Download .js</button>
   </div>
 </div>
 
@@ -482,25 +446,6 @@ body { background: var(--bg); font-family: var(--font-body); color: var(--ink); 
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveResource()">Add Resource</button>
-    </div>
-  </div>
-</div>
-
-<!-- Export Panel -->
-<div class="export-panel hidden" id="export-panel">
-  <div class="export-box">
-    <div class="export-title">Export — elem_skill_resources.js</div>
-    <div class="export-sub">Choose a block to copy, then paste into elem_skill_resources.js</div>
-    <div class="export-tabs">
-      <div class="exp-tab active" id="et-resources" onclick="switchExportTab('resources')">SKILL_RESOURCES</div>
-      <div class="exp-tab" id="et-puzzles"   onclick="switchExportTab('puzzles')">PUZZLE_REGISTRY</div>
-      <div class="exp-tab" id="et-int"       onclick="switchExportTab('interventions')">INTERVENTION_REGISTRY</div>
-      <div class="exp-tab" id="et-games"     onclick="switchExportTab('games')">GAME_REGISTRY</div>
-    </div>
-    <div class="export-code" id="export-code"></div>
-    <div class="export-actions">
-      <button class="btn-copy" onclick="copyExport()">Copy to clipboard</button>
-      <button class="btn-close-export" onclick="closeExport()">Close</button>
     </div>
   </div>
 </div>
@@ -689,7 +634,7 @@ const DEFAULT_INTERVENTION_REGISTRY = {
 const DEFAULT_GAME_REGISTRY = {
   fourstrikes:    { label: 'Four Strikes',     url: 'four-strikes.html',      category: 'any fact set',                   status: 'live' },
   ohno99:         { label: 'Oh No! 99!',        url: 'oh-no-99.html',          category: 'mental add/sub · multidigit',    status: 'live' },
-  fillstairs:     { label: 'Fill the Stairs',   url: 'fill-the-stairs.html',   category: 'number sense · ordering',        status: 'live' },
+  fillstairs:     { label: 'Fill the Stairs',   url: 'fill-the-stairs.html',   category: 'number sense · ordering · K mode 1\u201310',        status: 'live' },
   savetwenty:     { label: 'Save Twenty',       url: 'save-twenty.html',       category: 'addition · estimation',          status: 'live' },
   seqpuzzles:     { label: 'Sequence Puzzles',  url: 'sequence_puzzles.html',  category: 'mult readiness · skip-counting', status: 'live' },
   choralcount:    { label: 'Choral Counting',   url: 'choral_counting.html',   category: 'mult readiness · skip-counting', status: 'live' },
@@ -707,6 +652,16 @@ const DEFAULT_GAME_REGISTRY = {
 const PUZ = (id, label) => ({ id, label, notes: '' });
 const GM  = (id, label, notes = '') => ({ id, label, notes });
 const SKILL_SEED_RULES = [
+
+  // ── EARLY K — NUMBER RECOGNITION & COUNTING ─────────────────────────────────
+  { match: s => s.includes('Numbers 1') && (s.includes('1\u20135') || s.includes('1-5')),
+    games: [GM('fillstairs','Fill the Stairs','use Kindergarten mode \u2014 5 stairs, die rolls 1\u201310')] },
+
+  { match: s => s.includes('Numbers 6') && (s.includes('6\u201310') || s.includes('6-10')),
+    games: [GM('fillstairs','Fill the Stairs','use Kindergarten mode \u2014 5 or 7 stairs, die rolls 1\u201310')] },
+
+  { match: s => s.includes('Dot Totals') || s.includes('Dot Numbers'),
+    games: [GM('fillstairs','Fill the Stairs','use Kindergarten mode \u2014 great intro to ordering numbers 1\u201310')] },
 
   // ── ADDITION FACTS ──────────────────────────────────────────────────────────
   { match: s => s.includes('Sums to 6'),
@@ -844,7 +799,6 @@ let filterType    = 'all';
 let modalSkillKey = null;
 let modalResType  = null;
 let currentRegTab = 'puz';
-let currentExpTab = 'resources';
 
 function skillKey(g, w) { return `g${g}w${w}`; }
 function ensureKey(k) {
@@ -1301,104 +1255,189 @@ function deleteGame(id) {
   toast('Game removed');
 }
 
-// ─── EXPORT ──────────────────────────────────────────────────────────────────
-function openExport() {
-  switchExportTab('resources');
-  document.getElementById('export-panel').classList.remove('hidden');
-}
-function closeExport() {
-  document.getElementById('export-panel').classList.add('hidden');
-}
-function switchExportTab(tab) {
-  currentExpTab = tab;
-  ['resources','puzzles','interventions','games'].forEach(t => {
-    const el = document.getElementById('et-' + (t==='resources'?'resources':t==='puzzles'?'puzzles':t==='interventions'?'int':'games'));
-    if (el) el.classList.toggle('active', t===tab);
-  });
-  refreshExportCode();
-}
+// ─── EXPORT — DOWNLOAD ────────────────────────────────────────────────────────
+function downloadExport() {
+  const now    = new Date();
+  const dateStr = now.getFullYear() + '-'
+    + String(now.getMonth()+1).padStart(2,'0') + '-'
+    + String(now.getDate()).padStart(2,'0');
 
-function refreshExportCode() {
-  const code = document.getElementById('export-code');
-  if (currentExpTab === 'resources') {
-    const lines = ['const SKILL_RESOURCES = {'];
-    ['K','1','2','3','4'].forEach(grade => {
-      const gradeSkills = SKILLS_RAW.filter(s => s[0]===grade);
-      const withRes = gradeSkills.filter(([g,w]) => hasAnyResource(skillKey(g,w)));
-      if (!withRes.length) return;
-      lines.push(`\n  // ── GRADE ${grade} ──`);
-      gradeSkills.forEach(([g, w, name]) => {
-        const k = skillKey(g, w);
-        const r = resources[k];
-        if (!r || (!r.puzzles.length && !r.games.length && !r.interventions.length)) return;
-        lines.push(`  ${k}: {`);
-        lines.push(`    skill: '${name.replace(/'/g,"\\'")}',`);
-        lines.push(`    grade: '${g}', week: ${w},`);
-        lines.push(`    puzzles: ${JSON.stringify(r.puzzles)},`);
-        lines.push(`    games: ${JSON.stringify(r.games)},`);
-        lines.push(`    interventions: ${JSON.stringify(r.interventions)}`);
-        lines.push(`  },`);
-      });
-    });
-    lines.push('};');
-    code.textContent = lines.join('\n');
-  } else if (currentExpTab === 'puzzles') {
-    const lines = ['const PUZZLE_REGISTRY = {'];
-    Object.entries(puzzleReg).forEach(([id, p]) => {
-      lines.push(`  ${id}: { label: '${p.label.replace(/'/g,"\\'")}', category: '${p.category}', pool: ${JSON.stringify(p.pool||[])} },`);
-    });
-    lines.push('};');
-    code.textContent = lines.join('\n');
-  } else if (currentExpTab === 'interventions') {
-    const lines = ['const INTERVENTION_REGISTRY = {'];
-    Object.entries(interventionReg).forEach(([id, v]) => {
-      lines.push(`  ${id}: { label: '${v.label.replace(/'/g,"\\'")}', abbrev: '${v.abbrev}', applicableTo: ${JSON.stringify(v.applicableTo||[])} },`);
-    });
-    lines.push('};');
-    code.textContent = lines.join('\n');
-  } else {
-    const lines = ['const ELEM_GAME_REGISTRY = {'];
-    const specific  = Object.entries(gameReg).filter(([,v]) => !v.universal);
-    const universal = Object.entries(gameReg).filter(([,v]) =>  v.universal);
-    if (specific.length) {
-      lines.push('');
-      lines.push('  // ── Specific-skill games ──────────────────────────────────────────────────');
-      specific.forEach(([id, v]) => {
-        const parts = [`label: '${v.label.replace(/'/g,"\\'")}'`];
-        if (v.url)      parts.push(`url: '${v.url}'`);
-        parts.push(`category: '${(v.category||'').replace(/'/g,"\\'")}'`);
-        parts.push(`status: '${v.status||'live'}'`);
-        lines.push(`  ${id}: { ${parts.join(', ')} },`);
-      });
-    }
-    if (universal.length) {
-      lines.push('');
-      lines.push('  // ── Universal tools (shown on every skill row automatically) ──────────────');
-      universal.forEach(([id, v]) => {
-        const parts = [`label: '${v.label.replace(/'/g,"\\'")}'`];
-        if (v.url)  parts.push(`url: '${v.url}'`);
-        parts.push(`category: '${(v.category||'').replace(/'/g,"\\'")}'`);
-        parts.push(`status: '${v.status||'live'}'`);
-        parts.push('universal: true');
-        lines.push(`  ${id}: { ${parts.join(', ')} },`);
-      });
-    }
+  const lines = [];
+
+  // ── FILE HEADER ──────────────────────────────────────────────────────────────
+  lines.push('/**');
+  lines.push(' * elem_skill_resources.js');
+  lines.push(' * K\u20134 Automaticity \u2014 Facts on Fire');
+  lines.push(' *');
+  lines.push(' * SINGLE SOURCE OF TRUTH for all K\u20134 skill\u2194resource linkages.');
+  lines.push(' *');
+  lines.push(' * Skill keys match the id field in workbook-generator.html\'s SKILLS array.');
+  lines.push(' *');
+  lines.push(' * Game registry fields:');
+  lines.push(' *   - id        : machine key');
+  lines.push(' *   - label     : display name');
+  lines.push(' *   - url       : filename to launch  (e.g. \'oh-no-99.html\')');
+  lines.push(' *   - category  : short description of skill area');
+  lines.push(' *   - status    : \'live\' | \'soon\'');
+  lines.push(' *   - universal : true if the tool works with ANY skill set.');
+  lines.push(' *');
+  lines.push(' * Last exported: ' + dateStr + ' via Skill Resource Manager');
+  lines.push(' */');
+  lines.push('');
+
+  // ── ELEM_SKILL_RESOURCES ─────────────────────────────────────────────────────
+  lines.push('const ELEM_SKILL_RESOURCES = {');
+  lines.push('');
+  const grades = ['K','1','2','3','4'];
+  grades.forEach(grade => {
+    const gradeSkills = SKILLS_RAW.filter(s => s[0] === grade);
+    const withRes = gradeSkills.filter(([g,w]) => hasAnyResource(skillKey(g,w)));
+    if (!withRes.length) return;
+    lines.push('  // \u2500\u2500 GRADE ' + grade + ' \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
     lines.push('');
-    lines.push('};');
-    code.textContent = lines.join('\n');
-  }
-}
+    gradeSkills.forEach(([g, w, name, pool]) => {
+      const k = skillKey(g, w);
+      const r = resources[k];
+      if (!r || (!r.puzzles.length && !r.games.length && !r.interventions.length)) return;
+      const esc = s => s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      lines.push('  ' + k + ': {');
+      lines.push('    skill: \'' + esc(name) + '\',');
+      lines.push('    pool: \'' + (pool||'none') + '\',');
 
-function copyExport() {
-  const text = document.getElementById('export-code').textContent;
-  navigator.clipboard.writeText(text)
-    .then(() => toast('Copied ✓'))
-    .catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      toast('Copied ✓');
+      if (r.puzzles.length) {
+        lines.push('    puzzles: [');
+        r.puzzles.forEach(p => {
+          lines.push('      { id: \'' + esc(p.id) + '\', label: \'' + esc(p.label) + '\', notes: \'' + esc(p.notes||'') + '\' },');
+        });
+        lines.push('    ],');
+      } else {
+        lines.push('    puzzles: [],');
+      }
+
+      if (r.games.length) {
+        lines.push('    games: [');
+        r.games.forEach(g => {
+          lines.push('      { id: \'' + esc(g.id) + '\', label: \'' + esc(g.label) + '\', notes: \'' + esc(g.notes||'') + '\' },');
+        });
+        lines.push('    ],');
+      } else {
+        lines.push('    games: [],');
+      }
+
+      if (r.interventions.length) {
+        lines.push('    interventions: [');
+        r.interventions.forEach(iv => {
+          lines.push('      { id: \'' + esc(iv.id) + '\', label: \'' + esc(iv.label) + '\', notes: \'' + esc(iv.notes||'') + '\' },');
+        });
+        lines.push('    ],');
+      } else {
+        lines.push('    interventions: [],');
+      }
+
+      lines.push('  },');
+      lines.push('');
     });
+  });
+  lines.push('};');
+  lines.push('');
+  lines.push('');
+
+  // ── ELEM_PUZZLE_REGISTRY ─────────────────────────────────────────────────────
+  lines.push('// \u2500\u2500 PUZZLE TYPE REGISTRY \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+  lines.push('const ELEM_PUZZLE_REGISTRY = {');
+  Object.entries(puzzleReg).forEach(([id, p]) => {
+    const poolStr = JSON.stringify(p.pool || []);
+    lines.push('  ' + id + ': { label: \'' + p.label.replace(/'/g,"\\'") + '\', category: \'' + (p.category||'').replace(/'/g,"\\'") + '\', pool: ' + poolStr + ' },');
+  });
+  lines.push('};');
+  lines.push('');
+  lines.push('');
+
+  // ── ELEM_GAME_REGISTRY ───────────────────────────────────────────────────────
+  lines.push('// \u2500\u2500 GAME REGISTRY \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+  lines.push('const ELEM_GAME_REGISTRY = {');
+  lines.push('');
+  const specific  = Object.entries(gameReg).filter(([,v]) => !v.universal);
+  const universal = Object.entries(gameReg).filter(([,v]) =>  v.universal);
+  if (specific.length) {
+    lines.push('  // \u2500\u2500 Specific-skill games \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+    specific.forEach(([id, v]) => {
+      const parts = ['label: \'' + v.label.replace(/'/g,"\\'") + '\''];
+      if (v.url)  parts.push('url: \'' + v.url + '\'');
+      parts.push('category: \'' + (v.category||'').replace(/'/g,"\\'") + '\'');
+      parts.push('status: \'' + (v.status||'live') + '\'');
+      lines.push('  ' + id + ': { ' + parts.join(', ') + ' },');
+    });
+  }
+  if (universal.length) {
+    lines.push('');
+    lines.push('  // \u2500\u2500 Universal tools (shown on every skill row automatically) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+    universal.forEach(([id, v]) => {
+      const parts = ['label: \'' + v.label.replace(/'/g,"\\'") + '\''];
+      if (v.url)  parts.push('url: \'' + v.url + '\'');
+      parts.push('category: \'' + (v.category||'').replace(/'/g,"\\'") + '\'');
+      parts.push('status: \'' + (v.status||'live') + '\'');
+      parts.push('universal: true');
+      lines.push('  ' + id + ': { ' + parts.join(', ') + ' },');
+    });
+  }
+  lines.push('');
+  lines.push('};');
+  lines.push('');
+  lines.push('');
+
+  // ── ELEM_INTERVENTION_REGISTRY ───────────────────────────────────────────────
+  lines.push('// \u2500\u2500 INTERVENTION REGISTRY \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+  lines.push('const ELEM_INTERVENTION_REGISTRY = {');
+  Object.entries(interventionReg).forEach(([id, v]) => {
+    lines.push('  ' + id + ': { label: \'' + v.label.replace(/'/g,"\\'") + '\', abbrev: \'' + (v.abbrev||'') + '\', applicableTo: ' + JSON.stringify(v.applicableTo||[]) + ' },');
+  });
+  lines.push('};');
+  lines.push('');
+  lines.push('');
+
+  // ── HELPER FUNCTIONS ─────────────────────────────────────────────────────────
+  lines.push('// \u2500\u2500 HELPER FUNCTIONS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+  lines.push('');
+  lines.push('/** Get all resources linked to a given skill ID (by week key, e.g. \'g1w14\'). */');
+  lines.push('function getElemResourcesForSkill(skillKey) {');
+  lines.push('  return ELEM_SKILL_RESOURCES[skillKey] || null;');
+  lines.push('}');
+  lines.push('');
+  lines.push('/** Get all universal games (tools that work with any skill). */');
+  lines.push('function getElemUniversalGames() {');
+  lines.push('  return Object.entries(ELEM_GAME_REGISTRY)');
+  lines.push('    .filter(([, v]) => v.universal === true)');
+  lines.push('    .map(([id, entry]) => ({ id, ...entry }));');
+  lines.push('}');
+  lines.push('');
+  lines.push('/** Get all skill keys that have a given puzzle type linked. */');
+  lines.push('function getElemSkillsForPuzzle(puzzleId) {');
+  lines.push('  return Object.entries(ELEM_SKILL_RESOURCES)');
+  lines.push('    .filter(([, v]) => v.puzzles.some(p => p.id === puzzleId))');
+  lines.push('    .map(([k]) => k);');
+  lines.push('}');
+  lines.push('');
+  lines.push('/** Get all skill keys that have a given game linked (non-universal linkages only). */');
+  lines.push('function getElemSkillsForGame(gameId) {');
+  lines.push('  return Object.entries(ELEM_SKILL_RESOURCES)');
+  lines.push('    .filter(([, v]) => v.games.some(g => g.id === gameId))');
+  lines.push('    .map(([k]) => k);');
+  lines.push('}');
+
+  // ── TRIGGER DOWNLOAD ─────────────────────────────────────────────────────────
+  const content  = lines.join('\n');
+  const blob     = new Blob([content], { type: 'text/javascript' });
+  const url      = URL.createObjectURL(blob);
+  const a        = document.createElement('a');
+  a.href         = url;
+  a.download     = 'elem_skill_resources.js';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  toast('elem_skill_resources.js downloaded \u2713');
 }
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
