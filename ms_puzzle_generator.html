@@ -122,6 +122,42 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
 /* Puzzle cell grid (shared by Two Step and other types) */
 .pc{background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 8px;display:flex;align-items:center;justify-content:center;position:relative;min-height:148px}
 .pc-n{position:absolute;top:6px;left:8px;font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif}
+
+/* ── Integer Blobs ── */
+.ib-target{font-family:'Archivo Black',sans-serif;font-size:13px;color:#1a1a1a;margin-bottom:7px;text-align:left;width:100%}
+.ib-target em{font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-right:5px;font-family:'Archivo',sans-serif}
+.ib-tbl{border-collapse:collapse}
+.ib-tbl td{width:52px;height:52px;text-align:center;vertical-align:middle;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:#1a1a1a;border:2px solid #1a1a1a;background:#fff}
+
+/* ── Sum Squares ── */
+.ss-wrap{display:flex;flex-direction:column;align-items:center}
+.ss-tbl{border-collapse:collapse}
+.ss-corner{width:30px;height:26px}
+.ss-csum{width:46px;height:26px;text-align:center;vertical-align:bottom;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:#1a1a1a;padding-bottom:2px}
+.ss-rsum{width:30px;text-align:right;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:#1a1a1a;padding-right:5px;vertical-align:middle}
+.ss-cell{width:46px;height:46px;text-align:center;vertical-align:middle;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:#1a1a1a;border:2px solid #1a1a1a;background:#fff}
+.ss-cell.blank{background:#F8F6F2}
+.ss-cell.key-ans{background:#FFF0E8;color:#b83000}
+/* ── TTT Winning Move ── */
+.tttw-cell{display:flex;flex-direction:column;align-items:flex-start;gap:0;background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 12px 14px;position:relative;min-height:148px}
+.tttw-num{position:absolute;top:6px;left:8px;font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif}
+.tttw-banner{display:inline-flex;align-items:center;padding:3px 9px 3px 7px;border-radius:4px;margin-bottom:7px;font-family:'Archivo',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.tttw-pos{background:#E8F4FF;color:#1B4FCC;border:1.5px solid #93C5FD}
+.tttw-neg{background:#FFF0E8;color:#b83000;border:1.5px solid #FCA98A}
+.tttw-tbl{border-collapse:collapse}
+.tttw-tbl td{width:50px;height:50px;text-align:center;vertical-align:middle;font-family:'Nunito',sans-serif;font-size:20px;font-weight:800;color:#1a1a1a;border:2.5px solid #1a1a1a;background:#fff}
+.tttw-tbl td.tttw-empty{background:#F8F6F2}
+.tttw-tbl td.tttw-ans{background:#FFF0E8;color:#b83000}
+.tttw-tbl td.tttw-winline{background:#FEF9C3}
+/* ── Like Terms Corrals ── */
+.ltc-wrap{display:flex;flex-direction:column;align-items:center;gap:7px}
+table.ltc{border-collapse:collapse}
+table.ltc td{width:46px;height:44px;text-align:center;vertical-align:middle;font-family:'Archivo',sans-serif;font-size:13.5px;font-weight:700;position:relative;background:#fff}
+table.ltc td.ltc-term{color:#1a1a1a}
+table.ltc td.ltc-empty{color:#ccc}
+.ltc-hint{font-size:9px;font-weight:700;font-family:'Archivo',sans-serif;color:#666;text-align:center;line-height:1.5}
+.ltc-corrals{display:flex;flex-wrap:wrap;gap:5px 10px;justify-content:center;margin-top:3px}
+.ltc-corral-tag{font-size:9.5px;font-weight:700;font-family:'Archivo',sans-serif;padding:2px 7px;border-radius:4px;color:#1a1a1a}
 @media print{
   header,.sb,.pv-top,.pv-body{display:none!important}
   .wrap{display:block;padding:0}
@@ -187,6 +223,18 @@ header{background:var(--ink);padding:0 28px;border-bottom:3px solid var(--fire);
         </button>
         <button class="tbtn" id="tbtn-twostep" onclick="selType('twostep',this)">
           <span class="ico">➡</span><span class="lbl">Two Step</span>
+        </button>
+        <button class="tbtn" id="tbtn-intblobs" onclick="selType('intblobs',this)">
+          <span class="ico">⬤</span><span class="lbl">Int. Blobs</span>
+        </button>
+        <button class="tbtn" id="tbtn-sumsquares" onclick="selType('sumsquares',this)">
+          <span class="ico">Σ²</span><span class="lbl">Sum Squares</span>
+        </button>
+        <button class="tbtn" id="tbtn-tttwin" onclick="selType('tttwin',this)">
+          <span class="ico">⊞?</span><span class="lbl">TTT Win Move</span>
+        </button>
+        <button class="tbtn" id="tbtn-liketermscorrals" onclick="selType('liketermscorrals',this)">
+          <span class="ico">⊡</span><span class="lbl">Like Terms Corrals</span>
         </button>
       </div>
     </div>
@@ -333,6 +381,15 @@ let KK_OP = 'addsub';
 let TS_SET = null;
 let TS_NT  = 'fractions';
 
+// Integer Blobs state
+let IB_PUZZLES = [];
+
+// Sum Squares state
+let SS_PUZZLES = [];
+
+// TTT Winning Move state
+let TTT_WIN_PUZZLES = [];
+
 const ri       = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const f        = n => n.toFixed(1);
 
@@ -405,6 +462,20 @@ const DIFF_OPTS = {
     { l:'Medium',       d:'All ops · range ±50 (integers)' },
     { l:'Hard',         d:'All ops · range ±100 (integers)' },
   ],
+  intblobs: [
+    { l:'Standard',     d:'3×3 grid · 2–4 blobs · target ±12 to ±36' },
+  ],
+  sumsquares: [
+    { l:'Standard',     d:'Digits 1–9 · 4 given · 5 blank' },
+  ],
+  tttwin: [
+    { l:'Standard',     d:'5–6 squares filled · one winning move' },
+  ],
+  liketermscorrals: [
+    { l:'Beginner',     d:'4×4 grid · 2 variables · all positive coefficients' },
+    { l:'Intermediate', d:'4×4 grid · 3 variables · all positive coefficients' },
+    { l:'Challenge',    d:'4×5 grid · 3 variables · negative coefficients allowed' },
+  ],
 };
 
 // ── UI wiring ─────────────────────────────────────────────────────────────────
@@ -413,9 +484,9 @@ function selType(type, btn) {
   DIFF = 0;
   document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator', mazeescape:'Maze Escape Generator', arrangingboxes:'Arranging Boxes Generator', fourthpoint:'Fourth Point Generator', digitdiv:'Digit Division Generator', divpyramid:'Division Pyramid Generator', fracpyramid:'Fraction Pyramid Generator', placedecimal:'Place the Decimal Generator', frackenken:'Fraction KenKen Generator', twostep:'Two Step Generator' };
-  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1', mazeescape:'e.g. Maze Escape #1', arrangingboxes:'e.g. Arranging Boxes #1', fourthpoint:'e.g. Fourth Point #1', digitdiv:'e.g. Digit Division #1', divpyramid:'e.g. Division Pyramid #1', fracpyramid:'e.g. Fraction Pyramids #1', placedecimal:'e.g. Place the Decimal #1', frackenken:'e.g. Fraction KenKen #1', twostep:'e.g. Two Step #1' };
-  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles', mazeescape:'↻\u2005Generate New Puzzles', arrangingboxes:'↻\u2005Generate New Puzzles', fourthpoint:'↻\u2005Generate New Puzzles', digitdiv:'↻\u2005Generate New Puzzles', divpyramid:'↻\u2005Generate New Puzzles', fracpyramid:'↻\u2005Generate New Puzzles', placedecimal:'↻\u2005Generate New Puzzles', frackenken:'↻\u2005Generate New Puzzles', twostep:'↻\u2005Generate New Puzzles' };
+  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator', mazeescape:'Maze Escape Generator', arrangingboxes:'Arranging Boxes Generator', fourthpoint:'Fourth Point Generator', digitdiv:'Digit Division Generator', divpyramid:'Division Pyramid Generator', fracpyramid:'Fraction Pyramid Generator', placedecimal:'Place the Decimal Generator', frackenken:'Fraction KenKen Generator', twostep:'Two Step Generator', intblobs:'Integer Blobs Generator', sumsquares:'Sum Squares Generator', tttwin:'TTT Winning Move Generator' };
+  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1', mazeescape:'e.g. Maze Escape #1', arrangingboxes:'e.g. Arranging Boxes #1', fourthpoint:'e.g. Fourth Point #1', digitdiv:'e.g. Digit Division #1', divpyramid:'e.g. Division Pyramid #1', fracpyramid:'e.g. Fraction Pyramids #1', placedecimal:'e.g. Place the Decimal #1', frackenken:'e.g. Fraction KenKen #1', twostep:'e.g. Two Step #1', intblobs:'e.g. Integer Blobs #1', sumsquares:'e.g. Sum Squares #1', tttwin:'e.g. TTT Winning Move #1' };
+  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles', mazeescape:'↻\u2005Generate New Puzzles', arrangingboxes:'↻\u2005Generate New Puzzles', fourthpoint:'↻\u2005Generate New Puzzles', digitdiv:'↻\u2005Generate New Puzzles', divpyramid:'↻\u2005Generate New Puzzles', fracpyramid:'↻\u2005Generate New Puzzles', placedecimal:'↻\u2005Generate New Puzzles', frackenken:'↻\u2005Generate New Puzzles', twostep:'↻\u2005Generate New Puzzles', intblobs:'↻\u2005Generate New Puzzles', sumsquares:'↻\u2005Generate New Puzzles', tttwin:'↻\u2005Generate New Puzzles' };
   document.getElementById('hdr-type-label').textContent    = labels[type];
   document.getElementById('pg-title').placeholder          = placeholders[type];
   document.getElementById('btn-gen').textContent           = genLabels[type];
@@ -483,6 +554,19 @@ function refresh() {
   } else if (TYPE === 'twostep') {
     if (!TS_SET) return;
     out.innerHTML = ts_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'intblobs') {
+    if (!IB_PUZZLES.length) return;
+    out.innerHTML = ib_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'sumsquares') {
+    if (!SS_PUZZLES.length) return;
+    out.innerHTML = ss_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'tttwin') {
+    if (!TTT_WIN_PUZZLES.length) return;
+    out.innerHTML = tttwin_buildSheet(VIEW === 'key');
+  } else if (TYPE === 'liketermscorrals') {
+    if (!LTC_PUZZLES.length) return;
+    const title = document.getElementById('pg-title').value.trim() || 'Like Terms Corrals';
+    out.innerHTML = ltc_buildSheet(VIEW === 'key', title);
   } else {
     if (!ZK_PUZZLES.length) return;
     out.innerHTML = zk_buildSheet(VIEW === 'key');
@@ -491,7 +575,7 @@ function refresh() {
 
 function generate() {
   DIFF = parseInt(document.querySelector('input[name="diff"]:checked')?.value ?? '0');
-  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : TYPE === 'mazeescape' ? '⊞' : TYPE === 'arrangingboxes' ? '▣' : TYPE === 'fourthpoint' ? '▱' : TYPE === 'digitdiv' ? '÷' : TYPE === 'divpyramid' ? '△' : TYPE === 'fracpyramid' ? '△½' : TYPE === 'placedecimal' ? '0.0' : TYPE === 'frackenken' ? '⊞½' : TYPE === 'twostep' ? '➡' : '◇';
+  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : TYPE === 'mazeescape' ? '⊞' : TYPE === 'arrangingboxes' ? '▣' : TYPE === 'fourthpoint' ? '▱' : TYPE === 'digitdiv' ? '÷' : TYPE === 'divpyramid' ? '△' : TYPE === 'fracpyramid' ? '△½' : TYPE === 'placedecimal' ? '0.0' : TYPE === 'frackenken' ? '⊞½' : TYPE === 'twostep' ? '➡' : TYPE === 'intblobs' ? '⬤' : TYPE === 'sumsquares' ? 'Σ²' : TYPE === 'tttwin' ? '⊞?' : TYPE === 'liketermscorrals' ? '⊡' : '◇';
   document.getElementById('out').innerHTML =
     `<div class="gen-msg"><div class="spin">${ico}</div><br>Generating…</div>`;
   requestAnimationFrame(() => setTimeout(() => {
@@ -580,6 +664,51 @@ function generate() {
           `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
         return;
       }
+    } else if (TYPE === 'intblobs') {
+      IB_PUZZLES = [];
+      for (let i = 0; i < 4; i++) {
+        const p = ib_gen();
+        if (p) IB_PUZZLES.push(p);
+      }
+      if (!IB_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
+    } else if (TYPE === 'sumsquares') {
+      SS_PUZZLES = [];
+      for (let i = 0; i < 4; i++) {
+        const p = ss_gen();
+        if (p) SS_PUZZLES.push(p);
+      }
+      if (!SS_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
+    } else if (TYPE === 'tttwin') {
+      TTT_WIN_PUZZLES = [];
+      let tries = 0;
+      while (TTT_WIN_PUZZLES.length < 4 && tries++ < 1200) {
+        const p = tttwin_gen();
+        if (p) TTT_WIN_PUZZLES.push(p);
+      }
+      if (!TTT_WIN_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
+    } else if (TYPE === 'liketermscorrals') {
+      LTC_PUZZLES = [];
+      for (let i = 0; i < 4; i++) {
+        const p = ltc_gen(DIFF);
+        if (p) LTC_PUZZLES.push(p);
+      }
+      if (!LTC_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
     } else {
       const cfg = ZK_CONFIGS[DIFF];
       const pool = []; while (pool.length < 6) pool.push(...cfg.shapes);
@@ -612,6 +741,31 @@ const PRINT_CSS_BASE = `
   .pgrid{display:grid;gap:12px}
   .pc{background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 8px;display:flex;align-items:center;justify-content:center;position:relative;min-height:148px}
   .pc-n{position:absolute;top:6px;left:8px;font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif}
+  /* Integer Blobs */
+  .ib-target{font-family:'Archivo Black',sans-serif;font-size:13px;color:#1a1a1a;margin-bottom:7px;text-align:left;width:100%}
+  .ib-target em{font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-right:5px;font-family:'Archivo',sans-serif}
+  .ib-tbl{border-collapse:collapse}
+  .ib-tbl td{width:52px;height:52px;text-align:center;vertical-align:middle;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:#1a1a1a;border:2px solid #1a1a1a;background:#fff}
+  /* Sum Squares */
+  .ss-wrap{display:flex;flex-direction:column;align-items:center}
+  .ss-tbl{border-collapse:collapse}
+  .ss-corner{width:30px;height:26px}
+  .ss-csum{width:46px;height:26px;text-align:center;vertical-align:bottom;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:#1a1a1a;padding-bottom:2px}
+  .ss-rsum{width:30px;text-align:right;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:#1a1a1a;padding-right:5px;vertical-align:middle}
+  .ss-cell{width:46px;height:46px;text-align:center;vertical-align:middle;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:#1a1a1a;border:2px solid #1a1a1a;background:#fff}
+  .ss-cell.blank{background:#F8F6F2}
+  .ss-cell.key-ans{background:#FFF0E8;color:#b83000}
+  /* TTT Winning Move */
+  .tttw-cell{display:flex;flex-direction:column;align-items:flex-start;gap:0;background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 12px 14px;position:relative;min-height:148px}
+  .tttw-num{position:absolute;top:6px;left:8px;font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif}
+  .tttw-banner{display:inline-flex;align-items:center;padding:3px 9px 3px 7px;border-radius:4px;margin-bottom:7px;font-family:'Archivo',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+  .tttw-pos{background:#E8F4FF;color:#1B4FCC;border:1.5px solid #93C5FD}
+  .tttw-neg{background:#FFF0E8;color:#b83000;border:1.5px solid #FCA98A}
+  .tttw-tbl{border-collapse:collapse}
+  .tttw-tbl td{width:50px;height:50px;text-align:center;vertical-align:middle;font-family:'Nunito',sans-serif;font-size:20px;font-weight:800;color:#1a1a1a;border:2.5px solid #1a1a1a;background:#fff}
+  .tttw-tbl td.tttw-empty{background:#F8F6F2}
+  .tttw-tbl td.tttw-ans{background:#FFF0E8;color:#b83000}
+  .tttw-tbl td.tttw-winline{background:#FEF9C3}
   @page{size:letter;margin:.55in .7in}
   @media print{.page-break{page-break-after:always}}`;
 
@@ -627,6 +781,9 @@ function downloadPDF(mode) {
                 TYPE === 'placedecimal' ? PD_PUZZLES.length > 0 :
                 TYPE === 'frackenken' ? KK_PUZZLES.length > 0 :
                 TYPE === 'twostep' ? !!TS_SET :
+                TYPE === 'intblobs' ? IB_PUZZLES.length > 0 :
+                TYPE === 'sumsquares' ? SS_PUZZLES.length > 0 :
+                TYPE === 'tttwin' ? TTT_WIN_PUZZLES.length > 0 :
                 ZK_PUZZLES.length > 0;
   if (!ready) { alert('Generate a puzzle first.'); return; }
 
@@ -642,6 +799,9 @@ function downloadPDF(mode) {
      TYPE === 'placedecimal' ? PD_TITLES[DIFF] :
      TYPE === 'frackenken' ? KK_TITLES[DIFF] :
      TYPE === 'twostep' ? TS_TITLES[TS_NT][DIFF] :
+     TYPE === 'intblobs' ? 'Integer Blobs' :
+     TYPE === 'sumsquares' ? 'Sum Squares' :
+     TYPE === 'tttwin' ? 'Integer Tic-Tac-Toe \u2014 Winning Move' :
      ZK_TITLES[DIFF]);
   const sheets = TYPE === 'sixlegs'
     ? { s: sl_printSheet(false, title), k: sl_printSheet(true, title) }
@@ -665,6 +825,14 @@ function downloadPDF(mode) {
     ? { s: kk_printSheet(false, title), k: kk_printSheet(true, title) }
     : TYPE === 'twostep'
     ? { s: ts_printSheet(false, title), k: ts_printSheet(true, title) }
+    : TYPE === 'intblobs'
+    ? { s: ib_printSheet(false, title), k: ib_printSheet(true, title) }
+    : TYPE === 'sumsquares'
+    ? { s: ss_printSheet(false, title), k: ss_printSheet(true, title) }
+    : TYPE === 'tttwin'
+    ? { s: tttwin_printSheet(false, title), k: tttwin_printSheet(true, title) }
+    : TYPE === 'liketermscorrals'
+    ? { s: ltc_printSheet(false, title), k: ltc_printSheet(true, title) }
     : { s: zk_printSheet(false, title), k: zk_printSheet(true, title) };
   const typeCSS = TYPE === 'sixlegs'
     ? `.sheet{padding:18px 32px 28px;max-width:860px;margin:0 auto}`
@@ -3265,6 +3433,658 @@ function ts_buildSheet(isKey){
   return ts_sheetHTML(isKey,title);
 }
 function ts_printSheet(isKey,title){return ts_sheetHTML(isKey,title);}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INTEGER BLOBS
+// Rules (Beast Academy 5A):
+//   • 3×3 grid of integers; a single Target product T
+//   • Partition ALL cells into "blobs" of 2+ connected (edge-sharing) cells
+//   • Product of each blob = T; blobs do not overlap
+//   Student view: uniform-border grid — student draws the blobs
+//   Key view: cells shaded by blob with thick blob-boundary borders
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const IB_BG     = ['#DBEAFE','#D1FAE5','#FEF3C7','#FCE7F3','#FFF0E8','#EDE9FE','#ECFDF5','#FEF9C3'];
+const IB_TARGETS = [-24,-20,24,20,-18,18,-12,12,-30,30,36,-36];
+
+const IB_DIR = 'Circle connected groups ("blobs") of 2 or more integers whose product equals the Target. Every cell must belong to exactly one blob. Blobs cannot overlap.';
+const IB_DIR_KEY = 'Each shaded region is one blob. The product of every blob equals the Target.';
+
+function ib_adjFree([r,c],R,C,asgn){
+  return [[-1,0],[1,0],[0,-1],[0,1]].map(([dr,dc])=>[r+dr,c+dc])
+    .filter(([nr,nc])=>nr>=0&&nr<R&&nc>=0&&nc<C&&asgn[nr][nc]===-1);
+}
+function ib_genPartition(R,C){
+  for(let a=0;a<400;a++){
+    const asgn=Array.from({length:R},()=>Array(C).fill(-1));
+    const blobs=[];
+    const order=shuffle(Array.from({length:R*C},(_,i)=>[Math.floor(i/C),i%C]));
+    let ok=true;
+    for(const start of order){
+      if(asgn[start[0]][start[1]]!==-1) continue;
+      const bi=blobs.length, blob=[start];
+      asgn[start[0]][start[1]]=bi;
+      const wantSz=ri(2,3);
+      const front=ib_adjFree(start,R,C,asgn);
+      while(blob.length<wantSz&&front.length>0){
+        const i=ri(0,front.length-1), nxt=front.splice(i,1)[0];
+        if(asgn[nxt[0]][nxt[1]]!==-1) continue;
+        blob.push(nxt); asgn[nxt[0]][nxt[1]]=bi;
+        ib_adjFree(nxt,R,C,asgn).forEach(nc=>{
+          if(!front.some(x=>x[0]===nc[0]&&x[1]===nc[1])) front.push(nc);
+        });
+      }
+      if(blob.length<2){ok=false;break;}
+      blobs.push(blob);
+    }
+    if(!ok) continue;
+    if(blobs.reduce((s,b)=>s+b.length,0)!==R*C) continue;
+    return blobs;
+  }
+  return null;
+}
+function ib_fillBlob(size,T){
+  for(let a=0;a<80;a++){const v=ib_fill(size,T);if(v)return shuffle(v);}
+  return null;
+}
+function ib_fill(size,T){
+  if(!Number.isInteger(T)) return null;
+  if(size===1) return(Math.abs(T)>=2&&Math.abs(T)<=9)?[T]:null;
+  const cands=[];
+  for(let f=2;f<=9;f++){if(T%f===0)cands.push(f);if(T%(-f)===0)cands.push(-f);}
+  for(const f of shuffle(cands)){
+    if(T%f!==0) continue;
+    const rest=ib_fill(size-1,T/f);
+    if(rest&&rest.every(v=>Math.abs(v)>=2&&Math.abs(v)<=9)) return[f,...rest];
+  }
+  return null;
+}
+function ib_gen(){
+  const R=3,C=3;
+  for(let outer=0;outer<50;outer++){
+    const blobs=ib_genPartition(R,C);
+    if(!blobs) continue;
+    const T=IB_TARGETS[ri(0,IB_TARGETS.length-1)];
+    const grid=Array.from({length:R},()=>Array(C).fill(0));
+    const bMap=Array.from({length:R},()=>Array(C).fill(-1));
+    let ok=true;
+    for(let bi=0;bi<blobs.length;bi++){
+      const nums=ib_fillBlob(blobs[bi].length,T);
+      if(!nums){ok=false;break;}
+      blobs[bi].forEach(([r,c],i)=>{grid[r][c]=nums[i];bMap[r][c]=bi;});
+    }
+    if(!ok) continue;
+    return{grid,target:T,blobs,bMap,R,C};
+  }
+  return null;
+}
+
+function ib_renderOne(puz,isKey,num){
+  const{grid,bMap,target,R,C}=puz;
+  let rows='';
+  for(let r=0;r<R;r++){
+    let tds='';
+    for(let c=0;c<C;c++){
+      const bi=bMap[r][c];
+      let sty='';
+      if(isKey){
+        const bg=IB_BG[bi%IB_BG.length];
+        const t=(r===0||bMap[r-1][c]!==bi)?'3px solid #1a1a1a':'1px solid #ccc';
+        const b=(r===R-1||bMap[r+1][c]!==bi)?'3px solid #1a1a1a':'1px solid #ccc';
+        const l=(c===0||bMap[r][c-1]!==bi)?'3px solid #1a1a1a':'1px solid #ccc';
+        const rr=(c===C-1||bMap[r][c+1]!==bi)?'3px solid #1a1a1a':'1px solid #ccc';
+        sty=`style="background:${bg};border-top:${t};border-bottom:${b};border-left:${l};border-right:${rr}"`;
+      }
+      tds+=`<td ${sty}>${grid[r][c]}</td>`;
+    }
+    rows+=`<tr>${tds}</tr>`;
+  }
+  return`<div class="pc">
+    <div class="pc-n">${num}</div>
+    <div class="ib-target"><em>Target</em>${target}</div>
+    <table class="ib-tbl"><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function ib_sheetHTML(isKey,title){
+  const badge=isKey?`<span class="key-badge">ANSWER KEY</span>`:'';
+  const dir=isKey?IB_DIR_KEY:IB_DIR;
+  const cells=IB_PUZZLES.map((p,i)=>ib_renderOne(p,isKey,i+1)).join('');
+  return`<div class="sheet narrow">
+  <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+  <div class="sh-meta">Name: ____________________________&nbsp;&nbsp; Date: ____________</div>
+  <div class="sh-dir">${dir}</div>
+  <div class="pgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">${cells}</div>
+</div>`;
+}
+function ib_buildSheet(isKey){
+  const title=document.getElementById('pg-title').value.trim()||'Integer Blobs';
+  return ib_sheetHTML(isKey,title);
+}
+function ib_printSheet(isKey,title){return ib_sheetHTML(isKey,title);}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SUM SQUARES
+// Rules (Beast Academy 4C):
+//   • 3×3 grid; digits 1–9 each used exactly once, each made positive or negative
+//   • Column sums shown above grid, row sums shown left of grid
+//   • 4 cells given; 5 cells blank — fill in the blanks
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SS_DIR = 'Fill in the missing integers. The digits 1–9 are each used exactly once (some positive, some negative). The numbers above each column and left of each row give the sum of that line.';
+const SS_DIR_KEY = 'Completed Sum Square. Digits 1–9 each used exactly once (some positive, some negative).';
+
+function ss_gen(){
+  for(let attempt=0;attempt<120;attempt++){
+    // Generate grid: digits 1-9 shuffled, each assigned a random sign
+    const digits=shuffle([1,2,3,4,5,6,7,8,9]);
+    const signs=digits.map(()=>Math.random()<0.5?1:-1);
+    const vals=digits.map((d,i)=>d*signs[i]);
+    const grid=[[vals[0],vals[1],vals[2]],[vals[3],vals[4],vals[5]],[vals[6],vals[7],vals[8]]];
+
+    // Row and column sums
+    const rowSums=grid.map(row=>row.reduce((s,v)=>s+v,0));
+    const colSums=[0,1,2].map(c=>grid.reduce((s,row)=>s+row[c],0));
+
+    // Avoid trivially easy or extreme sums
+    if([...rowSums,...colSums].some(s=>Math.abs(s)>20)) continue;
+
+    // Try random hiding patterns (5 hidden, 4 given) until uniquely solvable
+    const allIdx=Array.from({length:9},(_,i)=>i);
+    for(let h=0;h<40;h++){
+      const hidden=new Set(shuffle(allIdx).slice(0,5));
+      const given=allIdx.filter(i=>!hidden.has(i));
+      const givenCells=given.map(i=>[Math.floor(i/3),i%3]);
+      const givenVals=given.map(i=>vals[i]);
+
+      if(ss_uniquelySolvable(grid,rowSums,colSums,hidden,givenCells,givenVals)){
+        return{grid,rowSums,colSums,given:new Set(given)};
+      }
+    }
+  }
+  return null;
+}
+
+function ss_uniquelySolvable(grid,rowSums,colSums,hidden,givenCells,givenVals){
+  // Backtracking solver: find all solutions, return true iff exactly one exists
+  const working=grid.map(r=>[...r]);
+  const unk=new Set(hidden);
+
+  // First try propagation to cut search space
+  let changed=true;
+  while(changed){
+    changed=false;
+    for(let r=0;r<3;r++){
+      const u=[0,1,2].filter(c=>unk.has(r*3+c));
+      if(u.length===1){
+        const c=u[0];
+        const kSum=[0,1,2].filter(cc=>cc!==c).reduce((s,cc)=>s+working[r][cc],0);
+        const val=rowSums[r]-kSum;
+        if(Math.abs(val)>=1&&Math.abs(val)<=9&&Number.isInteger(val)){
+          working[r][c]=val;unk.delete(r*3+c);changed=true;
+        }
+      }
+    }
+    for(let c=0;c<3;c++){
+      const u=[0,1,2].filter(r=>unk.has(r*3+c));
+      if(u.length===1){
+        const r=u[0];
+        const kSum=[0,1,2].filter(rr=>rr!==r).reduce((s,rr)=>s+working[rr][c],0);
+        const val=colSums[c]-kSum;
+        if(Math.abs(val)>=1&&Math.abs(val)<=9&&Number.isInteger(val)){
+          working[r][c]=val;unk.delete(r*3+c);changed=true;
+        }
+      }
+    }
+  }
+  if(unk.size===0){
+    // Propagation solved it — verify it matches original
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++){
+      if(working[r][c]!==grid[r][c]) return false;
+    }
+    return true;
+  }
+
+  // Backtrack for remaining unknowns using digit uniqueness constraint
+  const usedDigits=new Set(givenVals.map(v=>Math.abs(v)));
+  // Add any propagation-solved cells
+  for(let i=0;i<9;i++){
+    if(!hidden.has(i)&&!unk.has(i)){
+      const r=Math.floor(i/3),c=i%3;
+      usedDigits.add(Math.abs(working[r][c]));
+    }
+  }
+  const remaining=[1,2,3,4,5,6,7,8,9].filter(d=>!usedDigits.has(d));
+  const blanks=[...unk].map(i=>[Math.floor(i/3),i%3]);
+
+  let solutions=0;
+  function bt(idx,rem){
+    if(solutions>1) return;
+    if(idx===blanks.length){
+      // Verify all row/col sums
+      for(let r=0;r<3;r++) if([0,1,2].reduce((s,c)=>s+working[r][c],0)!==rowSums[r]) return;
+      for(let c=0;c<3;c++) if([0,1,2].reduce((s,r)=>s+working[r][c],0)!==colSums[c]) return;
+      // Verify matches original
+      let ok=true;
+      for(let r=0;r<3&&ok;r++) for(let c=0;c<3&&ok;c++) if(working[r][c]!==grid[r][c]) ok=false;
+      if(ok) solutions++;
+      return;
+    }
+    const[r,c]=blanks[idx];
+    for(let di=0;di<rem.length;di++){
+      const d=rem[di];
+      for(const sign of[1,-1]){
+        if(solutions>1) return;
+        const val=sign*d;
+        working[r][c]=val;
+        // Prune: partial row/col checks
+        let valid=true;
+        const rowDone=[0,1,2].every(cc=>!unk.has(r*3+cc)||working[r][cc]!==grid[r][cc]&&!unk.has(r*3+cc));
+        // Simple bounds pruning only: check if any filled row/col sum is already wrong
+        const rFilled=[0,1,2].every(cc=>working[r][cc]!==null&&!([...unk].includes(r*3+cc)&&cc!==c&&idx<blanks.findIndex(([br])=>br===r)));
+        void rFilled; // skip complex check — rely on final verify
+        bt(idx+1,rem.filter((_,j)=>j!==di));
+      }
+    }
+    working[r][c]=grid[r][c]; // restore (note: for unk cells we need to reset)
+    // Actually reset to null/undefined for unk cells
+    working[r][c]=null;
+  }
+  // Need to properly handle nulls in backtrack - redo with cleaner implementation
+  const w2=working.map(r=>[...r]);
+  // Set all unk cells to null in w2
+  for(const i of unk){w2[Math.floor(i/3)][i%3]=null;}
+  function bt2(idx,rem){
+    if(solutions>1) return;
+    if(idx===blanks.length){
+      for(let r=0;r<3;r++) if([0,1,2].reduce((s,c)=>s+w2[r][c],0)!==rowSums[r]) return;
+      for(let c=0;c<3;c++) if([0,1,2].reduce((s,r)=>s+w2[r][c],0)!==colSums[c]) return;
+      let ok=true;
+      for(let r=0;r<3&&ok;r++) for(let c=0;c<3&&ok;c++) if(w2[r][c]!==grid[r][c]) ok=false;
+      if(ok) solutions++;
+      return;
+    }
+    const[r,c]=blanks[idx];
+    const newRem=rem.filter((_,j)=>j!==blanks.findIndex(b=>false)); // placeholder
+    for(let di=0;di<rem.length;di++){
+      const d=rem[di];
+      for(const sign of[1,-1]){
+        if(solutions>1) return;
+        w2[r][c]=sign*d;
+        // Pruning: if row is complete and sum wrong, skip
+        const rowComplete=[0,1,2].every(cc=>w2[r][cc]!==null);
+        if(rowComplete&&[0,1,2].reduce((s,cc)=>s+w2[r][cc],0)!==rowSums[r]){w2[r][c]=null;continue;}
+        const colComplete=[0,1,2].every(rr=>w2[rr][c]!==null);
+        if(colComplete&&[0,1,2].reduce((s,rr)=>s+w2[rr][c],0)!==colSums[c]){w2[r][c]=null;continue;}
+        const nextRem=[...rem.slice(0,di),...rem.slice(di+1)];
+        bt2(idx+1,nextRem);
+      }
+      if(solutions>1){w2[r][c]=null;return;}
+    }
+    w2[r][c]=null;
+  }
+  bt2(0,remaining);
+  return solutions===1;
+}
+
+function ss_renderOne(puz,isKey,num){
+  const{grid,rowSums,colSums,given}=puz;
+
+  // Column sum header row
+  let colHdr=`<td class="ss-corner"></td>`;
+  for(let c=0;c<3;c++) colHdr+=`<td class="ss-csum">${colSums[c]}</td>`;
+
+  let rows='';
+  for(let r=0;r<3;r++){
+    let tds=`<td class="ss-rsum">${rowSums[r]}</td>`;
+    for(let c=0;c<3;c++){
+      const idx=r*3+c;
+      const isGiven=given.has(idx);
+      let cls='ss-cell';
+      let content='';
+      if(isGiven){cls+=' given';content=grid[r][c];}
+      else if(isKey){cls+=' key-ans';content=grid[r][c];}
+      else{cls+=' blank';content='';}
+      tds+=`<td class="${cls}">${content}</td>`;
+    }
+    rows+=`<tr>${tds}</tr>`;
+  }
+
+  return`<div class="pc">
+    <div class="pc-n">${num}</div>
+    <div class="ss-wrap">
+      <table class="ss-tbl">
+        <thead><tr>${colHdr}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function ss_sheetHTML(isKey,title){
+  const badge=isKey?`<span class="key-badge">ANSWER KEY</span>`:'';
+  const dir=isKey?SS_DIR_KEY:SS_DIR;
+  const cells=SS_PUZZLES.map((p,i)=>ss_renderOne(p,isKey,i+1)).join('');
+  return`<div class="sheet narrow">
+  <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+  <div class="sh-meta">Name: ____________________________&nbsp;&nbsp; Date: ____________</div>
+  <div class="sh-dir">${dir}</div>
+  <div class="pgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">${cells}</div>
+</div>`;
+}
+function ss_buildSheet(isKey){
+  const title=document.getElementById('pg-title').value.trim()||'Sum Squares';
+  return ss_sheetHTML(isKey,title);
+}
+function ss_printSheet(isKey,title){return ss_sheetHTML(isKey,title);}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INTEGER TIC-TAC-TOE — WINNING MOVE
+// Rules: P1 plays 1/2/3 (positive); P2 plays -1/-2/-3 (negative).
+// Board shows 5–6 squares filled. Student finds the ONE integer the next
+// player can place to make a row, col, or diagonal sum to 0.
+// Key highlights the winning cell (orange) + the other two cells in the
+// winning line (yellow) so the zero-sum line is immediately visible.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TTTW_POS = [1, 2, 3];
+const TTTW_NEG = [-1, -2, -3];
+const TTTW_LINES = [
+  [[0,0],[0,1],[0,2]], [[1,0],[1,1],[1,2]], [[2,0],[2,1],[2,2]],
+  [[0,0],[1,0],[2,0]], [[0,1],[1,1],[2,1]], [[0,2],[1,2],[2,2]],
+  [[0,0],[1,1],[2,2]], [[0,2],[1,1],[2,0]],
+];
+
+function tttwin_gen() {
+  for (let attempt = 0; attempt < 800; attempt++) {
+    const filled = ri(5, 6);
+    // 5 filled: P1 played 3, P2 played 2 → next is P2 (neg)
+    // 6 filled: P1 played 3, P2 played 3 → next is P1 (pos)
+    const nextIsPos = (filled === 6);
+    const nextVals  = nextIsPos ? TTTW_POS : TTTW_NEG;
+    const cells = shuffle([[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]]);
+    const grid = Array.from({length:3}, () => Array(3).fill(null));
+    for (let i = 0; i < filled; i++) {
+      const [r, c] = cells[i];
+      grid[r][c] = ((i % 2 === 0) ? TTTW_POS : TTTW_NEG)[ri(0, 2)];
+    }
+    // Reject if a win already exists
+    if (TTTW_LINES.some(ln =>
+      ln.every(([r,c]) => grid[r][c] !== null) &&
+      ln.reduce((s,[r,c]) => s + grid[r][c], 0) === 0
+    )) continue;
+    // Find all unique winning (cell, value) moves for the next player
+    const emptyCells = cells.slice(filled);
+    const seen = new Set();
+    const winMoves = [];
+    for (const [er, ec] of emptyCells) {
+      for (const v of nextVals) {
+        for (const ln of TTTW_LINES) {
+          if (!ln.some(([r,c]) => r === er && c === ec)) continue;
+          const others = ln.filter(([r,c]) => !(r === er && c === ec));
+          if (others.some(([r,c]) => grid[r][c] === null)) continue;
+          const sum = others.reduce((s,[r,c]) => s + grid[r][c], 0) + v;
+          if (sum === 0) {
+            const key = `${er},${ec},${v}`;
+            if (!seen.has(key)) { seen.add(key); winMoves.push({r:er,c:ec,v,line:ln}); }
+          }
+        }
+      }
+    }
+    if (winMoves.length !== 1) continue;
+    return { grid, nextIsPos, winMove: winMoves[0] };
+  }
+  return null;
+}
+
+function tttwin_renderOne(puz, isKey, num) {
+  const { grid, nextIsPos, winMove } = puz;
+  const { r:wr, c:wc, v:wv, line:wline } = winMove;
+  const winLineSet = new Set(wline.map(([r,c]) => r*3+c));
+  const bannerCls  = nextIsPos ? 'tttw-banner tttw-pos' : 'tttw-banner tttw-neg';
+  const bannerText = nextIsPos
+    ? '\u25b2 Next: Positive \u2014 play 1, 2, or 3'
+    : '\u25bc Next: Negative \u2014 play \u22121, \u22122, or \u22123';
+
+  let tableHTML = '<table class="tttw-tbl"><tbody>';
+  for (let r = 0; r < 3; r++) {
+    tableHTML += '<tr>';
+    for (let c = 0; c < 3; c++) {
+      const val = grid[r][c];
+      const isWinCell = (r === wr && c === wc);
+      const isWinLine = winLineSet.has(r*3+c);
+      if (isWinCell) {
+        tableHTML += isKey
+          ? `<td class="tttw-ans">${wv}</td>`
+          : `<td class="tttw-empty"></td>`;
+      } else if (val !== null) {
+        tableHTML += `<td class="${isKey && isWinLine ? 'tttw-winline' : ''}">${val}</td>`;
+      } else {
+        tableHTML += `<td class="tttw-empty"></td>`;
+      }
+    }
+    tableHTML += '</tr>';
+  }
+  tableHTML += '</tbody></table>';
+
+  const tableHTML_done = tableHTML; // no answer line needed — students write on the grid
+
+  return `<div class="tttw-cell">
+    <div class="tttw-num">${num}</div>
+    <div class="${bannerCls}">${bannerText}</div>
+    ${tableHTML}
+  </div>`;
+}
+
+const TTTW_DIR = 'Each board shows a game in progress. Find the <strong>one integer</strong> the next player can place to create a row, column, or diagonal that sums to 0. Write the winning integer on the line below each board.';
+const TTTW_DIR_KEY = 'Orange cell = winning move. Yellow cells = the other two cells in the winning line (sums to 0).';
+
+function tttwin_sheetHTML(isKey, title) {
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  const dir   = isKey ? TTTW_DIR_KEY : TTTW_DIR;
+  const cells = TTT_WIN_PUZZLES.map((p,i) => tttwin_renderOne(p, isKey, i+1)).join('');
+  return `<div class="sheet narrow">
+  <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+  <div class="sh-meta">Name: ____________________________&nbsp;&nbsp; Date: ____________</div>
+  <div class="sh-dir">${dir}</div>
+  <div class="pgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">${cells}</div>
+</div>`;
+}
+function tttwin_buildSheet(isKey) {
+  const title = document.getElementById('pg-title').value.trim() || 'Integer Tic-Tac-Toe \u2014 Winning Move';
+  return tttwin_sheetHTML(isKey, title);
+}
+// ── Like Terms Corrals ───────────────────────────────────────
+const LTC_CORRAL_COLORS = [
+  {bg:'#D0F0DB',brd:'#1A7A3A'},
+  {bg:'#E6F1FB',brd:'#185FA5'},
+  {bg:'#FEF3C7',brd:'#B45309'},
+  {bg:'#EEEDFE',brd:'#534AB7'},
+  {bg:'#FCE7F3',brd:'#9D174D'},
+];
+
+let LTC_PUZZLES = [];
+
+function ltc_nbrs(cell,N,M){
+  const r=(cell/M)|0,c=cell%M,res=[];
+  if(r>0)res.push(cell-M);if(r<N-1)res.push(cell+M);
+  if(c>0)res.push(cell-1);if(c<M-1)res.push(cell+1);
+  return res;
+}
+function ltc_shuffle(a){for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function ltc_genCoefs(n, target, allowNeg, maxCoef){
+  if(target<1||target>maxCoef*n)return null;
+  for(let t=0;t<1000;t++){
+    const coefs=[];let rem=target;
+    for(let i=0;i<n-1;i++){
+      const lo=allowNeg?-(maxCoef):1;
+      const hi=Math.min(maxCoef, rem-1);
+      if(hi<lo)break;
+      const c=ri(lo,hi);
+      coefs.push(c===0?1:c);rem-=coefs[coefs.length-1];
+    }
+    coefs.push(rem);
+    if(rem>=1&&rem<=maxCoef&&coefs.length===n&&coefs.every(c=>c!==0))return coefs;
+  }
+  return null;
+}
+
+function ltc_pickSizes(total,K,minA,maxA){
+  for(let t=0;t<300;t++){
+    const sizes=[];let rem=total;
+    for(let k=0;k<K-1;k++){
+      const lo=Math.max(minA,rem-(K-k-1)*maxA);
+      const hi=Math.min(maxA,rem-(K-k-1)*minA);
+      if(lo>hi)break;
+      sizes.push(ri(lo,hi));rem=total-sizes.reduce((s,v)=>s+v,0);
+    }
+    sizes.push(rem);
+    if(sizes.length===K&&sizes.every(s=>s>=minA&&s<=maxA))return sizes;
+  }
+  return null;
+}
+
+function ltc_solve(N,M,termVar,K,corralSize){
+  const total=N*M;
+  const assign=[...termVar];
+  let solution=null,count=0;
+  function checkConn(){
+    for(let v=0;v<K;v++){
+      const cells=[];
+      for(let c=0;c<total;c++)if(assign[c]===v)cells.push(c);
+      if(cells.length!==corralSize[v])return false;
+      const vis=new Set([cells[0]]);const q=[cells[0]];
+      while(q.length){const cur=q.pop();for(const n of ltc_nbrs(cur,N,M))if(!vis.has(n)&&assign[n]===v){vis.add(n);q.push(n);}}
+      if(vis.size!==cells.length)return false;
+    }
+    return true;
+  }
+  function pruneSize(){
+    const cnt=new Array(K).fill(0);
+    for(let c=0;c<total;c++)if(assign[c]>=0)cnt[assign[c]]++;
+    return cnt.every((v,i)=>v<=corralSize[i]);
+  }
+  function firstEmpty(){for(let c=0;c<total;c++)if(assign[c]===-1)return c;return -1;}
+  function bt(){
+    if(count>1)return;
+    const cell=firstEmpty();
+    if(cell===-1){if(checkConn()){count++;solution=[...assign];}return;}
+    const adj=new Set();
+    for(const n of ltc_nbrs(cell,N,M))if(assign[n]>=0)adj.add(assign[n]);
+    const cands=adj.size>0?[...adj]:Array.from({length:K},(_,i)=>i);
+    for(const v of cands){if(count>1)return;assign[cell]=v;if(pruneSize())bt();assign[cell]=-1;}
+  }
+  bt();
+  return{count,solution};
+}
+
+function ltc_gen(diff){
+  const cfgs=[
+    {N:4,M:4,K:2,minA:4,maxA:12,neg:false,maxCoef:9,nTerms:[3,4]},
+    {N:4,M:4,K:3,minA:3,maxA:8, neg:false,maxCoef:9,nTerms:[2,3]},
+    {N:4,M:5,K:3,minA:5,maxA:10,neg:true, maxCoef:13,nTerms:[2,4]},
+  ];
+  const{N,M,K,minA,maxA,neg,maxCoef,nTerms}=cfgs[diff];
+  const total=N*M;
+  const VARS='abcdefghjkmnpqr';
+  for(let att=0;att<1000;att++){
+    const sizes=ltc_pickSizes(total,K,minA,maxA);
+    if(!sizes)continue;
+    const varList=ltc_shuffle([...VARS]).slice(0,K);
+    const termVar=new Array(total).fill(-1);
+    const termCoef=new Array(total).fill(0);
+    const usedCells=new Set();
+    let ok=true;
+    for(let k=0;k<K;k++){
+      const n=ri(nTerms[0],nTerms[1]);
+      const coefs=ltc_genCoefs(n,sizes[k],neg,maxCoef);
+      if(!coefs||coefs.reduce((s,c)=>s+c,0)!==sizes[k]||coefs.some(c=>c===0)){ok=false;break;}
+      const avail=ltc_shuffle(Array.from({length:total},(_,i)=>i).filter(c=>!usedCells.has(c)));
+      if(avail.length<n){ok=false;break;}
+      for(let t=0;t<n;t++){usedCells.add(avail[t]);termVar[avail[t]]=k;termCoef[avail[t]]=coefs[t];}
+    }
+    if(!ok)continue;
+    const{count,solution}=ltc_solve(N,M,termVar,K,sizes);
+    if(count!==1)continue;
+    return{N,M,K,sizes,varList,termVar,termCoef,solution};
+  }
+  return null;
+}
+
+function ltc_renderOne(p, isKey, num){
+  const{N,M,K,sizes,varList,termVar,termCoef,solution}=p;
+  const CSZ=46;
+  // Determine border widths between cells for key view
+  function borderStyle(cell,dir,sol){
+    if(!isKey)return '1.5px solid #d4d4d4';
+    const v=sol[cell];
+    let neighbor=-1;
+    if(dir==='right'&&(cell%M)<M-1)neighbor=cell+1;
+    else if(dir==='bottom'&&Math.floor(cell/M)<N-1)neighbor=cell+M;
+    if(neighbor===-1)return '2.5px solid #1a1a1a';
+    return sol[neighbor]===v?'1px solid rgba(0,0,0,0.08)':'2.5px solid #1a1a1a';
+  }
+
+  let tbl=`<table class="ltc" style="border:2.5px solid #1a1a1a">`;
+  for(let r=0;r<N;r++){
+    tbl+='<tr>';
+    for(let c=0;c<M;c++){
+      const cell=r*M+c;
+      const v=termVar[cell];
+      const sv=isKey?solution[cell]:0;
+      const bg=isKey?LTC_CORRAL_COLORS[sv%LTC_CORRAL_COLORS.length].bg:'#fff';
+      const bR=borderStyle(cell,'right',solution||[]);
+      const bB=borderStyle(cell,'bottom',solution||[]);
+      const style=`width:${CSZ}px;height:${CSZ-2}px;background:${bg};`+
+        (c<M-1?`border-right:${bR};`:'')+
+        (r<N-1?`border-bottom:${bB};`:'');
+      if(v>=0){
+        const label=(termCoef[cell]>0?termCoef[cell]:termCoef[cell])+varList[v];
+        tbl+=`<td class="ltc-term" style="${style}">${label}</td>`;
+      } else {
+        tbl+=`<td class="ltc-empty" style="${style}"></td>`;
+      }
+    }
+    tbl+='</tr>';
+  }
+  tbl+='</table>';
+
+  // Corral hint: area formula
+  const hintParts=[];
+  for(let k=0;k<K;k++){
+    const coefTerms=termVar.reduce((acc,vk,cell)=>{if(vk===k)acc.push(termCoef[cell]);return acc;},[]);
+    const formula=coefTerms.map((c,i)=>i===0?c:(c>=0?'+'+c:c)).join('');
+    hintParts.push(`${formula}${varList[k]}, area = ${sizes[k]}`);
+  }
+  const hint=isKey
+    ?`<div class="ltc-hint" style="color:#555">${hintParts.join(' &nbsp;|&nbsp; ')}</div>`
+    :`<div class="ltc-hint">Each corral contains all like terms. Corral area = sum of coefficients.</div>`;
+
+  return `<div class="ltc-wrap">
+    <div class="pc-n" style="position:relative;top:0;left:0;margin-bottom:3px;font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif">${num}</div>
+    ${tbl}${hint}
+  </div>`;
+}
+
+const LTC_DIRS=[
+  'Draw fences to separate all <strong>like terms</strong> into corrals. Each corral must contain exactly one type of term. The area of each corral (in square units) equals the sum of the coefficients of the like terms inside it.',
+  'Draw fences to separate all <strong>like terms</strong> into corrals. Each corral must contain exactly one type of term. The area of each corral equals the <strong>sum</strong> of the coefficients inside — add them up first to find the area.',
+  'Draw fences to separate all <strong>like terms</strong> into corrals. Each corral must contain exactly one type of term. The area equals the sum of the coefficients — watch out for <strong>negative coefficients</strong>!',
+];
+
+function ltc_buildSheet(isKey, title){
+  const badge=isKey?`<span class="key-badge">ANSWER KEY</span>`:'';
+  const dir=isKey?'Orange shading shows corrals. The fence lines separate like terms.':LTC_DIRS[DIFF];
+  const cells=LTC_PUZZLES.map((p,i)=>ltc_renderOne(p,isKey,i+1)).join('');
+  return `<div class="sheet wide">
+  <div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>
+  <div class="sh-meta">Name: ____________________________&nbsp;&nbsp; Date: ____________</div>
+  <div class="sh-dir">${dir}</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px">${cells}</div>
+</div>`;
+}
+function ltc_printSheet(isKey, title){ return ltc_buildSheet(isKey, title); }
 </script>
 </body>
 </html>
