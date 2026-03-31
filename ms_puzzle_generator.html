@@ -236,6 +236,9 @@ table.ltc td.ltc-empty{color:#ccc}
         <button class="tbtn" id="tbtn-liketermscorrals" onclick="selType('liketermscorrals',this)">
           <span class="ico">⊡</span><span class="lbl">Like Terms Corrals</span>
         </button>
+        <button class="tbtn" id="tbtn-paintthetown" onclick="selType('paintthetown',this)">
+          <span class="ico">🏠</span><span class="lbl">Paint the Town</span>
+        </button>
       </div>
     </div>
 
@@ -476,6 +479,11 @@ const DIFF_OPTS = {
     { l:'Intermediate', d:'4×4 grid · 3 variables · all positive coefficients' },
     { l:'Challenge',    d:'4×5 grid · 3 variables · negative coefficients allowed' },
   ],
+  paintthetown: [
+    { l:'Beginner',     d:'3×3 grid · 4 clues · fractions from {0, ¼, ⅓, ½, ⅔, ¾, 1}' },
+    { l:'Intermediate', d:'4×4 grid · 6 clues · adds 4/5 to fraction pool' },
+    { l:'Challenge',    d:'4×4 grid · 8 clues · richer fraction set' },
+  ],
 };
 
 // ── UI wiring ─────────────────────────────────────────────────────────────────
@@ -484,9 +492,9 @@ function selType(type, btn) {
   DIFF = 0;
   document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator', mazeescape:'Maze Escape Generator', arrangingboxes:'Arranging Boxes Generator', fourthpoint:'Fourth Point Generator', digitdiv:'Digit Division Generator', divpyramid:'Division Pyramid Generator', fracpyramid:'Fraction Pyramid Generator', placedecimal:'Place the Decimal Generator', frackenken:'Fraction KenKen Generator', twostep:'Two Step Generator', intblobs:'Integer Blobs Generator', sumsquares:'Sum Squares Generator', tttwin:'TTT Winning Move Generator' };
-  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1', mazeescape:'e.g. Maze Escape #1', arrangingboxes:'e.g. Arranging Boxes #1', fourthpoint:'e.g. Fourth Point #1', digitdiv:'e.g. Digit Division #1', divpyramid:'e.g. Division Pyramid #1', fracpyramid:'e.g. Fraction Pyramids #1', placedecimal:'e.g. Place the Decimal #1', frackenken:'e.g. Fraction KenKen #1', twostep:'e.g. Two Step #1', intblobs:'e.g. Integer Blobs #1', sumsquares:'e.g. Sum Squares #1', tttwin:'e.g. TTT Winning Move #1' };
-  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles', mazeescape:'↻\u2005Generate New Puzzles', arrangingboxes:'↻\u2005Generate New Puzzles', fourthpoint:'↻\u2005Generate New Puzzles', digitdiv:'↻\u2005Generate New Puzzles', divpyramid:'↻\u2005Generate New Puzzles', fracpyramid:'↻\u2005Generate New Puzzles', placedecimal:'↻\u2005Generate New Puzzles', frackenken:'↻\u2005Generate New Puzzles', twostep:'↻\u2005Generate New Puzzles', intblobs:'↻\u2005Generate New Puzzles', sumsquares:'↻\u2005Generate New Puzzles', tttwin:'↻\u2005Generate New Puzzles' };
+  const labels      = { sixlegs:'Six Legs Generator', sankaku:'Sankaku Generator', zukei:'Zukei Generator', mazeescape:'Maze Escape Generator', arrangingboxes:'Arranging Boxes Generator', fourthpoint:'Fourth Point Generator', digitdiv:'Digit Division Generator', divpyramid:'Division Pyramid Generator', fracpyramid:'Fraction Pyramid Generator', placedecimal:'Place the Decimal Generator', frackenken:'Fraction KenKen Generator', twostep:'Two Step Generator', intblobs:'Integer Blobs Generator', sumsquares:'Sum Squares Generator', tttwin:'TTT Winning Move Generator', paintthetown:'Paint the Town Generator' };
+  const placeholders = { sixlegs:'e.g. Algebra Warm-Up #3', sankaku:'e.g. Sankaku #1', zukei:'e.g. Zukei #1', mazeescape:'e.g. Maze Escape #1', arrangingboxes:'e.g. Arranging Boxes #1', fourthpoint:'e.g. Fourth Point #1', digitdiv:'e.g. Digit Division #1', divpyramid:'e.g. Division Pyramid #1', fracpyramid:'e.g. Fraction Pyramids #1', placedecimal:'e.g. Place the Decimal #1', frackenken:'e.g. Fraction KenKen #1', twostep:'e.g. Two Step #1', intblobs:'e.g. Integer Blobs #1', sumsquares:'e.g. Sum Squares #1', tttwin:'e.g. TTT Winning Move #1', paintthetown:'e.g. Paint the Town #1' };
+  const genLabels    = { sixlegs:'↻\u2005Generate New Puzzle', sankaku:'↻\u2005Generate New Puzzles', zukei:'↻\u2005Generate New Puzzles', mazeescape:'↻\u2005Generate New Puzzles', arrangingboxes:'↻\u2005Generate New Puzzles', fourthpoint:'↻\u2005Generate New Puzzles', digitdiv:'↻\u2005Generate New Puzzles', divpyramid:'↻\u2005Generate New Puzzles', fracpyramid:'↻\u2005Generate New Puzzles', placedecimal:'↻\u2005Generate New Puzzles', frackenken:'↻\u2005Generate New Puzzles', twostep:'↻\u2005Generate New Puzzles', intblobs:'↻\u2005Generate New Puzzles', sumsquares:'↻\u2005Generate New Puzzles', tttwin:'↻\u2005Generate New Puzzles', paintthetown:'↻\u2005Generate New Puzzles' };
   document.getElementById('hdr-type-label').textContent    = labels[type];
   document.getElementById('pg-title').placeholder          = placeholders[type];
   document.getElementById('btn-gen').textContent           = genLabels[type];
@@ -567,6 +575,10 @@ function refresh() {
     if (!LTC_PUZZLES.length) return;
     const title = document.getElementById('pg-title').value.trim() || 'Like Terms Corrals';
     out.innerHTML = ltc_buildSheet(VIEW === 'key', title);
+  } else if (TYPE === 'paintthetown') {
+    if (!PTT_PUZZLES.length) return;
+    const title = document.getElementById('pg-title').value.trim() || 'Paint the Town';
+    out.innerHTML = ptt_buildSheet(VIEW === 'key', title);
   } else {
     if (!ZK_PUZZLES.length) return;
     out.innerHTML = zk_buildSheet(VIEW === 'key');
@@ -575,7 +587,7 @@ function refresh() {
 
 function generate() {
   DIFF = parseInt(document.querySelector('input[name="diff"]:checked')?.value ?? '0');
-  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : TYPE === 'mazeescape' ? '⊞' : TYPE === 'arrangingboxes' ? '▣' : TYPE === 'fourthpoint' ? '▱' : TYPE === 'digitdiv' ? '÷' : TYPE === 'divpyramid' ? '△' : TYPE === 'fracpyramid' ? '△½' : TYPE === 'placedecimal' ? '0.0' : TYPE === 'frackenken' ? '⊞½' : TYPE === 'twostep' ? '➡' : TYPE === 'intblobs' ? '⬤' : TYPE === 'sumsquares' ? 'Σ²' : TYPE === 'tttwin' ? '⊞?' : TYPE === 'liketermscorrals' ? '⊡' : '◇';
+  const ico = TYPE === 'sixlegs' ? '⬡' : TYPE === 'sankaku' ? '△' : TYPE === 'mazeescape' ? '⊞' : TYPE === 'arrangingboxes' ? '▣' : TYPE === 'fourthpoint' ? '▱' : TYPE === 'digitdiv' ? '÷' : TYPE === 'divpyramid' ? '△' : TYPE === 'fracpyramid' ? '△½' : TYPE === 'placedecimal' ? '0.0' : TYPE === 'frackenken' ? '⊞½' : TYPE === 'twostep' ? '➡' : TYPE === 'intblobs' ? '⬤' : TYPE === 'sumsquares' ? 'Σ²' : TYPE === 'tttwin' ? '⊞?' : TYPE === 'liketermscorrals' ? '⊡' : TYPE === 'paintthetown' ? '🏠' : '◇';
   document.getElementById('out').innerHTML =
     `<div class="gen-msg"><div class="spin">${ico}</div><br>Generating…</div>`;
   requestAnimationFrame(() => setTimeout(() => {
@@ -709,6 +721,18 @@ function generate() {
           `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
         return;
       }
+    } else if (TYPE === 'paintthetown') {
+      PTT_PUZZLES = [];
+      let tries = 0;
+      while (PTT_PUZZLES.length < 4 && tries++ < 600) {
+        const p = ptt_gen(DIFF);
+        if (p) PTT_PUZZLES.push(p);
+      }
+      if (!PTT_PUZZLES.length) {
+        document.getElementById('out').innerHTML =
+          `<div class="gen-msg">⚠️ Could not generate puzzles. Try again.</div>`;
+        return;
+      }
     } else {
       const cfg = ZK_CONFIGS[DIFF];
       const pool = []; while (pool.length < 6) pool.push(...cfg.shapes);
@@ -784,6 +808,7 @@ function downloadPDF(mode) {
                 TYPE === 'intblobs' ? IB_PUZZLES.length > 0 :
                 TYPE === 'sumsquares' ? SS_PUZZLES.length > 0 :
                 TYPE === 'tttwin' ? TTT_WIN_PUZZLES.length > 0 :
+                TYPE === 'paintthetown' ? PTT_PUZZLES.length > 0 :
                 ZK_PUZZLES.length > 0;
   if (!ready) { alert('Generate a puzzle first.'); return; }
 
@@ -802,6 +827,7 @@ function downloadPDF(mode) {
      TYPE === 'intblobs' ? 'Integer Blobs' :
      TYPE === 'sumsquares' ? 'Sum Squares' :
      TYPE === 'tttwin' ? 'Integer Tic-Tac-Toe \u2014 Winning Move' :
+     TYPE === 'paintthetown' ? 'Paint the Town' :
      ZK_TITLES[DIFF]);
   const sheets = TYPE === 'sixlegs'
     ? { s: sl_printSheet(false, title), k: sl_printSheet(true, title) }
@@ -833,6 +859,8 @@ function downloadPDF(mode) {
     ? { s: tttwin_printSheet(false, title), k: tttwin_printSheet(true, title) }
     : TYPE === 'liketermscorrals'
     ? { s: ltc_printSheet(false, title), k: ltc_printSheet(true, title) }
+    : TYPE === 'paintthetown'
+    ? { s: ptt_printSheet(false, title), k: ptt_printSheet(true, title) }
     : { s: zk_printSheet(false, title), k: zk_printSheet(true, title) };
   const typeCSS = TYPE === 'sixlegs'
     ? `.sheet{padding:18px 32px 28px;max-width:860px;margin:0 auto}`
@@ -3905,6 +3933,9 @@ const LTC_CORRAL_COLORS = [
 
 let LTC_PUZZLES = [];
 
+// Paint the Town state
+let PTT_PUZZLES = [];
+
 function ltc_nbrs(cell,N,M){
   const r=(cell/M)|0,c=cell%M,res=[];
   if(r>0)res.push(cell-M);if(r<N-1)res.push(cell+M);
@@ -4085,6 +4116,203 @@ function ltc_buildSheet(isKey, title){
 </div>`;
 }
 function ltc_printSheet(isKey, title){ return ltc_buildSheet(isKey, title); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PAINT THE TOWN
+// Rules (Beast Academy Puzzles 4): Shade some houses so every clue is satisfied.
+// Each clue fraction = (painted houses in neighborhood) / (total houses in nbhd).
+// Neighborhood = Moore (8-connected): the house itself + up to 8 surrounding.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PTT_FRAC_POOLS = [
+  // Beginner
+  [{n:0,d:1},{n:1,d:4},{n:1,d:3},{n:1,d:2},{n:2,d:3},{n:3,d:4},{n:1,d:1}],
+  // Intermediate — adds 2/5, 3/5, 4/5
+  [{n:0,d:1},{n:1,d:4},{n:1,d:3},{n:2,d:5},{n:1,d:2},{n:3,d:5},{n:2,d:3},{n:3,d:4},{n:4,d:5},{n:1,d:1}],
+  // Challenge — richer pool
+  [{n:0,d:1},{n:1,d:6},{n:1,d:5},{n:1,d:4},{n:1,d:3},{n:2,d:5},{n:1,d:2},{n:3,d:5},{n:2,d:3},{n:3,d:4},{n:4,d:5},{n:5,d:6},{n:1,d:1}],
+];
+
+const PTT_CONFIGS = [
+  {rows:3, cols:3, numClues:4},
+  {rows:4, cols:4, numClues:6},
+  {rows:4, cols:4, numClues:8},
+];
+
+function ptt_nbhd(r, c, rows, cols) {
+  const out = [];
+  for (let dr = -1; dr <= 1; dr++)
+    for (let dc = -1; dc <= 1; dc++) {
+      const nr = r+dr, nc = c+dc;
+      if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) out.push(nr*cols+nc);
+    }
+  return out;
+}
+
+function ptt_fracEq(painted, total, n, d) {
+  // painted/total == n/d
+  return painted * d === n * total;
+}
+
+function ptt_solve(rows, cols, clues) {
+  const total = rows * cols;
+  const paint = new Int8Array(total);
+  // Precompute neighborhoods and their max-index for pruning
+  const clueNbhds  = clues.map(({r,c}) => ptt_nbhd(r,c,rows,cols));
+  const clueMaxIdx = clueNbhds.map(nb => Math.max(...nb));
+  let count = 0, solution = null;
+
+  function bt(idx) {
+    if (count > 1) return;
+    if (idx === total) {
+      // Verify all clues (catches any not caught during pruning)
+      for (let i = 0; i < clues.length; i++) {
+        const {n,d} = clues[i];
+        let p = 0; for (const k of clueNbhds[i]) p += paint[k];
+        if (!ptt_fracEq(p, clueNbhds[i].length, n, d)) return;
+      }
+      count++;
+      if (!solution) solution = paint.slice();
+      return;
+    }
+    for (const v of [0, 1]) {
+      if (count > 1) return;
+      paint[idx] = v;
+      let ok = true;
+      // Prune: check clues whose full neighborhood is now assigned
+      for (let i = 0; i < clues.length; i++) {
+        if (clueMaxIdx[i] > idx) continue; // not all cells decided yet
+        const {n,d} = clues[i];
+        let p = 0; for (const k of clueNbhds[i]) p += paint[k];
+        if (!ptt_fracEq(p, clueNbhds[i].length, n, d)) { ok = false; break; }
+      }
+      if (ok) bt(idx + 1);
+    }
+    paint[idx] = 0;
+  }
+
+  bt(0);
+  return {count, solution};
+}
+
+function ptt_gen(diff) {
+  const {rows, cols, numClues} = PTT_CONFIGS[diff];
+  const fracPool = PTT_FRAC_POOLS[diff];
+  const total = rows * cols;
+
+  for (let attempt = 0; attempt < 400; attempt++) {
+    // 1) Random painting
+    const painting = new Int8Array(total);
+    for (let i = 0; i < total; i++) painting[i] = Math.random() < 0.5 ? 1 : 0;
+
+    // 2) For each cell find pool fractions that match its painted neighborhood fraction
+    const candidates = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const nbhd = ptt_nbhd(r, c, rows, cols);
+        const painted = nbhd.reduce((s,k) => s + painting[k], 0);
+        const len = nbhd.length;
+        const matching = fracPool.filter(f => ptt_fracEq(painted, len, f.n, f.d));
+        if (matching.length > 0) candidates.push({r, c, fracs: matching});
+      }
+    }
+    if (candidates.length < numClues) continue;
+
+    // 3) Try random subsets of numClues candidates
+    for (let trial = 0; trial < 25; trial++) {
+      const sh = shuffle([...candidates]);
+      const chosen = sh.slice(0, numClues);
+      const clues = chosen.map(({r,c,fracs}) => {
+        const f = fracs[ri(0, fracs.length-1)];
+        return {r, c, n:f.n, d:f.d};
+      });
+      // 4) Check unique solution
+      const {count, solution} = ptt_solve(rows, cols, clues);
+      if (count === 1) {
+        return {rows, cols, clues, solution};
+      }
+    }
+  }
+  return null;
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+// House path: pentagon with chimney (right side of roof)
+// ViewBox: 0 0 50 58   body: y=26..56   chimney: x=33..41, y=2..20
+const PTT_HOUSE_PATH = "M2,26 L25,6 L33,6 L33,2 L41,2 L41,6 L48,26 L48,56 L2,56 Z";
+
+function ptt_houseHTML(painted, clue, isKey, hsz) {
+  const hh = Math.round(hsz * 58/50);
+  const filled   = isKey && painted;
+  const fillClr  = filled ? '#2C3E7A' : '#ffffff';
+  const textClr  = filled ? '#ffffff' : '#1a1a1a';
+  const strokeClr = '#1a1a1a';
+
+  let inner = '';
+  if (clue) {
+    const {n, d} = clue;
+    if (d === 1) {
+      // Whole number (0 or 1)
+      inner = `<text x="25" y="41" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="17" font-weight="800" fill="${textClr}">${n}</text>`;
+    } else {
+      inner = `<text x="25" y="35" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="12" font-weight="800" fill="${textClr}">${n}</text>`
+            + `<line x1="13" y1="41" x2="37" y2="41" stroke="${textClr}" stroke-width="1.5"/>`
+            + `<text x="25" y="48" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="12" font-weight="800" fill="${textClr}">${d}</text>`;
+    }
+  }
+
+  return `<svg viewBox="0 0 50 58" width="${hsz}" height="${hh}" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0">`
+       + `<path d="${PTT_HOUSE_PATH}" fill="${fillClr}" stroke="${strokeClr}" stroke-width="2.5" stroke-linejoin="round"/>`
+       + inner
+       + `</svg>`;
+}
+
+function ptt_renderOne(puz, isKey, num) {
+  const {rows, cols, clues, solution} = puz;
+  const clueMap = new Map(clues.map(({r,c,n,d}) => [r*cols+c, {n,d}]));
+  // Cell size: bigger for beginner 3×3, a bit smaller for 4×4
+  const hsz = rows <= 3 ? 52 : 46;
+  const gap  = 4;
+
+  let houses = '';
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const idx = r*cols+c;
+      houses += ptt_houseHTML(solution[idx]===1, clueMap.get(idx)||null, isKey, hsz);
+    }
+  }
+
+  const gridStyle = `display:inline-grid;grid-template-columns:repeat(${cols},${hsz}px);gap:${gap}px`;
+
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 10px">`
+       + `<div style="font-size:10px;font-weight:700;color:#bbb;font-family:'Archivo',sans-serif;align-self:flex-start">${num}</div>`
+       + `<div style="${gridStyle}">${houses}</div>`
+       + `</div>`;
+}
+
+const PTT_TITLES = ['Paint the Town — Beginner', 'Paint the Town — Intermediate', 'Paint the Town — Challenge'];
+
+const PTT_DIRS = [
+  'Shade some houses so that every clue is satisfied. Each fraction shows what fraction of that house\'s <strong>neighborhood</strong> (itself + all surrounding houses, including diagonals) must be shaded.',
+  'Shade some houses so that every clue is satisfied. Each fraction shows what fraction of that house\'s <strong>neighborhood</strong> (itself + all surrounding houses, including diagonals) must be shaded.',
+  'Shade some houses so that every clue is satisfied. Each fraction shows what fraction of that house\'s <strong>neighborhood</strong> (itself + all surrounding houses, including diagonals) must be shaded.',
+];
+const PTT_DIR_KEY = 'Dark houses are shaded. Each clue fraction = (shaded in neighborhood) ÷ (total in neighborhood).';
+
+function ptt_sheetHTML(isKey, title) {
+  const badge = isKey ? `<span class="key-badge">ANSWER KEY</span>` : '';
+  const dir   = isKey ? PTT_DIR_KEY : PTT_DIRS[DIFF];
+  const cells = PTT_PUZZLES.map((p,i) => ptt_renderOne(p, isKey, i+1)).join('');
+  return `<div class="sheet narrow">`
+       + `<div class="sh-hdr"><div class="sh-title">${title}${badge}</div><div class="sh-src">Facts on Fire</div></div>`
+       + `<div class="sh-meta">Name: ____________________________&nbsp;&nbsp; Date: ____________</div>`
+       + `<div class="sh-dir">${dir}</div>`
+       + `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px">${cells}</div>`
+       + `</div>`;
+}
+function ptt_buildSheet(isKey, title) { return ptt_sheetHTML(isKey, title); }
+function ptt_printSheet(isKey, title) { return ptt_sheetHTML(isKey, title); }
+
 </script>
 </body>
 </html>
